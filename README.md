@@ -1,0 +1,2 @@
+# emberCore
+Ember Project.
