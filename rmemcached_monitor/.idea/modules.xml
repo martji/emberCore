@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../rmemcached_client/rmemcached_client.iml" filepath="$PROJECT_DIR$/../rmemcached_client/rmemcached_client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rmemcached_monitor.iml" filepath="$PROJECT_DIR$/rmemcached_monitor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../rmemcached_server/rmemcached_server.iml" filepath="$PROJECT_DIR$/../rmemcached_server/rmemcached_server.iml" />
+    </modules>
+  </component>
+</project>

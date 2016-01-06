@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<servers>
+	<server>
+		<id>0000</id>
+		<host>192.168.3.109</host>
+		<port>30003</port>
+		<memcached>20003</memcached>
+	</server>
+	<server>
+		<id>0001</id>
+		<host>192.168.3.109</host>
+		<port>30004</port>
+		<memcached>20004</memcached>
+	</server>
+</servers>

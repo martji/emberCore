@@ -1,0 +1,102 @@
+[INFO ] 2015-08-05 13:54:23,135 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-05 13:55:08,748 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-05 13:55:12,919 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-05 13:55:17,150 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-05 14:01:14,392 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-05 14:01:17,963 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-05 14:01:21,265 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-05 14:01:24,895 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-05 14:03:51,338 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-05 14:03:54,556 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-05 14:03:58,045 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-05 14:04:01,451 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-05 14:06:16,687 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-05 14:06:23,887 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-05 14:06:27,631 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-05 14:06:31,777 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-05 14:07:02,640 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-05 14:07:06,493 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-05 14:07:10,074 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-05 14:07:13,638 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-05 15:28:35,249 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-05 15:28:39,658 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-05 15:28:42,786 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-05 15:28:46,085 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-05 15:31:13,812 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-05 15:31:19,069 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-05 15:31:21,787 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-05 15:31:24,877 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-05 15:34:24,300 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-05 15:34:27,990 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-05 15:34:31,922 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-05 15:34:35,189 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-05 15:35:29,977 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:350)
+[PId: 0] new hotspots: 328 [create] {1=328}
+[INFO ] 2015-08-05 15:35:49,948 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-05 15:35:53,522 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-05 15:35:56,790 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-05 15:36:00,201 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-05 15:38:21,805 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:350)
+[PId: 0] new hotspots: 39 [create] {1=39}
+[INFO ] 2015-08-05 15:38:37,192 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:350)
+[PId: 0] new hotspots: 104 [create] {2=32, 1=79}
+[INFO ] 2015-08-05 15:38:52,248 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:350)
+[PId: 0] new hotspots: 68 [create] {2=25, 1=80, 3=27}
+[INFO ] 2015-08-05 15:39:07,299 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:350)
+[PId: 0] new hotspots: 38 [create] {2=22, 1=91, 3=38}
+[INFO ] 2015-08-05 15:39:07,303 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:375)
+[PId: 0] new coldspots: 5 [retire] {2=22, 1=86, 3=38}
+[INFO ] 2015-08-05 15:39:22,340 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:350)
+[PId: 0] new hotspots: 29 [create] {2=26, 1=92, 3=43}
+[INFO ] 2015-08-05 15:39:37,359 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:350)
+[PId: 0] new hotspots: 19 [create] {2=27, 1=97, 3=47}
+[INFO ] 2015-08-05 15:39:37,362 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:375)
+[PId: 0] new coldspots: 5 [retire] {2=27, 1=92, 3=47}
+[INFO ] 2015-08-05 15:39:52,388 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:350)
+[PId: 0] new hotspots: 11 [create] {2=25, 1=95, 3=51}
+[INFO ] 2015-08-05 15:39:52,390 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:375)
+[PId: 0] new coldspots: 1 [retire] {2=25, 1=94, 3=51}
+[INFO ] 2015-08-05 15:40:07,393 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:375)
+[PId: 0] new coldspots: 129 [retire] {2=36, 1=36, 3=20}
+[INFO ] 2015-08-05 15:40:22,399 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:375)
+[PId: 0] new coldspots: 92 [retire] {2=20, 1=36, 3=0}
+[INFO ] 2015-08-05 15:40:37,405 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:375)
+[PId: 0] new coldspots: 56 [retire] {2=0, 1=20, 3=0}
+[INFO ] 2015-08-05 15:40:52,408 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:375)
+[PId: 0] new coldspots: 20 [retire] {2=0, 1=0, 3=0}

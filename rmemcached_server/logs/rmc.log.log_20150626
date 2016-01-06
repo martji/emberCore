@@ -1,0 +1,34 @@
+[INFO ] 2015-06-26 16:48:05,483 method:com.sdp.example.MServerMain.start(MServerMain.java:54)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-06-26 16:48:13,232 method:com.sdp.example.MServerMain.start(MServerMain.java:54)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-06-26 16:49:20,599 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:49:35,643 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:49:50,644 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:50:05,647 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:50:20,650 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:50:35,652 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:50:50,654 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:51:05,656 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:51:20,658 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:51:35,659 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:51:50,662 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:52:05,663 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:52:20,665 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:52:35,666 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:241)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-06-26 16:52:50,668 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:275)
+0 new coldspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]

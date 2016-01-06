@@ -1,0 +1,7 @@
+[INFO ] 2015-01-30 22:31:42,368 method:com.sdp.server.MServerMain.main(MServerMain.java:20)
+test log4j
+[ERROR] 2015-01-30 22:31:51,268 method:com.sdp.server.MServerHandler.<init>(MServerHandler.java:53)
+wrong serverlist format: 123
+java.lang.ArrayIndexOutOfBoundsException: 1
+	at com.sdp.server.MServerHandler.<init>(MServerHandler.java:50)
+	at com.sdp.server.MServerHandler.main(MServerHandler.java:41)

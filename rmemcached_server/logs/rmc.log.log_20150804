@@ -1,0 +1,388 @@
+[INFO ] 2015-08-04 20:08:58,916 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[ERROR] 2015-08-04 20:08:59,396 method:com.sdp.replicas.ReplicasMgr.getReplicasMode(ReplicasMgr.java:138)
+wrong config.properties
+java.lang.NullPointerException
+	at java.lang.Integer.decode(Unknown Source)
+	at com.sdp.replicas.ReplicasMgr.getReplicasMode(ReplicasMgr.java:136)
+	at com.sdp.replicas.ReplicasMgr.initHotspotIdentifier(ReplicasMgr.java:99)
+	at com.sdp.example.MServerMain.start(MServerMain.java:65)
+	at com.sdp.example.MServerMain.main(MServerMain.java:45)
+[INFO ] 2015-08-04 20:12:34,760 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-04 20:12:53,396 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-04 20:17:20,536 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:333)
+0 new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-08-04 20:17:35,568 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:333)
+0 new hotspot: []
+[INFO ] 2015-08-04 20:17:50,578 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:333)
+0 new hotspot: []
+[INFO ] 2015-08-04 20:18:05,668 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:333)
+0 new hotspot: []
+[INFO ] 2015-08-04 20:18:20,697 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:333)
+0 new hotspot: []
+[INFO ] 2015-08-04 20:18:35,700 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:333)
+0 new hotspot: []
+[INFO ] 2015-08-04 20:18:50,712 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:333)
+0 new hotspot: []
+[INFO ] 2015-08-04 20:19:05,714 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:333)
+0 new hotspot: []
+[INFO ] 2015-08-04 20:19:20,715 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:344)
+0 new coldspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-08-04 20:50:08,328 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-04 20:50:15,230 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-04 20:56:48,267 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-04 20:56:59,306 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-04 20:57:05,060 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-04 20:57:11,023 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-04 20:58:33,832 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-08-04 20:58:33,838 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info] {1=10}
+[INFO ] 2015-08-04 20:58:48,867 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-08-04 20:58:48,868 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info] {2=10, 1=0}
+[INFO ] 2015-08-04 20:59:03,877 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-08-04 20:59:03,878 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 20:59:18,885 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot: []
+[INFO ] 2015-08-04 20:59:18,886 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 20:59:33,903 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot: []
+[INFO ] 2015-08-04 20:59:33,904 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 20:59:48,963 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot: []
+[INFO ] 2015-08-04 20:59:48,963 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:00:03,967 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot: []
+[INFO ] 2015-08-04 21:00:03,968 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:00:18,969 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-08-04 21:00:33,975 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-08-04 21:00:48,977 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot: [usertable:user4, usertable:user5, usertable:user2, usertable:user3, usertable:user8, usertable:user9, usertable:user6, usertable:user7, usertable:user1, usertable:user0]
+[INFO ] 2015-08-04 21:09:08,921 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-04 21:09:23,042 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-04 21:09:28,640 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-04 21:09:34,202 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-04 21:10:54,572 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 10
+[INFO ] 2015-08-04 21:10:54,577 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {1=10}
+[INFO ] 2015-08-04 21:11:09,610 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 10
+[INFO ] 2015-08-04 21:11:09,610 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=10, 1=0}
+[INFO ] 2015-08-04 21:11:24,641 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 10
+[INFO ] 2015-08-04 21:11:24,642 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:11:39,646 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:11:39,646 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:11:54,653 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:11:54,654 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:12:09,657 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:12:09,657 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:12:24,667 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:12:24,667 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:12:39,670 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:12:39,674 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:12:54,675 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 10
+[INFO ] 2015-08-04 21:12:54,676 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:374)
+[Hotspots info - retire] {2=0, 1=0, 3=0}
+[INFO ] 2015-08-04 21:13:09,678 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 10
+[INFO ] 2015-08-04 21:13:09,678 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:374)
+[Hotspots info - retire] {2=-10, 1=0, 3=0}
+[INFO ] 2015-08-04 21:13:24,679 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 10
+[INFO ] 2015-08-04 21:13:24,679 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:374)
+[Hotspots info - retire] {2=-10, 1=-10, 3=0}
+[INFO ] 2015-08-04 21:16:10,032 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-04 21:16:19,496 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-04 21:16:34,175 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-04 21:16:40,480 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-04 21:17:10,665 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 10
+[INFO ] 2015-08-04 21:17:10,668 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {1=10}
+[INFO ] 2015-08-04 21:17:25,697 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 10
+[INFO ] 2015-08-04 21:17:25,698 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=10, 1=0}
+[INFO ] 2015-08-04 21:17:40,711 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 10
+[INFO ] 2015-08-04 21:17:40,712 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:17:55,726 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:17:55,726 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:18:10,733 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:18:10,734 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:18:25,741 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:18:25,742 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:18:40,744 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:18:40,745 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=0, 1=0, 3=10}
+[INFO ] 2015-08-04 21:18:55,745 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 10
+[INFO ] 2015-08-04 21:18:55,748 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=10, 1=0, 3=0}
+[INFO ] 2015-08-04 21:19:10,750 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 10
+[INFO ] 2015-08-04 21:19:10,750 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=0, 1=10, 3=0}
+[INFO ] 2015-08-04 21:19:25,751 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 10
+[INFO ] 2015-08-04 21:19:25,751 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=0, 1=0, 3=0}
+[INFO ] 2015-08-04 21:23:19,617 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-04 21:23:25,227 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-04 21:23:28,837 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-04 21:23:33,166 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-04 21:25:05,852 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 25
+[INFO ] 2015-08-04 21:25:05,860 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {1=25}
+[INFO ] 2015-08-04 21:25:21,065 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 93
+[INFO ] 2015-08-04 21:25:21,066 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=24, 1=70}
+[INFO ] 2015-08-04 21:25:36,120 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 51
+[INFO ] 2015-08-04 21:25:36,121 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=19, 1=62, 3=23}
+[INFO ] 2015-08-04 21:25:36,124 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 1
+[INFO ] 2015-08-04 21:25:36,124 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=19, 1=61, 3=23}
+[INFO ] 2015-08-04 21:25:51,145 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 53
+[INFO ] 2015-08-04 21:25:51,146 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=29, 1=73, 3=30}
+[INFO ] 2015-08-04 21:26:06,157 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 26
+[INFO ] 2015-08-04 21:26:06,157 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=19, 1=83, 3=42}
+[INFO ] 2015-08-04 21:26:06,160 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 2
+[INFO ] 2015-08-04 21:26:06,160 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=19, 1=81, 3=42}
+[INFO ] 2015-08-04 21:26:21,171 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 13
+[INFO ] 2015-08-04 21:26:21,175 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=21, 1=84, 3=44}
+[INFO ] 2015-08-04 21:26:21,176 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 1
+[INFO ] 2015-08-04 21:26:21,176 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=21, 1=83, 3=44}
+[INFO ] 2015-08-04 21:26:36,188 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 14
+[INFO ] 2015-08-04 21:26:36,189 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=23, 1=90, 3=45}
+[INFO ] 2015-08-04 21:26:36,190 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 3
+[INFO ] 2015-08-04 21:26:36,190 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=22, 1=89, 3=45}
+[INFO ] 2015-08-04 21:26:51,194 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:26:51,194 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[Hotspots info - create] {2=22, 1=89, 3=45}
+[INFO ] 2015-08-04 21:26:51,195 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 50
+[INFO ] 2015-08-04 21:26:51,196 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=16, 1=60, 3=42}
+[INFO ] 2015-08-04 21:27:06,198 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 118
+[INFO ] 2015-08-04 21:27:06,200 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=42, 1=16, 3=0}
+[INFO ] 2015-08-04 21:27:21,205 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 58
+[INFO ] 2015-08-04 21:27:21,206 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=0, 1=42, 3=0}
+[INFO ] 2015-08-04 21:27:36,208 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 42
+[INFO ] 2015-08-04 21:27:36,208 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[Hotspots info - retire] {2=0, 1=0, 3=0}
+[INFO ] 2015-08-04 21:31:19,244 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-04 21:31:23,716 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-04 21:31:28,149 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-04 21:31:31,668 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-04 21:33:20,308 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 48
+[INFO ] 2015-08-04 21:33:20,314 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[create] {1=48}
+[INFO ] 2015-08-04 21:33:35,574 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 83
+[INFO ] 2015-08-04 21:33:35,575 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[create] {2=35, 1=61}
+[INFO ] 2015-08-04 21:33:50,684 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 79
+[INFO ] 2015-08-04 21:33:50,685 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[create] {2=28, 1=67, 3=29}
+[INFO ] 2015-08-04 21:34:05,700 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 24
+[INFO ] 2015-08-04 21:34:05,701 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[create] {2=28, 1=70, 3=36}
+[INFO ] 2015-08-04 21:34:05,704 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 1
+[INFO ] 2015-08-04 21:34:05,704 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[retire] {2=28, 1=69, 3=36}
+[INFO ] 2015-08-04 21:34:20,716 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 23
+[INFO ] 2015-08-04 21:34:20,716 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[create] {2=27, 1=79, 3=41}
+[INFO ] 2015-08-04 21:34:20,718 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 2
+[INFO ] 2015-08-04 21:34:20,718 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[retire] {2=27, 1=77, 3=41}
+[INFO ] 2015-08-04 21:34:35,728 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 20
+[INFO ] 2015-08-04 21:34:35,731 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[create] {2=29, 1=81, 3=45}
+[INFO ] 2015-08-04 21:34:35,733 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 1
+[INFO ] 2015-08-04 21:34:35,733 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[retire] {2=29, 1=80, 3=45}
+[INFO ] 2015-08-04 21:34:50,745 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 15
+[INFO ] 2015-08-04 21:34:50,746 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[create] {2=26, 1=89, 3=49}
+[INFO ] 2015-08-04 21:34:50,747 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 2
+[INFO ] 2015-08-04 21:34:50,747 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[retire] {2=26, 1=87, 3=49}
+[INFO ] 2015-08-04 21:35:05,750 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0
+[INFO ] 2015-08-04 21:35:05,751 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:352)
+[create] {2=26, 1=87, 3=49}
+[INFO ] 2015-08-04 21:35:05,751 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 119
+[INFO ] 2015-08-04 21:35:05,752 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[retire] {2=38, 1=37, 3=18}
+[INFO ] 2015-08-04 21:35:20,754 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 93
+[INFO ] 2015-08-04 21:35:20,754 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[retire] {2=18, 1=38, 3=0}
+[INFO ] 2015-08-04 21:35:35,755 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 56
+[INFO ] 2015-08-04 21:35:35,755 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[retire] {2=0, 1=18, 3=0}
+[INFO ] 2015-08-04 21:35:50,759 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:363)
+[Process Id: 0] new coldspot count: 18
+[INFO ] 2015-08-04 21:35:50,759 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:377)
+[retire] {2=0, 1=0, 3=0}
+[INFO ] 2015-08-04 21:38:25,795 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-04 21:38:32,229 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-04 21:38:35,997 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-04 21:38:39,838 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-04 21:39:26,534 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 97 [create] {1=97}
+[INFO ] 2015-08-04 21:39:41,637 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 71 [create] {2=58, 1=52}
+[INFO ] 2015-08-04 21:39:56,674 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 90 [create] {2=31, 1=52, 3=48}
+[INFO ] 2015-08-04 21:40:11,692 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 19 [create] {2=26, 1=60, 3=55}
+[INFO ] 2015-08-04 21:40:11,695 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[Process Id: 0] new coldspot count: 2 [retire] {2=25, 1=60, 3=55}
+[INFO ] 2015-08-04 21:40:26,707 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 24 [create] {2=29, 1=61, 3=60}
+[INFO ] 2015-08-04 21:40:41,720 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 19 [create] {2=31, 1=64, 3=64}
+[INFO ] 2015-08-04 21:40:56,726 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[Process Id: 0] new hotspot count: 0 [create] {2=31, 1=64, 3=64}
+[INFO ] 2015-08-04 21:40:56,730 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[Process Id: 0] new coldspot count: 6 [retire] {2=32, 1=59, 3=63}
+[INFO ] 2015-08-04 21:41:11,731 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[Process Id: 0] new coldspot count: 154 [retire] {2=63, 1=32, 3=0}
+[INFO ] 2015-08-04 21:41:26,733 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[Process Id: 0] new coldspot count: 95 [retire] {2=0, 1=63, 3=0}
+[INFO ] 2015-08-04 21:41:41,736 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[Process Id: 0] new coldspot count: 63 [retire] {2=0, 1=0, 3=0}
+[INFO ] 2015-08-04 21:43:03,412 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-08-04 21:43:07,018 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+1 new r-memcached instance start, instance id: 1
+[INFO ] 2015-08-04 21:43:10,401 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+2 new r-memcached instance start, instance id: 2
+[INFO ] 2015-08-04 21:43:13,952 method:com.sdp.example.MServerMain.start(MServerMain.java:56)
+3 new r-memcached instance start, instance id: 3
+[INFO ] 2015-08-04 21:43:49,749 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[PId: 0] new hotspots: 43 [create] {1=43}
+[INFO ] 2015-08-04 21:44:04,832 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[PId: 0] new hotspots: 93 [create] {2=36, 1=64}
+[INFO ] 2015-08-04 21:44:19,885 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[PId: 0] new hotspots: 68 [create] {2=22, 1=73, 3=29}
+[INFO ] 2015-08-04 21:44:34,942 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[PId: 0] new hotspots: 32 [create] {2=22, 1=78, 3=38}
+[INFO ] 2015-08-04 21:44:34,945 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[PId: 0] new coldspots: 2 [retire] {2=22, 1=76, 3=38}
+[INFO ] 2015-08-04 21:44:49,965 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[PId: 0] new hotspots: 21 [create] {2=24, 1=81, 3=42}
+[INFO ] 2015-08-04 21:45:04,996 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[PId: 0] new hotspots: 19 [create] {2=29, 1=81, 3=45}
+[INFO ] 2015-08-04 21:45:04,998 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[PId: 0] new coldspots: 2 [retire] {2=29, 1=79, 3=45}
+[INFO ] 2015-08-04 21:45:20,008 method:com.sdp.replicas.ReplicasMgr.dealHotData(ReplicasMgr.java:351)
+[PId: 0] new hotspots: 10 [create] {2=29, 1=80, 3=48}
+[INFO ] 2015-08-04 21:45:20,009 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[PId: 0] new coldspots: 4 [retire] {2=28, 1=78, 3=48}
+[INFO ] 2015-08-04 21:45:35,010 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[PId: 0] new coldspots: 154 [retire] {2=48, 1=28, 3=0}
+[INFO ] 2015-08-04 21:45:50,014 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[PId: 0] new coldspots: 76 [retire] {2=0, 1=48, 3=0}
+[INFO ] 2015-08-04 21:46:05,017 method:com.sdp.replicas.ReplicasMgr.dealColdData(ReplicasMgr.java:376)
+[PId: 0] new coldspots: 48 [retire] {2=0, 1=0, 3=0}

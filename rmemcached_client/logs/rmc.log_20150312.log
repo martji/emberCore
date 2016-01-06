@@ -1,0 +1,24 @@
+[INFO ] 2015-03-12 15:51:36,611 method:com.sdp.example.MClientMain.start(MClientMain.java:44)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 15:54:23,514 method:com.sdp.example.MClientMain.start(MClientMain.java:45)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 16:06:54,723 method:com.sdp.example.MClientMain.start(MClientMain.java:45)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 16:10:29,576 method:com.sdp.example.MClientMain.test(MClientMain.java:45)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 16:26:43,171 method:com.sdp.example.MClientMain.muiltTest(MClientMain.java:67)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 16:27:49,025 method:com.sdp.example.MClientMain.muiltTest(MClientMain.java:67)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 16:31:52,243 method:com.sdp.example.MClientMain.muiltTest(MClientMain.java:67)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 16:33:32,548 method:com.sdp.example.MClientMain.muiltTest(MClientMain.java:67)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 16:42:53,126 method:com.sdp.example.MClientMain.muiltTest(MClientMain.java:67)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 16:45:16,100 method:com.sdp.example.MClientMain.muiltTest(MClientMain.java:67)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 16:48:58,724 method:com.sdp.example.MClientMain.muiltTest(MClientMain.java:67)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
+[INFO ] 2015-03-12 16:57:29,568 method:com.sdp.example.MClientMain.muiltTest(MClientMain.java:67)
+logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
