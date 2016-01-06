@@ -1,0 +1,16 @@
+[INFO ] 2015-06-22 17:04:35,292 method:com.sdp.example.MServerMain.start(MServerMain.java:47)
+new r-memcached instance start
+[INFO ] 2015-06-22 17:04:57,479 method:com.sdp.example.MServerMain.start(MServerMain.java:54)
+new r-memcached instance id: 0
+[INFO ] 2015-06-22 17:08:57,909 method:com.sdp.example.MServerMain.start(MServerMain.java:47)
+new r-memcached instance start
+[INFO ] 2015-06-22 17:09:00,284 method:com.sdp.example.MServerMain.start(MServerMain.java:54)
+new r-memcached instance id: 0
+[INFO ] 2015-06-22 17:09:30,044 method:com.sdp.example.MServerMain.start(MServerMain.java:47)
+new r-memcached instance start
+[INFO ] 2015-06-22 17:09:32,166 method:com.sdp.example.MServerMain.start(MServerMain.java:54)
+new r-memcached instance id: 1
+[INFO ] 2015-06-22 17:16:28,959 method:com.sdp.example.MServerMain.start(MServerMain.java:54)
+0 new r-memcached instance start, instance id: 0
+[INFO ] 2015-06-22 17:16:43,152 method:com.sdp.example.MServerMain.start(MServerMain.java:54)
+1 new r-memcached instance start, instance id: 1
