@@ -212,7 +212,11 @@ public class ReplicasMgr {
 		} catch (Exception e) {}
 		return false;
 	}
-	
+
+	/**
+	 *
+	 * @param e
+     */
 	public void handle(MessageEvent e) {
 		NetMsg msg = (NetMsg) e.getMessage();
 		switch (msg.getMsgID()) {
@@ -289,7 +293,7 @@ public class ReplicasMgr {
 	}
 	
 	/**
-	 * @param channel 
+	 * @param channel
 	 * @param key
 	 * collect the register info
 	 */
