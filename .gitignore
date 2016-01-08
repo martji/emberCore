@@ -11,9 +11,8 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-# other file
 *.log
-/rmemcached_server/.idea
+/rmemcached_server/.idea/*
 /rmemcached_server/logs/*
-/rmemcached_monitor/.idea
-/rmemcached_client/.idea
+/rmemcached_monitor/.idea/*
+/rmemcached_client/.idea/*
