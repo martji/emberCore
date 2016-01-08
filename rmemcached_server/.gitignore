@@ -12,7 +12,5 @@
 hs_err_pid*
 
 # other file
-*.log*
-/rmemcached_server/.idea
-/rmemcached_monitor/.idea
-/rmemcached_client/.idea
+logs
+.idea
