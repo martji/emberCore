@@ -24,6 +24,10 @@ public class BloomDetectorImp implements BaseBloomDetector {
         return new int[0];
     }
 
+    public void registerItem(String key) {
+
+    }
+
     public void resetBloomCounters() {
 
     }

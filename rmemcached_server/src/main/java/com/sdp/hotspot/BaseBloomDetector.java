@@ -19,6 +19,11 @@ public interface BaseBloomDetector {
     public int[] getHashIndex(String key);
 
     /**
+     * @param key
+     */
+    public void registerItem(String key);
+
+    /**
      * 周期性重置计数器
      */
     public void resetBloomCounters();
