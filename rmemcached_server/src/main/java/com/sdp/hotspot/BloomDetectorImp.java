@@ -12,6 +12,10 @@ public class BloomDetectorImp implements BaseBloomDetector {
     private static BloomDetectorImp ourInstance = null;
     private CallBack callBack;
 
+    private Vector<BloomCounter> bloomCounterMap = new Vector<BloomCounter>();
+
+    private static int HOTSPOT_THRESHOLD = 100;
+
     public static BloomDetectorImp getInstance() {
         if (ourInstance == null) {
             ourInstance = new BloomDetectorImp();
@@ -38,7 +42,12 @@ public class BloomDetectorImp implements BaseBloomDetector {
     }
 
     public void registerItem(String key) {
-
+        int[] indexs = getHashIndex(key);
+        for (int index : indexs) {
+            if (bloomCounterMap.get(index).visit() > HOTSPOT_THRESHOLD) {
+                //TODO
+            }
+        }
     }
 
     public void resetBloomCounters() {
