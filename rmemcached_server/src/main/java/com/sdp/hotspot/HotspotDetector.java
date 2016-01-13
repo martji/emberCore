@@ -1,18 +1,27 @@
 package com.sdp.hotspot;
 
+import com.sdp.replicas.CallBack;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by magq on 16/1/12.
  */
-public class HotspotDetector implements Runnable {
+public class HotspotDetector implements Runnable, CallBack {
 
     private static int SLICE_TIME = 1*1000;
+    private CallBack callBack;
 
     private ConcurrentLinkedQueue<String> hotspots = new ConcurrentLinkedQueue<String>();
 
     public HotspotDetector() {
         initConfig();
+        BloomDetectorImp.getInstance(this);
+    }
+
+    public HotspotDetector(CallBack callBack) {
+        this();
+        this.callBack = callBack;
     }
 
     /**
@@ -24,6 +33,7 @@ public class HotspotDetector implements Runnable {
 
             // update hotspots
             BloomDetectorImp.getInstance().getHotSpots();
+            callBack.dealHotData();
 
             // reset counters
             BloomDetectorImp.getInstance().resetBloomCounters();
@@ -50,5 +60,13 @@ public class HotspotDetector implements Runnable {
      */
     private void initConfig() {
 
+    }
+
+    public void dealHotData() {
+        callBack.dealHotData();
+    }
+
+    public void dealColdData() {
+        callBack.dealColdData();
     }
 }

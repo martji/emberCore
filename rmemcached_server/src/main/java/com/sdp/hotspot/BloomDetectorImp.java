@@ -1,5 +1,7 @@
 package com.sdp.hotspot;
 
+import com.sdp.replicas.CallBack;
+
 import java.util.Vector;
 
 /**
@@ -8,6 +10,7 @@ import java.util.Vector;
 public class BloomDetectorImp implements BaseBloomDetector {
 
     private static BloomDetectorImp ourInstance = null;
+    private CallBack callBack;
 
     public static BloomDetectorImp getInstance() {
         if (ourInstance == null) {
@@ -16,6 +19,16 @@ public class BloomDetectorImp implements BaseBloomDetector {
         }
         return ourInstance;
     }
+
+    public static BloomDetectorImp getInstance(CallBack callBack) {
+        if (ourInstance == null) {
+            ourInstance = new BloomDetectorImp();
+            ourInstance.initConfig();
+            ourInstance.callBack = callBack;
+        }
+        return ourInstance;
+    }
+
     public void initConfig() {
 
     }

@@ -48,7 +48,7 @@ import com.sdp.server.ServerNode;
  *
  */
 
-public class ReplicasMgr {
+public class ReplicasMgr implements CallBack{
 	final int TWOPHASECOMMIT = 1;
 	final int PAXOS = 2;
 	final int WEAK = 0;
