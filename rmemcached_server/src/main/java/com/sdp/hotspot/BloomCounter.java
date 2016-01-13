@@ -19,4 +19,12 @@ public class BloomCounter{
     public int visit() {
         return ++primaryCounter;
     }
+
+    public int getVisitCounter() {
+        return primaryCounter;
+    }
+
+    public void resetVisitCounter(int minCounter) {
+        primaryCounter -= minCounter;
+    }
 }

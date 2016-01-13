@@ -21,7 +21,7 @@ public interface BaseBloomDetector {
     /**
      * @param key
      */
-    public void registerItem(String key);
+    public boolean registerItem(String key);
 
     /**
      * 周期性重置计数器

@@ -2,6 +2,7 @@ package com.sdp.hotspot;
 
 import com.sdp.replicas.CallBack;
 
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -13,10 +14,10 @@ public class HotspotDetector implements Runnable, CallBack {
     private CallBack callBack;
 
     private ConcurrentLinkedQueue<String> hotspots = new ConcurrentLinkedQueue<String>();
+    private HashSet<String> currentHotspotSet = new HashSet<String>();
 
     public HotspotDetector() {
         initConfig();
-        BloomDetectorImp.getInstance(this);
     }
 
     public HotspotDetector(CallBack callBack) {
@@ -32,11 +33,11 @@ public class HotspotDetector implements Runnable, CallBack {
             Thread.sleep(SLICE_TIME);
 
             // update hotspots
-            BloomDetectorImp.getInstance().getHotSpots();
+            MultiBloomDetectorImp.getInstance().getHotSpots();
             callBack.dealHotData();
 
             // reset counters
-            BloomDetectorImp.getInstance().resetBloomCounters();
+            MultiBloomDetectorImp.getInstance().resetBloomCounters();
         } catch (Exception e) {
             // How can it be?
         }
@@ -47,11 +48,19 @@ public class HotspotDetector implements Runnable, CallBack {
      * @param key
      */
     public void handleRegister(String key) {
+        if (currentHotspotSet.contains(key)) {
+            return;
+        }
         boolean isFrequentItem = false;
         isFrequentItem = FrequentDetectorImp.getInstance().registerItem(key);
 
         if (isFrequentItem) {
-            BloomDetectorImp.getInstance().registerItem(key);
+            if (MultiBloomDetectorImp.getInstance().registerItem(key)) {
+                currentHotspotSet.add(key);
+                MultiBloomDetectorImp.getInstance().resetBloomCounter(key);
+                // TODO
+                callBack.dealHotData();
+            }
         }
     }
 
@@ -68,5 +77,9 @@ public class HotspotDetector implements Runnable, CallBack {
 
     public void dealColdData() {
         callBack.dealColdData();
+    }
+
+    public void removeHotspot(String key) {
+        currentHotspotSet.remove(key);
     }
 }
