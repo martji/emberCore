@@ -1,5 +1,7 @@
 package com.sdp.hotspot;
 
+import com.sdp.config.GlobalConfigMgr;
+
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,6 +15,7 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
     private ConcurrentHashMap<String, int[]> hashIndexMap = new ConcurrentHashMap<String, int[]>();
 
     private static int BLOOM_FILTER_NUMBER = 1;
+    private static int BLOOM_FILTER_LENGTH = 10;
     private static int HOTSPOT_THRESHOLD = 100;
 
     public static MultiBloomDetectorImp getInstance() {
@@ -20,12 +23,15 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
             ourInstance = new MultiBloomDetectorImp();
             ourInstance.initConfig();
             ourInstance.bloomCounterVector = new Vector[BLOOM_FILTER_NUMBER];
+            HashFunction.setHashFunctionNumber(BLOOM_FILTER_NUMBER);
         }
         return ourInstance;
     }
 
     public void initConfig() {
-
+        BLOOM_FILTER_NUMBER = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.MULTI_BLOOM_FILTER_NUMBER);
+        BLOOM_FILTER_LENGTH = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.BLOOM_FILTER_LENGTH);
+        HOTSPOT_THRESHOLD = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.HOTSPOT_THRESHOLD);
     }
 
     public int[] getHashIndex(String key) {
@@ -33,7 +39,7 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
         if (hashIndexMap.containsKey(key)) {
             hashIndexs = hashIndexMap.get(key);
         } else {
-            hashIndexs= HashFunction.getHashIndex(key);
+            hashIndexs= HashFunction.getInstance().getHashIndex(key);
             hashIndexMap.put(key, hashIndexs);
         }
         return hashIndexs;

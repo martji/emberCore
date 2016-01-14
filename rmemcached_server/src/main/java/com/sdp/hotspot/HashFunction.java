@@ -1,22 +1,56 @@
 package com.sdp.hotspot;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by magq on 16/1/13.
  * address: http://www.partow.net/programming/hashfunctions/index.html#top
  */
 
 public class HashFunction {
-    private static HashFunction ourInstance = new HashFunction();
+    private static HashFunction ourInstance = null;
+    private static int HASH_FUNCTION_NUMBER = 4;
+    private List<String> methodList = new ArrayList<String>();
+
+    public static void setHashFunctionNumber(int bloomFilterNumber) {
+        HASH_FUNCTION_NUMBER = bloomFilterNumber;
+    }
 
     public static HashFunction getInstance() {
+        if (ourInstance == null) {
+            ourInstance = new HashFunction();
+        }
         return ourInstance;
     }
 
     private HashFunction() {
+        methodList.add("RSHash");
+        methodList.add("JSHash");
+        methodList.add("BKDRHash");
+        methodList.add("SDBMHash");
+        methodList.add("DJBHash");
+        methodList.add("DEKHash");
     }
 
-    public static int[] getHashIndex(String key) {
-        return null;
+    public int[] getHashIndex(String key) {
+        int[] result = null;
+        if (ourInstance.methodList.size() < HASH_FUNCTION_NUMBER) {
+            return result;
+        }
+        Method method;
+        result = new int[HASH_FUNCTION_NUMBER];
+        try {
+            for (int i = 0; i < HASH_FUNCTION_NUMBER; i++) {
+                method = ourInstance.getClass().getMethod(ourInstance.methodList.get(i), String.class);
+                long tmp = (Long) method.invoke(ourInstance, key);
+                result[i] = (int) tmp;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public long RSHash(String str) {
