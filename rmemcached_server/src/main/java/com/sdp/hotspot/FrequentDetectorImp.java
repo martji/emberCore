@@ -31,6 +31,9 @@ public class FrequentDetectorImp implements BaseFrequentDetector{
         frequentItemsNumber = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.FREQUENT_ITEM_NUMBER);
     }
 
+    /**
+     * Frequent algorithm
+     */
     public boolean registerItem(String key) {
         if(itemCounters.containsKey(key)) {
             itemCounters.replace(key, itemCounters.get(key) + 1);
