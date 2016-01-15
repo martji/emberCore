@@ -35,8 +35,10 @@ public class FrequentDetectorImp implements BaseFrequentDetector{
      * Frequent algorithm
      */
     public boolean registerItem(String key) {
+        boolean result = false;
         if(itemCounters.containsKey(key)) {
             itemCounters.replace(key, itemCounters.get(key) + 1);
+            result = true;
         } else if(itemCounters.size() < frequentItemsNumber) {
             itemCounters.put(key, 1);
         } else if(itemCounters.containsValue(0)) {
@@ -58,11 +60,6 @@ public class FrequentDetectorImp implements BaseFrequentDetector{
                 itemCounters.replace(str, itemCounters.get(str) - 1);
             }
         }
-        if (itemCounters.containsKey(key)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return result;
     }
 }
