@@ -33,7 +33,6 @@ public class HotspotDetector implements Runnable, CallBack {
             Thread.sleep(SLICE_TIME);
 
             // update hotspots
-            MultiBloomDetectorImp.getInstance().getHotSpots();
             callBack.dealHotData();
 
             // reset counters

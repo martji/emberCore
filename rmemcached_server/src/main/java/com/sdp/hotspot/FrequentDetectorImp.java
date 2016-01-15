@@ -1,5 +1,7 @@
 package com.sdp.hotspot;
 
+import com.sdp.config.GlobalConfigMgr;
+
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,11 +24,11 @@ public class FrequentDetectorImp implements BaseFrequentDetector{
     }
 
     private FrequentDetectorImp() {
-
+        initConfig();
     }
 
     public void initConfig() {
-
+        frequentItemsNumber = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.FREQUENT_ITEM_NUMBER);
     }
 
     public boolean registerItem(String key) {
