@@ -23,6 +23,11 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
             ourInstance = new MultiBloomDetectorImp();
             ourInstance.initConfig();
             ourInstance.bloomCounterVector = new Vector[BLOOM_FILTER_NUMBER];
+            for (int i = 0; i < BLOOM_FILTER_NUMBER; i++) {
+                for (int j = 0; j < BLOOM_FILTER_LENGTH; j++) {
+                    ourInstance.bloomCounterVector[i].add(new BloomCounter());
+                }
+            }
             HashFunction.setHashFunctionNumber(BLOOM_FILTER_NUMBER);
         }
         return ourInstance;
