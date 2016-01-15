@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by magq on 16/1/12.
  */
-public class FrequentDetectorImp implements BaseFrequentDetector{
+public class FrequentDetectorImp implements BaseFrequentDetector, Runnable{
 
     private int frequentItemsNumber = 1;
     private ConcurrentHashMap<String, Integer> itemCounters = new ConcurrentHashMap<String, Integer>();
@@ -61,5 +61,15 @@ public class FrequentDetectorImp implements BaseFrequentDetector{
             }
         }
         return result;
+    }
+
+    public void run() {
+        int log_sleep_time = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.SLICE_TIME);
+        try {
+            Thread.sleep(log_sleep_time);
+            System.out.println("[Current frequent items]: " + itemCounters);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
