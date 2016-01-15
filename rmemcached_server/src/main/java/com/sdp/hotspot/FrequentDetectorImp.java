@@ -1,5 +1,6 @@
 package com.sdp.hotspot;
 
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -29,6 +30,34 @@ public class FrequentDetectorImp implements BaseFrequentDetector{
     }
 
     public boolean registerItem(String key) {
-        return false;
+        if(itemCounters.containsKey(key)) {
+            itemCounters.replace(key, itemCounters.get(key) + 1);
+        } else if(itemCounters.size() < frequentItemsNumber) {
+            itemCounters.put(key, 1);
+        } else if(itemCounters.containsValue(0)) {
+            String str = null;
+            Iterator iter = itemCounters.keySet().iterator();
+            while(iter.hasNext()) {
+                str = (String) iter.next();
+                if(itemCounters.get(str) == 0){
+                    itemCounters.remove(str, 0);
+                    itemCounters.put(key, 1);
+                    break;
+                }
+            }
+        } else {
+            String str = null;
+            Iterator iter = itemCounters.keySet().iterator();
+            while(iter.hasNext()){
+                str = (String) iter.next();
+                itemCounters.replace(str, itemCounters.get(str) - 1);
+            }
+        }
+        if (itemCounters.containsKey(key)) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
