@@ -28,7 +28,7 @@ public class FrequentDetectorImp implements BaseFrequentDetector, Runnable{
     }
 
     public void initConfig() {
-        frequentItemsNumber = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.FREQUENT_ITEM_NUMBER);
+        frequentItemsNumber = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.FREQUENT_ITEM_NUMBER);
     }
 
     /**
@@ -64,7 +64,7 @@ public class FrequentDetectorImp implements BaseFrequentDetector, Runnable{
     }
 
     public void run() {
-        int log_sleep_time = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.SLICE_TIME);
+        int log_sleep_time = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.SLICE_TIME);
         try {
             Thread.sleep(log_sleep_time);
             System.out.println("[Current frequent items]: " + itemCounters);

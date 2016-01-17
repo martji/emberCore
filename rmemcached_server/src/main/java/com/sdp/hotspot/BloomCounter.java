@@ -18,7 +18,7 @@ public class BloomCounter implements Runnable{
     }
 
     private void initConfig () {
-        COUNTER_PERIOD = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.COUNTER_PERIOD);
+        COUNTER_PERIOD = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.COUNTER_PERIOD);
     }
 
     public void resetCounter() {

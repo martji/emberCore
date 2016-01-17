@@ -34,9 +34,9 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
     }
 
     public void initConfig() {
-        BLOOM_FILTER_NUMBER = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.MULTI_BLOOM_FILTER_NUMBER);
-        BLOOM_FILTER_LENGTH = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.BLOOM_FILTER_LENGTH);
-        HOTSPOT_THRESHOLD = (Integer) GlobalConfigMgr.configMap.get(GlobalConfigMgr.HOTSPOT_THRESHOLD);
+        BLOOM_FILTER_NUMBER = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.MULTI_BLOOM_FILTER_NUMBER);
+        BLOOM_FILTER_LENGTH = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.BLOOM_FILTER_LENGTH);
+        HOTSPOT_THRESHOLD = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOTSPOT_THRESHOLD);
     }
 
     public int[] getHashIndex(String key) {

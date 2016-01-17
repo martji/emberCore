@@ -1,19 +1,19 @@
 package com.sdp.server;
 
-import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.concurrent.Executors;
-
+import com.sdp.client.RMClient;
+import com.sdp.config.GlobalConfigMgr;
+import com.sdp.monitor.LocalMonitor;
+import com.sdp.netty.MDecoder;
+import com.sdp.netty.MEncoder;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
-import com.sdp.client.RMClient;
-import com.sdp.monitor.LocalMonitor;
-import com.sdp.netty.MDecoder;
-import com.sdp.netty.MEncoder;
+import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.concurrent.Executors;
 
 /**
  * 
@@ -31,21 +31,19 @@ public class MServer {
 	/**
 	 * 
 	 * @param id : the id of the server instance
-	 * @param monitorAddress : the address of the monitor node
 	 * @param serversMap : all the server instances info
 	 */
-	public void init(int id, String monitorAddress, Map<Integer, ServerNode> serversMap, int protocol) {
+	public void init(int id, Map<Integer, ServerNode> serversMap, int protocol) {
 		ServerNode serverNode = serversMap.get(id);
-		String server = serverNode.getServer();
-		wServerHandler = new MServerHandler(server, id, serversMap, protocol);
-		rServerHandler = new MServerHandler(server, id, serversMap, protocol);
+		wServerHandler = new MServerHandler(id, serversMap, protocol);
+		rServerHandler = new MServerHandler(id, serversMap, protocol);
 		int rport = serverNode.getRPort();
 		int wport = serverNode.getWPort();
 		initRServer(rport, wport);
-		registerMonitor(id, monitorAddress, serversMap.get(id).getMemcached());
+		registerMonitor();
 	}
 
-	public void init(int id, String monitorAddress, Map<Integer, ServerNode> serversMap, 
+	public void init(int id, Map<Integer, ServerNode> serversMap,
 			MServerHandler wServerHandler, MServerHandler rServerHandler) {
 		this.wServerHandler = wServerHandler;
 		this.rServerHandler = rServerHandler;
@@ -58,9 +56,18 @@ public class MServer {
 		wServerHandler.replicasMgr.initThread();
 		rServerHandler.replicasMgr.initThread();
 		
-		registerMonitor(id, monitorAddress, serversMap.get(id).getMemcached());
+		registerMonitor();
 	}
-	
+
+	public void init(MServerHandler wServerHandler, MServerHandler rServerHandler) {
+		init(GlobalConfigMgr.id, GlobalConfigMgr.serversMap, wServerHandler, rServerHandler);
+	}
+
+	private void registerMonitor() {
+		registerMonitor(GlobalConfigMgr.id, (String) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.MONITOR_ADDRESS),
+				GlobalConfigMgr.serversMap.get(GlobalConfigMgr.id).getMemcached());
+	}
+
 	/**
 	 * 
 	 * @param id : the id of the server instance
