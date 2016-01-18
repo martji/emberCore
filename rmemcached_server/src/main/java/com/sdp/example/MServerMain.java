@@ -40,7 +40,7 @@ public class MServerMain {
 		MServerHandler wServerHandler = new MServerHandler(replicasIdMap);
 		MServerHandler rServerHandler = new MServerHandler(replicasIdMap);
 		rServerHandler.setMServer(mServer);
-		rServerHandler.replicasMgr.initHotspotIdentifier();
+		rServerHandler.replicasMgr.initHotspotDetector();
 		mServer.init(wServerHandler, rServerHandler);
 	}
 	

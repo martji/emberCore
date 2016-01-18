@@ -39,6 +39,8 @@ public class GlobalConfigMgr {
             int slice_time = Integer.decode(properties.getProperty(SLICE_TIME, "15")) * 1000;
             int counter_period = Integer.decode(properties.getProperty(COUNTER_PERIOD, "10"));
             int frequent_item_number = Integer.decode(properties.getProperty(FREQUENT_ITEM_NUMBER, "10")) * 1000;
+            int hotspot_detector_mode = Integer.decode(properties.getProperty(HOTSPOT_DETECTOR_MODE, "0"));
+            int replica_mode = Integer.decode(properties.getProperty(REPLICA_MODE, "0"));
 
             propertiesMap.put(MULTI_BLOOM_FILTER_NUMBER, multi_bloom_filter_number);
             propertiesMap.put(BLOOM_FILTER_LENGTH, bloom_filter_length);
@@ -47,6 +49,8 @@ public class GlobalConfigMgr {
             propertiesMap.put(SLICE_TIME, slice_time);
             propertiesMap.put(COUNTER_PERIOD, counter_period);
             propertiesMap.put(FREQUENT_ITEM_NUMBER, frequent_item_number);
+            propertiesMap.put(HOTSPOT_DETECTOR_MODE, hotspot_detector_mode);
+            propertiesMap.put(REPLICA_MODE, replica_mode);
         } catch (Exception e) {
             Log.log.error("wrong config.properties", e);
         }
@@ -85,4 +89,9 @@ public class GlobalConfigMgr {
     public static final String FREQUENT_ITEM_NUMBER = "frequent_item_number";
     public static final String COUNTER_PERIOD = "counter_period";
     public static final String REPLICA_PROTOCOL = "replica_protocol";
+    public static final String HOTSPOT_DETECTOR_MODE = "hotspot_detector_mode";
+    public static final String REPLICA_MODE = "replica_mode";
+
+    public static final int COUNTR_MODE = 0;
+    public static final int DATA_STREAM_MODE = 1;
 }

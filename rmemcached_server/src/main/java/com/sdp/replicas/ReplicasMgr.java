@@ -1,58 +1,38 @@
 package com.sdp.replicas;
 
-import java.io.FileInputStream;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.Set;
-import java.util.Vector;
-import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.internal.OperationFuture;
-
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sdp.common.EMSGID;
+import com.sdp.config.GlobalConfigMgr;
 import com.sdp.example.Log;
+import com.sdp.hotspot.BaseHotspotDetector;
+import com.sdp.hotspot.HotspotDetector;
 import com.sdp.hotspot.HotspotIdentifier;
-import com.sdp.messageBody.CtsMsg.nr_connected_mem_back;
-import com.sdp.messageBody.CtsMsg.nr_read;
-import com.sdp.messageBody.CtsMsg.nr_read_res;
-import com.sdp.messageBody.CtsMsg.nr_register;
-import com.sdp.messageBody.CtsMsg.nr_replicas_res;
-import com.sdp.messageBody.CtsMsg.nr_write;
-import com.sdp.messageBody.CtsMsg.nr_write_res;
+import com.sdp.messageBody.CtsMsg.*;
 import com.sdp.netty.NetMsg;
 import com.sdp.server.MServer;
 import com.sdp.server.ServerNode;
+import net.spy.memcached.MemcachedClient;
+import net.spy.memcached.internal.OperationFuture;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.util.internal.ConcurrentHashMap;
+
+import java.net.InetSocketAddress;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 /**
  * 
  * @author martji
  *
  */
 
-public class ReplicasMgr implements CallBack{
-	final int TWOPHASECOMMIT = 1;
-	final int PAXOS = 2;
-	final int WEAK = 0;
-	HotspotIdentifier hotspotIdentifier;
+public class ReplicasMgr implements CallBack {
+	BaseHotspotDetector hotspotDetector;
 	
 	int serverId;
 	Map<Integer, ServerNode> serversMap;
@@ -75,9 +55,10 @@ public class ReplicasMgr implements CallBack{
 	ConcurrentHashMap<Integer, Integer> hotspotsList = new ConcurrentHashMap<Integer, Integer>();
 	
 	public ReplicasMgr() {
+        this.replicasMode = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.REPLICA_MODE);
 		this.replicasIdMap = new ConcurrentHashMap<String, Vector<Integer>>();
 		hotspotsList.put(1, 0);
-		initHotspotIdentifier();
+		initHotspotDetector();
 	}
 	
 	public ReplicasMgr(int serverId, Map<Integer, ServerNode> serversMap, MServer mServer, int protocol) {
@@ -99,10 +80,14 @@ public class ReplicasMgr implements CallBack{
 		hotspotsList.put(1, 0);
 	}
 	
-	public void initHotspotIdentifier() {
-		getReplicasMode();
-		hotspotIdentifier = new HotspotIdentifier(this);
-		new Thread(hotspotIdentifier).start();
+	public void initHotspotDetector() {
+		if ((Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOTSPOT_DETECTOR_MODE)
+                == GlobalConfigMgr.DATA_STREAM_MODE) {
+            hotspotDetector = new HotspotDetector(this);
+        } else {
+            hotspotDetector = new HotspotIdentifier(this);
+        }
+		new Thread(hotspotDetector).start();
 		
 		// retire replicas
 		if (replicasMode == 1) {
@@ -129,17 +114,6 @@ public class ReplicasMgr implements CallBack{
 					}
 				}
 			}).start();
-		}
-	}
-	
-	public void getReplicasMode() {
-		String configPath = System.getProperty("user.dir") + "/config/config.properties";
-		try {
-			Properties properties = new Properties();
-			properties.load(new FileInputStream(configPath));
-			replicasMode = Integer.decode(properties.getProperty("replicasMode"));
-		} catch (Exception e) {
-			Log.log.error("wrong config.properties", e);
 		}
 	}
 
@@ -298,9 +272,13 @@ public class ReplicasMgr implements CallBack{
 	 * collect the register info
 	 */
 	private void handleRegister(Channel channel, String key) {
-		hotspotIdentifier.handleRegister(key);
+		hotspotDetector.handleRegister(key);
 	}
-	
+
+    public void dealHotData(String key) {
+        //TODO
+    }
+
 	public void dealHotData() {
 		if (LocalSpots.hotspots.keySet().size() > 0) {
 			Set<String> hotspots = new HashSet<String>();
@@ -382,8 +360,8 @@ public class ReplicasMgr implements CallBack{
 			LocalSpots.coldspots = new ConcurrentHashMap<String, String>();
 		}
 	}
-	
-	private List<Map.Entry<Integer, Double>> getReplicasInfoMap(String replicasInfo) {
+
+    private List<Map.Entry<Integer, Double>> getReplicasInfoMap(String replicasInfo) {
 		List<Map.Entry<Integer, Double>> list = null;
 		if (replicasInfo == null || replicasInfo.length() == 0) {
 			return list;

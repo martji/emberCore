@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Created by magq on 16/1/12.
  */
-public class HotspotDetector implements Runnable, CallBack {
+public class HotspotDetector extends BaseHotspotDetector implements Runnable, CallBack {
 
     private static int SLICE_TIME = 1*1000;
     private CallBack callBack;
@@ -46,6 +46,7 @@ public class HotspotDetector implements Runnable, CallBack {
      * handle register signal
      * @param key
      */
+    @Override
     public void handleRegister(String key) {
         if (currentHotspotSet.contains(key)) {
             return;
@@ -58,7 +59,7 @@ public class HotspotDetector implements Runnable, CallBack {
                 currentHotspotSet.add(key);
                 MultiBloomDetectorImp.getInstance().resetBloomCounter(key);
                 // TODO
-                callBack.dealHotData();
+                dealHotData(key);
             }
         }
     }
@@ -77,6 +78,11 @@ public class HotspotDetector implements Runnable, CallBack {
     public void dealColdData() {
         callBack.dealColdData();
     }
+
+    public void dealHotData(String key) {
+        callBack.dealHotData(key);
+    }
+
 
     public void removeHotspot(String key) {
         currentHotspotSet.remove(key);

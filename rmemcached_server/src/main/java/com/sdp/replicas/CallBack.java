@@ -14,4 +14,6 @@ public interface CallBack {
      * retire replica of cold items
      */
     public void dealColdData();
+
+    public void dealHotData(String key);
 }

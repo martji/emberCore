@@ -1,20 +1,14 @@
 package com.sdp.hotspot;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-import java.util.Map.Entry;
-import java.util.Queue;
-
-import org.jboss.netty.util.internal.ConcurrentHashMap;
-
 import com.sdp.monitor.LocalMonitor;
 import com.sdp.replicas.LocalSpots;
 import com.sdp.replicas.ReplicasMgr;
+import org.jboss.netty.util.internal.ConcurrentHashMap;
 
-public class HotspotIdentifier implements Runnable{
+import java.util.*;
+import java.util.Map.Entry;
+
+public class HotspotIdentifier extends BaseHotspotDetector implements Runnable{
 	Long currenTimestamp;
 	int sliceId;
 	Queue<String> tmpLowQueue = new LinkedList<String>();
@@ -26,7 +20,6 @@ public class HotspotIdentifier implements Runnable{
 	
 	ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();
 	ConcurrentHashMap<String, Vector<Integer>> replicasIdMap;
-	ReplicasMgr replicasMgr;
 	final int sliceTime = 15*1000;
 	
 	public HotspotIdentifier (Long timestamp) {
@@ -36,6 +29,7 @@ public class HotspotIdentifier implements Runnable{
 	}
 	
 	public HotspotIdentifier(ReplicasMgr replicasMgr) {
+		super();
 		this.replicasMgr = replicasMgr;
 		this.replicasIdMap = this.replicasMgr.replicasIdMap;
 	}
@@ -73,7 +67,8 @@ public class HotspotIdentifier implements Runnable{
 			}
 		}
 	}
-	
+
+	@Override
 	public void handleRegister(String key) {
 		if (!countMap.containsKey(key)) {
 			countMap.put(key, 0);
