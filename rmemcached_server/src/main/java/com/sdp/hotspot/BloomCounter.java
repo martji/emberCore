@@ -25,6 +25,7 @@ public class BloomCounter implements Runnable{
         int tmp = primaryCounter;
         secondaryCounter += primaryCounter;
         primaryCounter = tmp / 2;
+        secondaryCounter = secondaryCounter / 2;
     }
 
     public int visit() {
