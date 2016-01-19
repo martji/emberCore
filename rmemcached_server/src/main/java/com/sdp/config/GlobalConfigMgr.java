@@ -38,7 +38,8 @@ public class GlobalConfigMgr {
             int hotspot_threshold = Integer.decode(properties.getProperty(HOTSPOT_THRESHOLD, "100"));
             int slice_time = Integer.decode(properties.getProperty(SLICE_TIME, "15")) * 1000;
             int counter_period = Integer.decode(properties.getProperty(COUNTER_PERIOD, "10"));
-            int frequent_item_number = Integer.decode(properties.getProperty(FREQUENT_ITEM_NUMBER, "10")) * 1000;
+            int replica_protocol = Integer.decode(properties.getProperty(REPLICA_PROTOCOL, "0"));
+            int frequent_item_number = Integer.decode(properties.getProperty(FREQUENT_ITEM_NUMBER, "10"));
             int hotspot_detector_mode = Integer.decode(properties.getProperty(HOTSPOT_DETECTOR_MODE, "0"));
             int replica_mode = Integer.decode(properties.getProperty(REPLICA_MODE, "0"));
 
@@ -48,6 +49,7 @@ public class GlobalConfigMgr {
             propertiesMap.put(HOTSPOT_THRESHOLD, hotspot_threshold);
             propertiesMap.put(SLICE_TIME, slice_time);
             propertiesMap.put(COUNTER_PERIOD, counter_period);
+            propertiesMap.put(REPLICA_PROTOCOL, replica_protocol);
             propertiesMap.put(FREQUENT_ITEM_NUMBER, frequent_item_number);
             propertiesMap.put(HOTSPOT_DETECTOR_MODE, hotspot_detector_mode);
             propertiesMap.put(REPLICA_MODE, replica_mode);

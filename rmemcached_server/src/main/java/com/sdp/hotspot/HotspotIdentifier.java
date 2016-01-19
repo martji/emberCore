@@ -21,6 +21,8 @@ public class HotspotIdentifier extends BaseHotspotDetector implements Runnable{
 	ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();
 	ConcurrentHashMap<String, Vector<Integer>> replicasIdMap;
 	final int sliceTime = 15*1000;
+
+	private ReplicasMgr replicasMgr;
 	
 	public HotspotIdentifier (Long timestamp) {
 		this.currenTimestamp = timestamp;
@@ -42,10 +44,12 @@ public class HotspotIdentifier extends BaseHotspotDetector implements Runnable{
 				e.printStackTrace();
 			}
 			
-			if (LocalSpots.hotspots.keySet() != null) {
-				replicasMgr.dealHotData();
-			}
-			dealColdData();
+//			if (LocalSpots.hotspots.keySet() != null) {
+//				replicasMgr.dealHotData();
+//			}
+//			dealColdData();
+
+			System.out.println("[Count map]:" + countMap);
 
 			countMap = new ConcurrentHashMap<String, Integer>();
 		}

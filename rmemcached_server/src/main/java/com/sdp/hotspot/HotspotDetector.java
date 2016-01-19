@@ -1,5 +1,6 @@
 package com.sdp.hotspot;
 
+import com.sdp.config.GlobalConfigMgr;
 import com.sdp.replicas.CallBack;
 
 import java.util.HashSet;
@@ -12,12 +13,16 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
 
     private static int SLICE_TIME = 1*1000;
     private CallBack callBack;
+    private FrequentDetectorImp frequentDetector;
+    private BaseBloomDetector multiBloomDetector;
 
     private ConcurrentLinkedQueue<String> hotspots = new ConcurrentLinkedQueue<String>();
     private HashSet<String> currentHotspotSet = new HashSet<String>();
 
     public HotspotDetector() {
         initConfig();
+        frequentDetector = FrequentDetectorImp.getInstance();
+        multiBloomDetector = MultiBloomDetectorImp.getInstance();
     }
 
     public HotspotDetector(CallBack callBack) {
@@ -29,17 +34,18 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
      * run period
      */
     public void run() {
-        try {
-            Thread.sleep(SLICE_TIME);
-
-            // update hotspots
-            callBack.dealHotData();
-
-            // reset counters
-            MultiBloomDetectorImp.getInstance().resetBloomCounters();
-        } catch (Exception e) {
-            // How can it be?
+        int log_sleep_time = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.SLICE_TIME);
+        System.out.println("[Log period]: " + log_sleep_time);
+        while (true) {
+            try {
+                System.out.println("[Current frequent items]: " + frequentDetector.getItemCounters());
+                Thread.sleep(log_sleep_time);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+
+        //TODO
     }
 
     /**
@@ -52,23 +58,26 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
             return;
         }
         boolean isFrequentItem = false;
-        isFrequentItem = FrequentDetectorImp.getInstance().registerItem(key);
+        isFrequentItem = frequentDetector.registerItem(key);
 
+        /*
         if (isFrequentItem) {
             if (MultiBloomDetectorImp.getInstance().registerItem(key)) {
+                // TODO
                 currentHotspotSet.add(key);
                 MultiBloomDetectorImp.getInstance().resetBloomCounter(key);
-                // TODO
                 dealHotData(key);
             }
         }
+        */
     }
 
     /**
      * read config
      */
     private void initConfig() {
-
+        FrequentDetectorImp.getInstance().initConfig();
+        MultiBloomDetectorImp.getInstance().initConfig();
     }
 
     public void dealHotData() {

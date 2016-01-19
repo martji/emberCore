@@ -3,6 +3,7 @@ package com.sdp.hotspot;
 import com.sdp.config.GlobalConfigMgr;
 
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -21,9 +22,9 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
     public static MultiBloomDetectorImp getInstance() {
         if (ourInstance == null) {
             ourInstance = new MultiBloomDetectorImp();
-            ourInstance.initConfig();
             ourInstance.bloomCounterVector = new Vector[BLOOM_FILTER_NUMBER];
             for (int i = 0; i < BLOOM_FILTER_NUMBER; i++) {
+                ourInstance.bloomCounterVector[i] = new Vector<BloomCounter>();
                 for (int j = 0; j < BLOOM_FILTER_LENGTH; j++) {
                     ourInstance.bloomCounterVector[i].add(new BloomCounter());
                 }
