@@ -2,7 +2,6 @@ package com.sdp.hotspot;
 
 import com.sdp.monitor.LocalMonitor;
 import com.sdp.replicas.LocalSpots;
-import com.sdp.replicas.ReplicasMgr;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.util.*;
@@ -28,10 +27,9 @@ public class HotspotIdentifier extends BaseHotspotDetector implements Runnable{
 		getNextSlice();
 	}
 	
-	public HotspotIdentifier(ReplicasMgr replicasMgr) {
+	public HotspotIdentifier(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
 		super();
-		this.replicasMgr = replicasMgr;
-		this.replicasIdMap = this.replicasMgr.replicasIdMap;
+		this.replicasIdMap = replicasIdMap;
 	}
 
 	public void run() {
@@ -43,7 +41,7 @@ public class HotspotIdentifier extends BaseHotspotDetector implements Runnable{
 			}
 			
 			if (LocalSpots.hotspots.keySet() != null) {
-				replicasMgr.dealHotData();
+				callBack.dealHotspot();
 			}
 			dealColdData();
 
@@ -63,7 +61,7 @@ public class HotspotIdentifier extends BaseHotspotDetector implements Runnable{
 				}
 			}
 			if (LocalSpots.coldspots.keySet() != null) {
-				replicasMgr.dealColdData();
+				callBack.dealColdspot();
 			}
 		}
 	}

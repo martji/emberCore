@@ -83,10 +83,23 @@ public class ReplicasMgr implements CallBack {
 	public void initHotspotDetector() {
 		if ((Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOTSPOT_DETECTOR_MODE)
                 == GlobalConfigMgr.DATA_STREAM_MODE) {
-            hotspotDetector = new HotspotDetector(this);
+            hotspotDetector = new HotspotDetector();
         } else {
-            hotspotDetector = new HotspotIdentifier(this);
+            hotspotDetector = new HotspotIdentifier(this.replicasIdMap);
         }
+		hotspotDetector.setCallBack(new BaseHotspotDetector.MCallBack() {
+			public void dealHotspot() {
+				dealHotData();
+			}
+
+			public void dealColdspot() {
+				dealColdData();
+			}
+
+			public void dealHotspot(String key) {
+				dealHotData(key);
+			}
+		});
 		new Thread(hotspotDetector).start();
 		
 		// retire replicas

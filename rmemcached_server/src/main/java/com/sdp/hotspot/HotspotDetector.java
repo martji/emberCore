@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class HotspotDetector extends BaseHotspotDetector implements Runnable, CallBack {
 
     private static int SLICE_TIME = 1*1000;
-    private CallBack callBack;
 
     private ConcurrentLinkedQueue<String> hotspots = new ConcurrentLinkedQueue<String>();
     private HashSet<String> currentHotspotSet = new HashSet<String>();
@@ -22,7 +21,6 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
 
     public HotspotDetector(CallBack callBack) {
         this();
-        this.callBack = callBack;
     }
 
     /**
@@ -33,7 +31,7 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
             Thread.sleep(SLICE_TIME);
 
             // update hotspots
-            callBack.dealHotData();
+            callBack.dealHotspot();
 
             // reset counters
             MultiBloomDetectorImp.getInstance().resetBloomCounters();
@@ -72,15 +70,15 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
     }
 
     public void dealHotData() {
-        callBack.dealHotData();
+        callBack.dealHotspot();
     }
 
     public void dealColdData() {
-        callBack.dealColdData();
+        callBack.dealColdspot();
     }
 
     public void dealHotData(String key) {
-        callBack.dealHotData(key);
+        callBack.dealHotspot(key);
     }
 
 
