@@ -47,11 +47,7 @@ public class ReplicasMgr implements CallBack {
 	ConcurrentHashMap<Integer, MemcachedClient> spyClientMap = new ConcurrentHashMap<Integer, MemcachedClient>();
 	public ConcurrentHashMap<String, Vector<Integer>> replicasIdMap = null;
 	ConcurrentHashMap<String, LockKey> LockKeyMap = new ConcurrentHashMap<String, LockKey>();
-	
 	ConcurrentHashMap<Integer, Channel> clientChannelMap = new ConcurrentHashMap<Integer, Channel>();
-	ConcurrentHashMap<String, Vector<Channel>> keyClientMap = new ConcurrentHashMap<String, Vector<Channel>>();
-	ConcurrentHashMap<Integer, Map<String, Integer>> clientKeyMap = new ConcurrentHashMap<Integer, Map<String, Integer>>();
-	
 	ConcurrentHashMap<Integer, Integer> hotspotsList = new ConcurrentHashMap<Integer, Integer>();
 	
 	public ReplicasMgr() {
@@ -69,13 +65,11 @@ public class ReplicasMgr implements CallBack {
 		this.protocol = protocol;
 	}
 	
-	public ReplicasMgr(int serverId, Map<Integer, ServerNode> serversMap,
-			MServer mServer, int protocol,
-			ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
-		this.serverId = serverId;
-		this.serversMap = serversMap;
+	public ReplicasMgr(MServer mServer, ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
+		this.serverId = GlobalConfigMgr.id;
+		this.serversMap = GlobalConfigMgr.serversMap;
 		this.mServer = mServer;
-		this.protocol = protocol;
+		this.protocol = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.REPLICA_PROTOCOL);
 		this.replicasIdMap = replicasIdMap;
 		hotspotsList.put(1, 0);
 	}

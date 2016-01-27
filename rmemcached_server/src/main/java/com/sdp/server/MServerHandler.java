@@ -23,13 +23,6 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 	
 	public MServerHandler() {}
 
-	public MServerHandler(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
-        int serverId = GlobalConfigMgr.id;
-        Map<Integer, ServerNode> serversMap = GlobalConfigMgr.serversMap;
-        int protocol = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.REPLICA_PROTOCOL);
-        new MServerHandler(serverId, serversMap, protocol, replicasIdMap);
-	}
-	
 	/**
 	 * 
 	 * @param serverId : the id of the server instance
@@ -39,7 +32,6 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 		
 		this();
 		replicasMgr = new ReplicasMgr(serverId, serversMap, mServer, protocol);
-		
 		MemcachedClient mc = null;
 		try {
 			ServerNode serverNode = serversMap.get(serverId);
@@ -50,15 +42,12 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 		replicasMgr.setMemcachedClient(mc);
 	}
 
-	public MServerHandler(int serverId,
-			Map<Integer, ServerNode> serversMap, int protocol,
-			ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
+	public MServerHandler(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
 		this();
-		replicasMgr = new ReplicasMgr(serverId, serversMap, mServer, protocol, replicasIdMap);
-		
+		replicasMgr = new ReplicasMgr(mServer, replicasIdMap);
 		MemcachedClient mc = null;
 		try {
-			ServerNode serverNode = serversMap.get(serverId);
+			ServerNode serverNode = GlobalConfigMgr.serversMap.get(GlobalConfigMgr.id);
 			String host = serverNode.getHost();
 			int memcachedPort = serverNode.getMemcached();
 			mc = new MemcachedClient(new InetSocketAddress(host, memcachedPort));

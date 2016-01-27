@@ -22,8 +22,8 @@ public class MServerMain {
 	 */
 	public static void main(String[] args) {
 		Log.init();
-		MServerMain lanuch = new MServerMain();
-		lanuch.start();
+		MServerMain emberLauncher = new MServerMain();
+		emberLauncher.start();
 	}
 
 	public void start() {
@@ -48,7 +48,6 @@ public class MServerMain {
 		LocalSpots.threshold = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOTSPOT_THRESHOLD);
 	}
 	
-	@SuppressWarnings("resource")
 	public int getMemcachedNumber() {
 		System.out.print("Please input the server number:");
 		Scanner scanner = new Scanner(System.in);
