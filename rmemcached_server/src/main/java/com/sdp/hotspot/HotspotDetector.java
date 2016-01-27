@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class HotspotDetector extends BaseHotspotDetector implements Runnable, CallBack {
 
     private static int SLICE_TIME = 1*1000;
-    private CallBack callBack;
     private FrequentDetectorImp frequentDetector;
     private BaseBloomDetector multiBloomDetector;
 
