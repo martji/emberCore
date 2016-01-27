@@ -24,10 +24,6 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
         multiBloomDetector = MultiBloomDetectorImp.getInstance();
     }
 
-    public HotspotDetector(CallBack callBack) {
-        this();
-    }
-
     /**
      * run period
      */

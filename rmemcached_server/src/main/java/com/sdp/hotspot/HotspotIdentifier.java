@@ -40,12 +40,8 @@ public class HotspotIdentifier extends BaseHotspotDetector implements Runnable{
 				e.printStackTrace();
 			}
 			
-			if (LocalSpots.hotspots.keySet() != null) {
-				callBack.dealHotspot();
-			}
-			dealColdData();
 //			if (LocalSpots.hotspots.keySet() != null) {
-//				replicasMgr.dealHotData();
+//				callBack.dealHotspot();
 //			}
 //			dealColdData();
 
