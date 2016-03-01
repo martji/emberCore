@@ -42,7 +42,11 @@ public class GlobalConfigMgr {
             int frequent_item_number = Integer.decode(properties.getProperty(FREQUENT_ITEM_NUMBER, "10"));
             int hotspot_detector_mode = Integer.decode(properties.getProperty(HOTSPOT_DETECTOR_MODE, "0"));
             int replica_mode = Integer.decode(properties.getProperty(REPLICA_MODE, "0"));
-
+            int top_item_number = Integer.decode(properties.getProperty(TOP_ITEM_NUMBER, "10"));
+            int counter_number = Integer.decode(properties.getProperty(COUNTER_NUMBER, "10"));
+            double frequent_percentage = Integer.decode(properties.getProperty(FREQUENT_PERCENTAGE, "0.1"));
+            double error_rate = Integer.decode(properties.getProperty(ERROR_RATE, "0.01"));
+            
             propertiesMap.put(MULTI_BLOOM_FILTER_NUMBER, multi_bloom_filter_number);
             propertiesMap.put(BLOOM_FILTER_LENGTH, bloom_filter_length);
             propertiesMap.put(MONITOR_ADDRESS, monitor_address);
@@ -51,8 +55,12 @@ public class GlobalConfigMgr {
             propertiesMap.put(COUNTER_PERIOD, counter_period);
             propertiesMap.put(REPLICA_PROTOCOL, replica_protocol);
             propertiesMap.put(FREQUENT_ITEM_NUMBER, frequent_item_number);
+            propertiesMap.put(TOP_ITEM_NUMBER, frequent_item_number);
             propertiesMap.put(HOTSPOT_DETECTOR_MODE, hotspot_detector_mode);
             propertiesMap.put(REPLICA_MODE, replica_mode);
+            propertiesMap.put(COUNTER_NUMBER, counter_number);
+            propertiesMap.put(FREQUENT_PERCENTAGE, frequent_percentage);
+            propertiesMap.put(ERROR_RATE, error_rate);
         } catch (Exception e) {
             Log.log.error("wrong config.properties", e);
         }
@@ -89,10 +97,14 @@ public class GlobalConfigMgr {
     public static final String HOTSPOT_THRESHOLD = "hotspot_threshold";
     public static final String SLICE_TIME = "slice_time";
     public static final String FREQUENT_ITEM_NUMBER = "frequent_item_number";
+    public static final String TOP_ITEM_NUMBER = "top_item_number";
     public static final String COUNTER_PERIOD = "counter_period";
     public static final String REPLICA_PROTOCOL = "replica_protocol";
     public static final String HOTSPOT_DETECTOR_MODE = "hotspot_detector_mode";
     public static final String REPLICA_MODE = "replica_mode";
+    public static final String COUNTER_NUMBER = "counter_number";
+    public static final String FREQUENT_PERCENTAGE = "frequent_percentage";
+    public static final String ERROR_RATE = "error_rate";
 
     public static final int COUNTR_MODE = 0;
     public static final int DATA_STREAM_MODE = 1;
