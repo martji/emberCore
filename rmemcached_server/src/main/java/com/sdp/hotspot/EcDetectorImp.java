@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.sdp.config.GlobalConfigMgr;
 
-public class EcDetectorImp extends Thread implements BaseEcDetector {
+public class EcDetectorImp extends Thread implements BaseFrequentDetector {
 
     private static double frequentPercentage =  0.1;
 	
@@ -16,9 +16,7 @@ public class EcDetectorImp extends Thread implements BaseEcDetector {
 	private static int itemSum = 0;
 	
 	private static EcDetectorImp ourInstance = null;
-	
-	private ConcurrentHashMap<String, Integer> itemCounters = new ConcurrentHashMap<String, Integer>();
-	 
+
     private ConcurrentHashMap<String, Integer> itemPreCounters = new ConcurrentHashMap<String, Integer>();
 	
     private ConcurrentHashMap<String, Integer> itemSumCounters = new ConcurrentHashMap<String, Integer>();
@@ -96,5 +94,9 @@ public class EcDetectorImp extends Thread implements BaseEcDetector {
 			//itemSum = itemSum - sum;
 			//这里更新的策略，可以定时减半，或者记录一下前一时刻的总量，然后过段时间后再求差值这样
 		}while(true);
+	}
+
+	public ConcurrentHashMap<String, Integer> getItemCounters() {
+		return itemCounters;
 	}
 }

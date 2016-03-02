@@ -12,8 +12,6 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
 
     private int frequentItemsNumber = 1;
 
-    private ConcurrentHashMap<String, Integer> itemCounters = new ConcurrentHashMap<String, Integer>();
-
     private static FrequentDetectorImp ourInstance = null;
 
     public static FrequentDetectorImp getInstance() {
