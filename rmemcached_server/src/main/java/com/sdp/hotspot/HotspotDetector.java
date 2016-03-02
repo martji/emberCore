@@ -20,7 +20,7 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
 
     public HotspotDetector() {
         initConfig();
-        frequentDetector = FrequentDetectorImp.getInstance();
+        frequentDetector = EcDetectorImp.getInstance();
         multiBloomDetector = MultiBloomDetectorImp.getInstance();
     }
 
