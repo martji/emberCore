@@ -44,8 +44,8 @@ public class GlobalConfigMgr {
             int replica_mode = Integer.decode(properties.getProperty(REPLICA_MODE, "0"));
             int top_item_number = Integer.decode(properties.getProperty(TOP_ITEM_NUMBER, "10"));
             int counter_number = Integer.decode(properties.getProperty(COUNTER_NUMBER, "10"));
-            double frequent_percentage = Integer.decode(properties.getProperty(FREQUENT_PERCENTAGE, "0.1"));
-            double error_rate = Integer.decode(properties.getProperty(ERROR_RATE, "0.01"));
+            double frequent_percentage = Double.parseDouble(properties.getProperty(FREQUENT_PERCENTAGE, "0.1"));
+            double error_rate = Double.parseDouble(properties.getProperty(ERROR_RATE, "0.01"));
             
             propertiesMap.put(MULTI_BLOOM_FILTER_NUMBER, multi_bloom_filter_number);
             propertiesMap.put(BLOOM_FILTER_LENGTH, bloom_filter_length);
