@@ -63,8 +63,7 @@ public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
 			return true;
 		}
 		else
-			return false;
-	}
+			return false;	}
 
 	public void run(){
 		do{
