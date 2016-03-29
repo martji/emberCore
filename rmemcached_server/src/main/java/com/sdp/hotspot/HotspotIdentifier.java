@@ -40,12 +40,12 @@ public class HotspotIdentifier extends BaseHotspotDetector implements Runnable{
 				e.printStackTrace();
 			}
 			
-//			if (LocalSpots.hotspots.keySet() != null) {
-//				callBack.dealHotspot();
-//			}
+			if (LocalSpots.hotspots.keySet() != null) {
+				callBack.dealHotspot();
+			}
 //			dealColdData();
 
-			System.out.println("[Count map]:" + countMap);
+//			System.out.println("[Count map]:" + countMap);
 
 			countMap = new ConcurrentHashMap<String, Integer>();
 		}

@@ -1,6 +1,7 @@
 package com.sdp.config;
 
 import com.sdp.example.Log;
+import com.sdp.replicas.LocalSpots;
 import com.sdp.server.ServerNode;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -46,6 +47,8 @@ public class GlobalConfigMgr {
             int counter_number = Integer.decode(properties.getProperty(COUNTER_NUMBER, "10"));
             double frequent_percentage = Double.parseDouble(properties.getProperty(FREQUENT_PERCENTAGE, "0.1"));
             double error_rate = Double.parseDouble(properties.getProperty(ERROR_RATE, "0.01"));
+
+            LocalSpots.threshold = Integer.decode(properties.getProperty(LOCALSPOT_THRESHOLD, "100"));
             
             propertiesMap.put(MULTI_BLOOM_FILTER_NUMBER, multi_bloom_filter_number);
             propertiesMap.put(BLOOM_FILTER_LENGTH, bloom_filter_length);
@@ -105,6 +108,7 @@ public class GlobalConfigMgr {
     public static final String COUNTER_NUMBER = "counter_number";
     public static final String FREQUENT_PERCENTAGE = "frequent_percentage";
     public static final String ERROR_RATE = "error_rate";
+    public static final String LOCALSPOT_THRESHOLD = "localspot_threshold";
 
     public static final int COUNTR_MODE = 0;
     public static final int DATA_STREAM_MODE = 1;
