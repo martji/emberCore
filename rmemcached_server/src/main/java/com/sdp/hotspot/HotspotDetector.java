@@ -20,7 +20,7 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
 
     public HotspotDetector() {
         initConfig();
-        frequentDetector = EcDetectorImp.getInstance();
+        frequentDetector = new SWFPDetectorImp();
         multiBloomDetector = MultiBloomDetectorImp.getInstance();
     }
 
@@ -33,6 +33,8 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
         while (true) {
             try {
                 System.out.println("[Current frequent items]: " + frequentDetector.getItemCounters());
+                ((SWFPDetectorImp) frequentDetector).refreshSWFPCounter();
+                ((SWFPDetectorImp) frequentDetector).refreshItemCounters();
                 Thread.sleep(log_sleep_time);
             } catch (InterruptedException e) {
                 e.printStackTrace();
