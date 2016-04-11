@@ -14,14 +14,14 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
 
     private static FrequentDetectorImp ourInstance = null;
 
-    public static FrequentDetectorImp getInstance() {
+    /*public static FrequentDetectorImp getInstance() {
         if (ourInstance == null) {
             ourInstance = new FrequentDetectorImp();
         }
         return ourInstance;
-    }
+    }*/
 
-    private FrequentDetectorImp() {
+    public FrequentDetectorImp() {
         initConfig();
     }
 
@@ -57,4 +57,9 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
     public ConcurrentHashMap<String, Integer> getItemCounters() {
         return itemCounters;
     }
+    
+    public void resetCounter() {
+		// TODO Auto-generated method stub
+		itemCounters.clear();
+	}
 }

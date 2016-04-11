@@ -29,10 +29,22 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
                     ourInstance.bloomCounterVector[i].add(new BloomCounter());
                 }
             }
-            HashFunction.setHashFunctionNumber(BLOOM_FILTER_NUMBER);
+            //HashFunction.setHashFunctionNumber(BLOOM_FILTER_NUMBER);
         }
         return ourInstance;
     }
+    
+    public MultiBloomDetectorImp(){
+    	bloomCounterVector = new Vector[BLOOM_FILTER_NUMBER];
+        for (int i = 0; i < BLOOM_FILTER_NUMBER; i++) {
+            bloomCounterVector[i] = new Vector<BloomCounter>();
+            for (int j = 0; j < BLOOM_FILTER_LENGTH; j++) {
+                bloomCounterVector[i].add(new BloomCounter());
+            }
+        }
+       // HashFunction.setHashFunctionNumber(BLOOM_FILTER_NUMBER);
+    }
+    
 
     public void initConfig() {
         BLOOM_FILTER_NUMBER = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.MULTI_BLOOM_FILTER_NUMBER);

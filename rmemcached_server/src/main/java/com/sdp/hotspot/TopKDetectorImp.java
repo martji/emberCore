@@ -63,7 +63,8 @@ public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
 			return true;
 		}
 		else
-			return false;	}
+			return false;
+	}
 
 	public void run(){
 		do{
@@ -105,6 +106,11 @@ public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
 
 	public ConcurrentHashMap<String, Integer> getItemCounters() {
 		return itemCounters;
+	}
+	
+	public void resetCounter() {
+		// TODO Auto-generated method stub
+		itemCounters.clear();
 	}
 
 }

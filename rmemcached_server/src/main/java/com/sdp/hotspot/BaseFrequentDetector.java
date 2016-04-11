@@ -23,4 +23,6 @@ public interface BaseFrequentDetector {
 
 
     public ConcurrentHashMap<String, Integer> getItemCounters();
+    
+    public void resetCounter();
 }

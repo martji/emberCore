@@ -7,22 +7,23 @@ import com.sdp.config.GlobalConfigMgr;
 
 public class EcDetectorImp extends Thread implements BaseFrequentDetector {
 
-    private static double frequentPercentage =  0.1;
+    private static double frequentPercentage =  0.0001;
 	
-	private static int counterNumber = 20;
+	static int counterNumber = 100;
 	
 	private static double errorRate = 0.01;
 	
-	private static int itemSum = 0;
+	 int itemSum = 0;
 	
-	private static EcDetectorImp ourInstance = null;
+	//private static EcDetectorImp ourInstance = null;
 
     private ConcurrentHashMap<String, Integer> itemPreCounters = new ConcurrentHashMap<String, Integer>();
 	
     private ConcurrentHashMap<String, Integer> itemSumCounters = new ConcurrentHashMap<String, Integer>();
 
+    public ConcurrentHashMap<String, Integer> keyCounters = new ConcurrentHashMap<String, Integer>();
     
-    public static EcDetectorImp getInstance() {
+    /*public static EcDetectorImp getInstance() {
         if (ourInstance == null) {
             ourInstance = new EcDetectorImp();
             ourInstance.start();
@@ -32,49 +33,55 @@ public class EcDetectorImp extends Thread implements BaseFrequentDetector {
 
     private EcDetectorImp() {
         initConfig();
+    }*/
+    
+    public EcDetectorImp() {
+        initConfig();
+        this.start();
     }
     
     public void initConfig() {
 		// TODO Auto-generated method stub
 		frequentPercentage =  (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.FREQUENT_PERCENTAGE);
     	errorRate = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.ERROR_RATE);
-    	counterNumber = (int) (1/errorRate);
+    	//counterNumber = (int) (1/errorRate);
 	}
 
 	public boolean registerItem(String key) {
 		// TODO Auto-generated method stub
 		itemSum ++;
-		if(itemCounters.contains(key)){
-			itemCounters.put(key, itemCounters.get(key) + 1);
-		}else if(itemCounters.size() < counterNumber){
-			itemCounters.put(key, 1);
+		if(keyCounters.containsKey(key)){
+			keyCounters.put(key, keyCounters.get(key) + 1);
+		}else if(keyCounters.size() < counterNumber){
+			keyCounters.put(key, 1);
 			itemPreCounters.put(key, 0);
 			itemSumCounters.put(key, itemSum);
 		}else{
-			while(!itemCounters.containsValue(0)){
-				Iterator iter = itemCounters.keySet().iterator();
+			while(!keyCounters.containsValue(0)){
+				Iterator iter = keyCounters.keySet().iterator();
 				String str = null;
 	            while(iter.hasNext()){
 	            	str = (String) iter.next();
-	            	itemCounters.put(str, itemCounters.get(str) - 1);
+	            	keyCounters.put(str, keyCounters.get(str) - 1);
 	            	itemPreCounters.put(str, itemPreCounters.get(str) + 1);
 	            }
 			}
-			Iterator iter = itemCounters.keySet().iterator();
+			Iterator iter = keyCounters.keySet().iterator();
 			String str = null;
 			while(iter.hasNext()){
 				str = (String) iter.next();
-				if(itemCounters.get(str) == 0){
-					itemCounters.remove(str);
+				if(keyCounters.get(str) == 0){
+					keyCounters.remove(str);
 					itemPreCounters.remove(str);
 					itemSumCounters.remove(str);
 				}
 			}
-			itemCounters.put(key, 1);
+			keyCounters.put(key, 1);
 			itemPreCounters.put(key, 0);
 			itemSumCounters.put(key, itemSum);
 		}
-		if(itemCounters.get(key) + itemPreCounters.get(key) > (frequentPercentage - errorRate) *itemSum){
+		if(keyCounters.get(key) + itemPreCounters.get(key) > (frequentPercentage - errorRate) *itemSum){
+			itemCounters.put(key, keyCounters.get(key) + itemPreCounters.get(key));
 			return true;
 		}else{
 			return false;
@@ -83,20 +90,26 @@ public class EcDetectorImp extends Thread implements BaseFrequentDetector {
 
 	public void run(){
 		do{
-			itemSum = itemSum/2;
-			//int sum = itemSum;
-			try {
-				sleep(2*1000);
+			//itemSum = itemSum/2;
+			int sum = itemSum;
+			try {		
+				sleep(15*1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//itemSum = itemSum - sum;
+			itemSum = itemSum - sum;
+			System.out.println(itemSum+"detector");
 			//这里更新的策略，可以定时减半，或者记录一下前一时刻的总量，然后过段时间后再求差值这样
 		}while(true);
 	}
 
 	public ConcurrentHashMap<String, Integer> getItemCounters() {
 		return itemCounters;
+	}
+
+	public void resetCounter() {
+		// TODO Auto-generated method stub
+		itemCounters.clear();
 	}
 }
