@@ -16,11 +16,19 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
 
     private int sliceTime = 5*1000;
 
+    public int itemSum = 0;
+
+    public SWFPDetectorImp() {
+        initConfig();
+    }
+
     public void initConfig() {
 
     }
 
     public boolean registerItem(String key) {
+        itemSum ++;
+
         if (swfpMap.containsKey(key)) {
             swfpMap.get(key).add();
             if (swfpMap.get(key).getCount() > threshold) {
@@ -57,8 +65,16 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
         }
     }
 
+    public void updateItemsum(int preSum) {
+        itemSum -= preSum;
+    }
+
     public ConcurrentHashMap<String, Integer> getItemCounters() {
         return itemCounters;
+    }
+
+    public void resetCounter() {
+        itemCounters.clear();
     }
 
     public void refreshItemCounters() {

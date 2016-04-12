@@ -35,6 +35,7 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
     }
     
     public MultiBloomDetectorImp(){
+        initConfig();
     	bloomCounterVector = new Vector[BLOOM_FILTER_NUMBER];
         for (int i = 0; i < BLOOM_FILTER_NUMBER; i++) {
             bloomCounterVector[i] = new Vector<BloomCounter>();
