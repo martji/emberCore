@@ -11,10 +11,7 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     private ConcurrentHashMap<String, SWFPCounter> swfpMap = new ConcurrentHashMap<String, SWFPCounter>();
 
     private int counterSize = 10000;
-
     private int threshold = 1000;
-
-    private int sliceTime = 5*1000;
 
     public int itemSum = 0;
 
