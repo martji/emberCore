@@ -37,7 +37,7 @@ public class EcDetectorImp extends Thread implements BaseFrequentDetector {
 			keyPreCounters.put(key, 0);
 			keySumCounters.put(key, itemSum);
 		} else {
-			while (!keyCounters.containsValue(0)) {	//这个地方可能会有问题!!!
+			while (!keyCounters.containsValue(0)) {
 				Iterator iter = keyCounters.keySet().iterator();
 				String str = null;
 				while (iter.hasNext()) {
