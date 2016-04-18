@@ -17,28 +17,19 @@ public class HashFunction {
     private static int HASH_FUNCTION_NUMBER = 4;
     private List<String> methodList = new ArrayList<String>();
 
-    
-    public void initConfig() {
-    	HASH_FUNCTION_NUMBER = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.MULTI_BLOOM_FILTER_NUMBER);
-        BLOOM_FILTER_LENGTH = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.BLOOM_FILTER_LENGTH);
-    }
-    public static HashFunction getInstance() {
-        if (ourInstance == null) {
-            ourInstance = new HashFunction();
-            ourInstance.initConfig();
-        }
-        return ourInstance;
-    }
-    
-    
-
-    private HashFunction() {
+    public HashFunction() {
+        initConfig();
         methodList.add("RSHash");
         methodList.add("JSHash");
         methodList.add("BKDRHash");
         methodList.add("SDBMHash");
         methodList.add("DJBHash");
         methodList.add("DEKHash");
+    }
+
+    public void initConfig() {
+    	HASH_FUNCTION_NUMBER = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.MULTI_BLOOM_FILTER_NUMBER);
+        BLOOM_FILTER_LENGTH = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.BLOOM_FILTER_LENGTH);
     }
 
     public int[] getHashIndex(String key) {

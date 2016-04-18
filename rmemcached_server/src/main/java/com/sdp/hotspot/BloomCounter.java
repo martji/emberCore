@@ -14,7 +14,6 @@ public class BloomCounter implements Runnable{
 
     public BloomCounter() {
         initConfig();
-        run();
     }
 
     private void initConfig () {
