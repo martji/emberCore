@@ -13,7 +13,6 @@ import com.sdp.config.GlobalConfigMgr;
 
 public class HashFunction {
 	private static int BLOOM_FILTER_LENGTH = 2<<28;
-    private static HashFunction ourInstance = null;
     private static int HASH_FUNCTION_NUMBER = 4;
     private List<String> methodList = new ArrayList<String>();
 
@@ -30,20 +29,21 @@ public class HashFunction {
     public void initConfig() {
     	HASH_FUNCTION_NUMBER = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.MULTI_BLOOM_FILTER_NUMBER);
         BLOOM_FILTER_LENGTH = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.BLOOM_FILTER_LENGTH);
+        System.out.println("hash_function_number: " + HASH_FUNCTION_NUMBER + "; bloom_filter_length: " + BLOOM_FILTER_LENGTH);
     }
 
     public int[] getHashIndex(String key) {
         int[] result = null;
-        if (ourInstance.methodList.size() < HASH_FUNCTION_NUMBER) {
+        if (methodList.size() < HASH_FUNCTION_NUMBER) {
             return result;
         }
         Method method;
         result = new int[HASH_FUNCTION_NUMBER];
         try {
             for (int i = 0; i < HASH_FUNCTION_NUMBER; i++) {
-                method = ourInstance.getClass().getMethod(ourInstance.methodList.get(i), String.class);
-                long tmp = (Long) method.invoke(ourInstance, key);
-                result[i] = (int) tmp;
+                method = getClass().getMethod(methodList.get(i), String.class);
+                long tmp = (Long) method.invoke(this, key);
+                result[i] = Math.abs((int) (tmp % BLOOM_FILTER_LENGTH));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,8 +59,7 @@ public class HashFunction {
             hash = hash * a + str.charAt(i);
             a = a * b;
         }
-        return (BLOOM_FILTER_LENGTH - 1) & hash;
-       // return hash;
+        return hash;
     }
 
     public long JSHash(String str) {
@@ -68,8 +67,7 @@ public class HashFunction {
         for(int i = 0; i < str.length(); i++) {
             hash ^= ((hash << 5) + str.charAt(i) + (hash >> 2));
         }
-        return (BLOOM_FILTER_LENGTH - 1) & hash;
-        //return hash;
+        return hash;
     }
 
     public long BKDRHash(String str) {
@@ -78,8 +76,7 @@ public class HashFunction {
         for(int i = 0; i < str.length(); i++) {
             hash = (hash * seed) + str.charAt(i);
         }
-        return (BLOOM_FILTER_LENGTH - 1) & hash;
-        //return hash;
+        return hash;
     }
 
     public long SDBMHash(String str) {
@@ -87,8 +84,7 @@ public class HashFunction {
         for(int i = 0; i < str.length(); i++) {
             hash = str.charAt(i) + (hash << 6) + (hash << 16) - hash;
         }
-        return (BLOOM_FILTER_LENGTH - 1) & hash;
-        //return hash;
+        return hash;
     }
 
     public long DJBHash(String str) {
@@ -96,8 +92,7 @@ public class HashFunction {
         for (int i = 0; i < str.length(); i++) {
             hash = ((hash << 5) + hash) + str.charAt(i);
         }
-        return (BLOOM_FILTER_LENGTH - 1) & hash;
-        //return hash;
+        return hash;
     }
 
     public long DEKHash(String str) {
@@ -105,7 +100,18 @@ public class HashFunction {
         for(int i = 0; i < str.length(); i++) {
             hash = ((hash << 5) ^ (hash >> 27)) ^ str.charAt(i);
         }
-        return (BLOOM_FILTER_LENGTH - 1) & hash;
-        //return hash;
+        return hash;
+    }
+
+    public static void main(String[] args) {
+        GlobalConfigMgr.init();
+        HashFunction hashFunction = new HashFunction();
+        int len = 10000;
+        long start = System.currentTimeMillis();
+        for (int i = 0; i< len; i++) {
+            int[] result = hashFunction.getHashIndex("usertable:user0");
+//            System.out.println(result[0] + " " + result[1] + " " + result[2] + " " + result[3]);
+        }
+        System.out.println("[Time cost] " + (System.currentTimeMillis() - start));
     }
 }
