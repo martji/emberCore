@@ -96,7 +96,7 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
         if (currentHotspotSet.contains(key)) {
             return;
         }
-        boolean isFrequentItem = false;
+        boolean isFrequentItem = true;
         isFrequentItem = multiBloomDetector.registerItem(key);
 
         if (isFrequentItem) {
