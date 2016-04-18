@@ -101,7 +101,8 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
 
         if (isFrequentItem) {
             if (frequentDetector.registerItem(key)) {
-                currentHotspotSet.add(key);
+                // todo
+//                currentHotspotSet.add(key);
 //                dealHotData(key);
             }
         }

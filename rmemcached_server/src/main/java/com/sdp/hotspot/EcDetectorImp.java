@@ -30,40 +30,40 @@ public class EcDetectorImp extends Thread implements BaseFrequentDetector {
 	public boolean registerItem(String key) {
 		itemSum ++;
 
-//		if (keyCounters.containsKey(key)) {
-//			keyCounters.put(key, keyCounters.get(key) + 1);
-//		} else if (keyCounters.size() < counterNumber) {
-//			keyCounters.put(key, 1);
-//			keyPreCounters.put(key, 0);
-//			keySumCounters.put(key, itemSum);
-//		} else {
-//			while (!keyCounters.containsValue(0)) {
-//				Iterator iter = keyCounters.keySet().iterator();
-//				String str = null;
-//				while (iter.hasNext()) {
-//					str = (String) iter.next();
-//					keyCounters.put(str, keyCounters.get(str) - 1);
-//					keyPreCounters.put(str, keyPreCounters.get(str) + 1);
-//				}
-//			}
-//			Iterator iter = keyCounters.keySet().iterator();
-//			String str = null;
-//			while (iter.hasNext()) {
-//				str = (String) iter.next();
-//				if (keyCounters.get(str) == 0) {
-//					keyCounters.remove(str);
-//					keyPreCounters.remove(str);
-//					keySumCounters.remove(str);
-//				}
-//			}
-//			keyCounters.put(key, 1);
-//			keyPreCounters.put(key, 0);
-//			keySumCounters.put(key, itemSum);
-//		}
-//		if (keyCounters.get(key) + keyPreCounters.get(key) > (frequentPercentage - errorRate) * itemSum) {	//itemSum是一个变量
-//			itemCounters.put(key, keyCounters.get(key) + keyPreCounters.get(key));
-//			return true;
-//		}
+		if (keyCounters.containsKey(key)) {
+			keyCounters.put(key, keyCounters.get(key) + 1);
+		} else if (keyCounters.size() < counterNumber) {
+			keyCounters.put(key, 1);
+			keyPreCounters.put(key, 0);
+			keySumCounters.put(key, itemSum);
+		} else {
+			while (!keyCounters.containsValue(0)) {
+				Iterator iter = keyCounters.keySet().iterator();
+				String str = null;
+				while (iter.hasNext()) {
+					str = (String) iter.next();
+					keyCounters.put(str, keyCounters.get(str) - 1);
+					keyPreCounters.put(str, keyPreCounters.get(str) + 1);
+				}
+			}
+			Iterator iter = keyCounters.keySet().iterator();
+			String str = null;
+			while (iter.hasNext()) {
+				str = (String) iter.next();
+				if (keyCounters.get(str) == 0) {
+					keyCounters.remove(str);
+					keyPreCounters.remove(str);
+					keySumCounters.remove(str);
+				}
+			}
+			keyCounters.put(key, 1);
+			keyPreCounters.put(key, 0);
+			keySumCounters.put(key, itemSum);
+		}
+		if (keyCounters.get(key) + keyPreCounters.get(key) > (frequentPercentage - errorRate) * itemSum) {	//itemSum是一个变量
+			itemCounters.put(key, keyCounters.get(key) + keyPreCounters.get(key));
+			return true;
+		}
         return false;
 	}
 
