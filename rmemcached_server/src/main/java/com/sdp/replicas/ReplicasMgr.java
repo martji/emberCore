@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sdp.common.EMSGID;
 import com.sdp.config.GlobalConfigMgr;
+import com.sdp.db.DBClientInterface;
+import com.sdp.db.SpyMcClient;
 import com.sdp.example.Log;
 import com.sdp.hotspot.BaseHotspotDetector;
 import com.sdp.hotspot.HotspotDetector;
@@ -13,13 +15,11 @@ import com.sdp.messageBody.CtsMsg.*;
 import com.sdp.netty.NetMsg;
 import com.sdp.server.MServer;
 import com.sdp.server.ServerNode;
-import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.internal.OperationFuture;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
-import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
@@ -37,14 +37,14 @@ public class ReplicasMgr implements CallBack {
 	int serverId;
 	Map<Integer, ServerNode> serversMap;
 	MServer mServer;
-	MemcachedClient mc;
+	DBClientInterface db;
 	int protocol;
 	int replicasMode = 0;
 	
 	private static int exptime = 60*60*24*10;
 	ExecutorService pool = Executors.newCachedThreadPool();
 	
-	ConcurrentHashMap<Integer, MemcachedClient> spyClientMap = new ConcurrentHashMap<Integer, MemcachedClient>();
+	ConcurrentHashMap<Integer, DBClientInterface> dbClientMap = new ConcurrentHashMap<Integer, DBClientInterface>();
 	public ConcurrentHashMap<String, Vector<Integer>> replicasIdMap = null;
 	ConcurrentHashMap<String, LockKey> LockKeyMap = new ConcurrentHashMap<String, LockKey>();
 	ConcurrentHashMap<Integer, Channel> clientChannelMap = new ConcurrentHashMap<Integer, Channel>();
@@ -132,8 +132,8 @@ public class ReplicasMgr implements CallBack {
 					Entry<Integer, ServerNode> map = iterator.next();
 					int id = map.getKey();
 					if (id != serverId) {
-						MemcachedClient spyClient = buildAMClient(id);
-						spyClientMap.put(id, spyClient);
+						DBClientInterface dbClient = buildAMClient(id);
+						dbClientMap.put(id, dbClient);
 					}
 				}
 			}
@@ -250,17 +250,17 @@ public class ReplicasMgr implements CallBack {
 			String value = null;
 			if (failedId == serverId) {
 				Vector<Integer> vector = replicasIdMap.get(oriKey);
-				MemcachedClient mClient = spyClientMap.get(vector.get(0));
-				value = (String) mClient.get(oriKey);
+				DBClientInterface mClient = dbClientMap.get(vector.get(0));
+				value = mClient.get(oriKey);
 				if (value != null && value.length() > 0) {
-					mc.set(oriKey, 3600, value);
+					db.set(oriKey, value);
 				}
 				
 			} else {
-				value = (String) mc.get(oriKey);
+				value = (String) db.get(oriKey);
 				if (value != null && value.length() > 0) {
-					MemcachedClient mClient = spyClientMap.get(failedId);
-					mClient.set(oriKey, exptime, value);
+					DBClientInterface mClient = dbClientMap.get(failedId);
+					mClient.set(oriKey, value);
 				}
 			}
 			nr_read_res.Builder builder = nr_read_res.newBuilder();
@@ -487,37 +487,33 @@ public class ReplicasMgr implements CallBack {
 	 * @param replicaId
 	 */
 	public boolean createReplica(String key, int replicaId) {
-		MemcachedClient replicaClient;
-		if (spyClientMap.containsKey(replicaId)) {
-			replicaClient = spyClientMap.get(replicaId);
+		DBClientInterface replicaClient;
+		if (dbClientMap.containsKey(replicaId)) {
+			replicaClient = dbClientMap.get(replicaId);
 		} else {
 			replicaClient = buildAMClient(replicaId);
 			if (replicaClient != null) {
-				spyClientMap.put(replicaId, replicaClient);
+				dbClientMap.put(replicaId, replicaClient);
 			} else {
 				return false;
 			}
 		}
 		
-		String value = (String) mc.get(key);
+		String value = (String) db.get(key);
 		if (value == null || value.length() == 0) {
 			System.out.println("[ERROR] no value fo this key: " + key);
 			return false;
 		}
-		OperationFuture<Boolean> out = replicaClient.set(key, exptime, value);
-		try {
-			return out.get();
-		} catch (Exception e) {}
-		return false;
+		return replicaClient.set(key, value);
 	}
 
-	private MemcachedClient buildAMClient(int replicaId){
+	private DBClientInterface buildAMClient(int replicaId){
 		try {
-			MemcachedClient replicaClient;
+			DBClientInterface replicaClient;
 			ServerNode serverNode = serversMap.get(replicaId);
 			String host = serverNode.getHost();
 			int memcachedPort = serverNode.getMemcached();
-			replicaClient = new MemcachedClient(new InetSocketAddress(host, memcachedPort));
+			replicaClient = new SpyMcClient(host, memcachedPort);
 			return replicaClient;
 		} catch (Exception e) {}
 		return null;
@@ -548,15 +544,14 @@ public class ReplicasMgr implements CallBack {
 				threshold = count - 1;
 			}
 			for (int i = 1; i < count; i++) {
-				MemcachedClient mClient = spyClientMap.get(replications.get(i));
+				DBClientInterface mClient = dbClientMap.get(replications.get(i));
 				MCThread thread = new MCThread(mClient, key, value);
 				Future<Boolean> f = pool.submit(thread);
 				resultVector.add(f);
 			}
 		}
 		
-		OperationFuture<Boolean> res = mc.set(orikey, exptime, value);
-		boolean setState = getSetState(res);
+		boolean setState = db.set(orikey, value);
 		if (!setState) {
 			value = "";
 		} else if (threshold > 0){
@@ -598,8 +593,8 @@ public class ReplicasMgr implements CallBack {
 		return send;
 	}
 
-	public void setMemcachedClient(MemcachedClient mc) {
-		this.mc = mc;
+	public void setDBClient(DBClientInterface db) {
+		this.db = db;
 	}
 	
 	public void setMServer(MServer mServer) {

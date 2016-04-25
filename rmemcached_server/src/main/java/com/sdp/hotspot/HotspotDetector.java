@@ -6,6 +6,7 @@ import com.sdp.replicas.CallBack;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -63,6 +64,9 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
 
                 preSum = ((EcDetectorImp)frequentDetector).itemSum;
             	System.out.println(" [visit count] " + frequentDetector.itemCounters.size() +" / "+ preSum);
+
+                ConcurrentHashMap<String, Integer> items = frequentDetector.getItemCounters();
+                System.out.println("[items]" + items.toString());
 
 
 //                List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(frequentDetector.getItemCounters().entrySet());

@@ -33,6 +33,7 @@ public class GlobalConfigMgr {
             Properties properties = new Properties();
             properties.load(new FileInputStream(configPath));
 
+            String db = properties.getProperty(DB_NAME, "com.sdp.db.SpyMcClient");
             int multi_bloom_filter_number = Integer.decode(properties.getProperty(MULTI_BLOOM_FILTER_NUMBER, "4"));
             int bloom_filter_length = Integer.decode(properties.getProperty(BLOOM_FILTER_LENGTH, "100"));
             String monitor_address = properties.getProperty(MONITOR_ADDRESS, "127.0.0.1").toString();
@@ -49,7 +50,8 @@ public class GlobalConfigMgr {
             double error_rate = Double.parseDouble(properties.getProperty(ERROR_RATE, "0.01"));
 
             LocalSpots.threshold = Integer.decode(properties.getProperty(LOCALSPOT_THRESHOLD, "100"));
-            
+
+            propertiesMap.put(DB_NAME, db);
             propertiesMap.put(MULTI_BLOOM_FILTER_NUMBER, multi_bloom_filter_number);
             propertiesMap.put(BLOOM_FILTER_LENGTH, bloom_filter_length);
             propertiesMap.put(MONITOR_ADDRESS, monitor_address);
@@ -58,7 +60,7 @@ public class GlobalConfigMgr {
             propertiesMap.put(COUNTER_PERIOD, counter_period);
             propertiesMap.put(REPLICA_PROTOCOL, replica_protocol);
             propertiesMap.put(FREQUENT_ITEM_NUMBER, frequent_item_number);
-            propertiesMap.put(TOP_ITEM_NUMBER, frequent_item_number);
+            propertiesMap.put(TOP_ITEM_NUMBER, top_item_number);
             propertiesMap.put(HOTSPOT_DETECTOR_MODE, hotspot_detector_mode);
             propertiesMap.put(REPLICA_MODE, replica_mode);
             propertiesMap.put(COUNTER_NUMBER, counter_number);
@@ -94,6 +96,7 @@ public class GlobalConfigMgr {
         GlobalConfigMgr.id = id;
     }
 
+    public static final String DB_NAME = "db";
     public static final String MULTI_BLOOM_FILTER_NUMBER = "multi_bloom_filter_number";
     public static final String BLOOM_FILTER_LENGTH = "bloom_filter_length";
     public static final String MONITOR_ADDRESS = "monitor_address";

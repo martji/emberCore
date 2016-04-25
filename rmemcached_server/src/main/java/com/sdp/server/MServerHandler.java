@@ -1,12 +1,12 @@
 package com.sdp.server;
 
 import com.sdp.config.GlobalConfigMgr;
+import com.sdp.db.DBClientInterface;
+import com.sdp.db.SpyMcClient;
 import com.sdp.replicas.ReplicasMgr;
-import net.spy.memcached.MemcachedClient;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
-import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Vector;
 
@@ -32,27 +32,35 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 		
 		this();
 		replicasMgr = new ReplicasMgr(serverId, serversMap, mServer, protocol);
-		MemcachedClient mc = null;
+		DBClientInterface db = getDB();
 		try {
 			ServerNode serverNode = serversMap.get(serverId);
 			String host = serverNode.getHost();
-			int memcachedPort = serverNode.getMemcached();
-			mc = new MemcachedClient(new InetSocketAddress(host, memcachedPort));
+			int port = serverNode.getMemcached();
+			if (db == null) {
+				db = new SpyMcClient(host, port);
+			} else {
+				db.setDB(host, port);
+			}
 		} catch (Exception e) {}
-		replicasMgr.setMemcachedClient(mc);
+		replicasMgr.setDBClient(db);
 	}
 
 	public MServerHandler(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
 		this();
 		replicasMgr = new ReplicasMgr(mServer, replicasIdMap);
-		MemcachedClient mc = null;
+		DBClientInterface db = getDB();
 		try {
 			ServerNode serverNode = GlobalConfigMgr.serversMap.get(GlobalConfigMgr.id);
 			String host = serverNode.getHost();
-			int memcachedPort = serverNode.getMemcached();
-			mc = new MemcachedClient(new InetSocketAddress(host, memcachedPort));
+			int port = serverNode.getMemcached();
+			if (db == null) {
+				db = new SpyMcClient(host, port);
+			} else {
+				db.setDB(host, port);
+			}
 		} catch (Exception e) {}
-		replicasMgr.setMemcachedClient(mc);
+		replicasMgr.setDBClient(db);
 	}
 
 	@Override
@@ -82,6 +90,17 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 	public void setMServer(MServer mServer) {
 		this.mServer = mServer;
 		replicasMgr.setMServer(mServer);
+	}
+
+	public DBClientInterface getDB() {
+		try {
+			Class<DBClientInterface> db = (Class<DBClientInterface>) Class.forName((String)
+					GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.DB_NAME));
+			return db.newInstance();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
 
