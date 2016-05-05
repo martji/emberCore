@@ -99,9 +99,9 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
                     }
                     BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
 
-                    bw.write(df.format(new Date()) + " [Current frequent items]:");
+                    bw.write(df.format(new Date()) + " [Current frequent items]:\n");
                     for (Map.Entry<String, Integer> mapping : list) {
-                        bw.write(mapping.getKey() + "= " + mapping.getValue() + "  ");
+                        bw.write(mapping.getKey() + "= " + mapping.getValue() + "\n");
                     }
                     bw.write("\n\n\n");
 
