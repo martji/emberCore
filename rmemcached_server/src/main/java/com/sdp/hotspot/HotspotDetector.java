@@ -3,16 +3,15 @@ package com.sdp.hotspot;
 import com.sdp.config.GlobalConfigMgr;
 import com.sdp.replicas.CallBack;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by magq on 16/1/12.
@@ -20,6 +19,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class HotspotDetector extends BaseHotspotDetector implements Runnable, CallBack {
 
     private int log_sleep_time;
+
+    private ExecutorService threadPool = Executors.newCachedThreadPool();
+    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String hotspotPath = System.getProperty("user.dir") + "/logs/hotspot.data";
 
     private BaseFrequentDetector frequentDetector;
     private BaseBloomDetector multiBloomDetector;
@@ -33,7 +36,7 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
     public HotspotDetector() {
         multiBloomDetector = new MultiBloomDetectorImp();
         frequentDetector = new SWFPDetectorImp();
-        //frequentDetector = new EcDetectorImp();
+//        frequentDetector = new EcDetectorImp();
         initConfig();
     }
 
@@ -50,7 +53,6 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
      * run period
      */
     public void run() {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while (true) {
             try {
                 // 多重布隆过滤器
@@ -65,46 +67,50 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
                 ((SWFPDetectorImp)frequentDetector).refreshSWFPCounter();
                 Thread.sleep(log_sleep_time);
 
-
                 preBloomSum = ((MultiBloomDetectorImp)multiBloomDetector).itemSum;
                 
                 List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(frequentDetector.getItemCounters().entrySet());
-                Collections.sort(list, new Comparator<ConcurrentHashMap.Entry<String, Integer>>() {
-                    public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                      return (o2.getValue() - o1.getValue());
-                  }
-                });
-                System.out.print("[Current frequent items]:");
-                for (Map.Entry<String, Integer> mapping : list) {
-                  System.out.print(mapping.getKey() + "= " + mapping.getValue() + "  ");
-                }
+                write2fileBackground(list);
+
                 System.out.println();
                 System.out.print(df.format(new Date()) + ": [bloom visit count] " + ((MultiBloomDetectorImp)multiBloomDetector).itemPass +" / "+ preBloomSum);
 
                 preSum = ((SWFPDetectorImp)frequentDetector).itemSum;
             	System.out.println(" [visit count] " + frequentDetector.itemCounters.size() +" / "+ preSum);
-
-
-//                List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(frequentDetector.getItemCounters().entrySet());
-//                Collections.sort(list, new Comparator<ConcurrentHashMap.Entry<String, Integer>>() {
-//                    public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-//                        return (o2.getValue() - o1.getValue());
-//                    }
-//                });
-//                System.out.print("[Current frequent items]:");
-//                for (Map.Entry<String, Integer> mapping : list) {
-//                    System.out.print(mapping.getKey() + "= " + mapping.getValue() + "  ");
-//                }
-//                System.out.println();
-//                System.out.println(currentHotspotSet);
-//                for (Iterator it = currentHotspotSet.iterator(); it.hasNext(); ) {
-//                    String str = (String) it.next();
-//                    System.out.println(str + multiBloomDetector.getHashIndex(str) + "www");
-//                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void write2fileBackground(final List<Map.Entry<String, Integer>> list) {
+        threadPool.execute(new Runnable() {
+            public void run() {
+                Collections.sort(list, new Comparator<ConcurrentHashMap.Entry<String, Integer>>() {
+                    public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                        return (o2.getValue() - o1.getValue());
+                    }
+                });
+
+                try {
+                    File file = new File(hotspotPath);
+                    if (!file.exists()) {
+                        file.createNewFile();
+                    }
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
+
+                    bw.write(df.format(new Date()) + " [Current frequent items]:");
+                    for (Map.Entry<String, Integer> mapping : list) {
+                        bw.write(mapping.getKey() + "= " + mapping.getValue() + "  ");
+                    }
+                    bw.write("\n\n\n");
+
+                    bw.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     /**
