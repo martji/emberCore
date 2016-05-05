@@ -22,7 +22,7 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String hotspotPath = System.getProperty("user.dir") + "/logs/hotspot.data";
+    String hotspotPath = String.format(System.getProperty("user.dir") + "/logs/server_%d_hotspot.data", GlobalConfigMgr.id);
 
     private BaseFrequentDetector frequentDetector;
     private BaseBloomDetector multiBloomDetector;
