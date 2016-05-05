@@ -47,6 +47,7 @@ public class GlobalConfigMgr {
             int counter_number = Integer.decode(properties.getProperty(COUNTER_NUMBER, "10"));
             double frequent_percentage = Double.parseDouble(properties.getProperty(FREQUENT_PERCENTAGE, "0.1"));
             double error_rate = Double.parseDouble(properties.getProperty(ERROR_RATE, "0.01"));
+            int threshold = Integer.decode(properties.getProperty(THRESHOLD, "10"));
 
             LocalSpots.threshold = Integer.decode(properties.getProperty(LOCALSPOT_THRESHOLD, "100"));
             
@@ -64,6 +65,7 @@ public class GlobalConfigMgr {
             propertiesMap.put(COUNTER_NUMBER, counter_number);
             propertiesMap.put(FREQUENT_PERCENTAGE, frequent_percentage);
             propertiesMap.put(ERROR_RATE, error_rate);
+            propertiesMap.put(THRESHOLD, threshold);
         } catch (Exception e) {
             Log.log.error("wrong config.properties", e);
         }
@@ -109,6 +111,7 @@ public class GlobalConfigMgr {
     public static final String FREQUENT_PERCENTAGE = "frequent_percentage";
     public static final String ERROR_RATE = "error_rate";
     public static final String LOCALSPOT_THRESHOLD = "localspot_threshold";
+    public static final String THRESHOLD = "threshold";
 
     public static final int COUNTR_MODE = 0;
     public static final int DATA_STREAM_MODE = 1;

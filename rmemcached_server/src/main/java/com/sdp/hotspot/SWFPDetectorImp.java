@@ -3,6 +3,8 @@ package com.sdp.hotspot;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sdp.config.GlobalConfigMgr;
+
 /**
  * Created by Guoqing on 2016/3/29.
  */
@@ -10,9 +12,10 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
 
     private ConcurrentHashMap<String, SWFPCounter> swfpMap = new ConcurrentHashMap<String, SWFPCounter>();
 
-    private int counterSize = 10000;
-    private int threshold = 1000;
-
+    private double frequentPercentage =  0.0001;
+ //  private int counterSize = 10000;
+ // private int threshold = 1000;
+    private int counterNumber = 10000;
     public int itemSum = 0;
 
     public SWFPDetectorImp() {
@@ -20,7 +23,9 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     }
 
     public void initConfig() {
-
+    	frequentPercentage =  (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.FREQUENT_PERCENTAGE);
+    	counterNumber = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.COUNTER_NUMBER);
+   //threshold = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.THRESHOLD);
     }
 
     public boolean registerItem(String key) {
@@ -28,11 +33,11 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
 
         if (swfpMap.containsKey(key)) {
             swfpMap.get(key).add();
-            if (swfpMap.get(key).getCount() > threshold) {
+            if (swfpMap.get(key).getCount() > frequentPercentage * itemSum) {
                 itemCounters.put(key, swfpMap.get(key).frequent);
             }
         } else {
-            if (swfpMap.size() < counterSize) {
+            if (swfpMap.size() < counterNumber) {
                 swfpMap.put(key, new SWFPCounter(key));
             } else {
                 Set<String> keySet = swfpMap.keySet();
@@ -44,7 +49,7 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
                     }
                 }
 
-                if (swfpMap.size() < counterSize) {
+                if (swfpMap.size() < counterNumber) {
                     swfpMap.put(key, new SWFPCounter(key));
                 }
             }
