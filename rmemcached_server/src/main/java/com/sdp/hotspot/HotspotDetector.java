@@ -70,9 +70,10 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
                 preBloomSum = ((MultiBloomDetectorImp)multiBloomDetector).itemSum;
                 
                 List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(frequentDetector.getItemCounters().entrySet());
-                write2fileBackground(list);
+                if (list != null && list.size() > 0) {
+                    write2fileBackground(list);
+                }
 
-                System.out.println();
                 System.out.print(df.format(new Date()) + ": [bloom visit count] " + ((MultiBloomDetectorImp)multiBloomDetector).itemPass +" / "+ preBloomSum);
 
                 preSum = ((SWFPDetectorImp)frequentDetector).itemSum;
@@ -101,7 +102,7 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
 
                     bw.write(df.format(new Date()) + " [Current frequent items]:\n");
                     for (Map.Entry<String, Integer> mapping : list) {
-                        bw.write(mapping.getKey() + "= " + mapping.getValue() + "\n");
+                        bw.write(mapping.getKey() + " = " + mapping.getValue() + "\n");
                     }
                     bw.write("\n\n\n");
 

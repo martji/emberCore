@@ -12,9 +12,9 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
 
     private ConcurrentHashMap<String, SWFPCounter> swfpMap = new ConcurrentHashMap<String, SWFPCounter>();
 
-    private double frequentPercentage =  0.0001;
- //  private int counterSize = 10000;
- // private int threshold = 1000;
+    private double frequentPercentage = 0.0001;
+//    private int counterSize = 10000;
+//    private int threshold = 1000;
     private int counterNumber = 10000;
     public int itemSum = 0;
 
@@ -23,9 +23,9 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     }
 
     public void initConfig() {
-    	frequentPercentage =  (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.FREQUENT_PERCENTAGE);
+    	frequentPercentage = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.FREQUENT_PERCENTAGE);
     	counterNumber = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.COUNTER_NUMBER);
-   //threshold = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.THRESHOLD);
+//        threshold = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.THRESHOLD);
     }
 
     public boolean registerItem(String key) {

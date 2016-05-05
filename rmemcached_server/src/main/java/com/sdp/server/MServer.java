@@ -76,6 +76,7 @@ public class MServer {
 	 */
 	private void registerMonitor(int id, String monitorAddress, int memcachedPort) {
 		LocalMonitor.getInstance().setPort(memcachedPort);
+		System.out.println("[monitor]: " + monitorAddress);
 		String[] arr = monitorAddress.split(":");
 		
 		final String host = arr[0];
