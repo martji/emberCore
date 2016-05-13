@@ -127,7 +127,7 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
         isFrequentItem = multiBloomDetector.registerItem(key);
 
         if (isFrequentItem) {
-            if (frequentDetector.registerItem(key)) {
+            if (frequentDetector.registerItem(key, preSum)) {
                 // todo
 //                currentHotspotSet.add(key);
 //                dealHotData(key);

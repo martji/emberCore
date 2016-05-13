@@ -28,14 +28,17 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
 //        threshold = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.THRESHOLD);
     }
 
-    public boolean registerItem(String key) {
+    public boolean registerItem(String key, int presum) {
         itemSum ++;
 
         if (swfpMap.containsKey(key)) {
             swfpMap.get(key).add();
-            if (swfpMap.get(key).getCount() > frequentPercentage * itemSum) {
-                itemCounters.put(key, swfpMap.get(key).frequent);
-            }
+            if((itemSum > presum)&&(swfpMap.get(key).getCount() > frequentPercentage * itemSum)){
+            	itemCounters.put(key, swfpMap.get(key).frequent);
+            } else
+            	if(swfpMap.get(key).getCount() > frequentPercentage * presum){
+            		itemCounters.put(key, swfpMap.get(key).frequent);
+            	}
         } else {
             if (swfpMap.size() < counterNumber) {
                 swfpMap.put(key, new SWFPCounter(key));

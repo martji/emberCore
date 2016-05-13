@@ -32,7 +32,7 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
     /**
      * Frequent algorithm
      */
-    public boolean registerItem(String key) {
+    public boolean registerItem(String key, int presum) {
         boolean result = false;
         if(itemCounters.containsKey(key)) {
             itemCounters.put(key, itemCounters.get(key) + 1);

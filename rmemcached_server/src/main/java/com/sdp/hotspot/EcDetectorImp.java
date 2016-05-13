@@ -27,7 +27,7 @@ public class EcDetectorImp extends Thread implements BaseFrequentDetector {
 //    	counterNumber = (int) (1/errorRate);
 	}
 
-	public boolean registerItem(String key) {
+	public boolean registerItem(String key, int presum) {
 		itemSum ++;
 
 		if (keyCounters.containsKey(key)) {

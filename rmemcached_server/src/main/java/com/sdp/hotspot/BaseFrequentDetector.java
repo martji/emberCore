@@ -19,7 +19,7 @@ public interface BaseFrequentDetector {
      * @param key
      * @return 插入元素是否是frequent item
      */
-    public boolean registerItem(String key);
+    public boolean registerItem(String key, int presum);
 
 
     public ConcurrentHashMap<String, Integer> getItemCounters();

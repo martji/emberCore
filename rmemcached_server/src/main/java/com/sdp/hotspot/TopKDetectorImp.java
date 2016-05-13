@@ -35,7 +35,7 @@ public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
 		counterNumber = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.COUNTER_NUMBER);
 	}
 
-	public boolean registerItem(String key) {
+	public boolean registerItem(String key, int presum) {
 		if(itemCounters.contains(key)){
 			itemCounters.put(key, itemCounters.get(key) + 1);
 		} else if(itemCounters.size() < counterNumber){
