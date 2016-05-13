@@ -36,7 +36,6 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
     public HotspotDetector() {
         multiBloomDetector = new MultiBloomDetectorImp();
         frequentDetector = new SWFPDetectorImp();
-//        frequentDetector = new EcDetectorImp();
         initConfig();
     }
 
@@ -60,23 +59,20 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
                 ((MultiBloomDetectorImp)multiBloomDetector).resetCounter();
 
                 // frequent + EC 算法
-                //((EcDetectorImp)frequentDetector).updateItemsum(preSum);
-                //frequentDetector.resetCounter();
                 ((SWFPDetectorImp)frequentDetector).updateItemsum(preSum);
                 frequentDetector.resetCounter();
                 ((SWFPDetectorImp)frequentDetector).refreshSWFPCounter();
+
                 Thread.sleep(log_sleep_time);
 
-                preBloomSum = ((MultiBloomDetectorImp)multiBloomDetector).itemSum;
-                
                 List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(frequentDetector.getItemCounters().entrySet());
                 if (list != null && list.size() > 0) {
                     write2fileBackground(list);
                 }
 
-                System.out.print(df.format(new Date()) + ": [bloom visit count] " + ((MultiBloomDetectorImp)multiBloomDetector).itemPass +" / "+ preBloomSum);
-
+                preBloomSum = ((MultiBloomDetectorImp)multiBloomDetector).itemSum;
                 preSum = ((SWFPDetectorImp)frequentDetector).itemSum;
+                System.out.print(df.format(new Date()) + ": [bloom visit count] " + ((MultiBloomDetectorImp)multiBloomDetector).itemPass +" / "+ preBloomSum);
             	System.out.println(" [visit count] " + frequentDetector.itemCounters.size() +" / "+ preSum);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -127,7 +123,7 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
         isFrequentItem = multiBloomDetector.registerItem(key);
 
         if (isFrequentItem) {
-            if (frequentDetector.registerItem(key, preSum)) {
+            if (frequentDetector.registerItem(key, preBloomSum)) {
                 // todo
 //                currentHotspotSet.add(key);
 //                dealHotData(key);
