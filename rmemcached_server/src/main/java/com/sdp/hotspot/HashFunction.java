@@ -29,7 +29,6 @@ public class HashFunction {
     public void initConfig() {
     	HASH_FUNCTION_NUMBER = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.MULTI_BLOOM_FILTER_NUMBER);
         BLOOM_FILTER_LENGTH = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.BLOOM_FILTER_LENGTH);
-        System.out.println("hash_function_number: " + HASH_FUNCTION_NUMBER + "; bloom_filter_length: " + BLOOM_FILTER_LENGTH);
     }
 
     public int[] getHashIndex(String key) {
@@ -101,17 +100,5 @@ public class HashFunction {
             hash = ((hash << 5) ^ (hash >> 27)) ^ str.charAt(i);
         }
         return hash;
-    }
-
-    public static void main(String[] args) {
-        GlobalConfigMgr.init();
-        HashFunction hashFunction = new HashFunction();
-        int len = 10000;
-        long start = System.currentTimeMillis();
-        for (int i = 0; i< len; i++) {
-            int[] result = hashFunction.getHashIndex("usertable:user0");
-//            System.out.println(result[0] + " " + result[1] + " " + result[2] + " " + result[3]);
-        }
-        System.out.println("[Time cost] " + (System.currentTimeMillis() - start));
     }
 }

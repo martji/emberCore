@@ -75,7 +75,7 @@ public class ReplicasMgr implements CallBack {
 	}
 	
 	public void initHotspotDetector() {
-		if ((Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOTSPOT_DETECTOR_MODE)
+		if ((Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_DETECTOR_MODE)
                 == GlobalConfigMgr.DATA_STREAM_MODE) {
             hotspotDetector = new HotspotDetector();
         } else {

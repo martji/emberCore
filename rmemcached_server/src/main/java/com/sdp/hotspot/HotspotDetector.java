@@ -22,15 +22,14 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String hotspotPath = String.format(System.getProperty("user.dir") + "/logs/server_%d_hotspot.data", GlobalConfigMgr.id);
+    String hotSpotPath = String.format(System.getProperty("user.dir") + "/logs/server_%d_hotspot.data", GlobalConfigMgr.id);
 
     private BaseFrequentDetector frequentDetector;
-    private BaseBloomDetector multiBloomDetector;
+    private MultiBloomDetectorImp multiBloomDetector;
 
     private ConcurrentLinkedQueue<String> hotspots = new ConcurrentLinkedQueue<String>();
     private HashSet<String> currentHotspotSet = new HashSet<String>();
 
-    private int preBloomSum = 0;
     private int preSum = 0;
 
     public HotspotDetector() {
@@ -55,8 +54,8 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
         while (true) {
             try {
                 // 多重布隆过滤器
-                ((MultiBloomDetectorImp)multiBloomDetector).updateItemsum(preBloomSum);
-                ((MultiBloomDetectorImp)multiBloomDetector).resetCounter();
+                multiBloomDetector.updateItemSum();
+                multiBloomDetector.resetCounter();
 
                 // frequent + EC 算法
                 ((SWFPDetectorImp)frequentDetector).updateItemsum(preSum);
@@ -70,10 +69,8 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
                     write2fileBackground(list);
                 }
 
-                preBloomSum = ((MultiBloomDetectorImp)multiBloomDetector).itemSum;
                 preSum = ((SWFPDetectorImp)frequentDetector).itemSum;
-                System.out.print(df.format(new Date()) + ": [bloom visit count] " + ((MultiBloomDetectorImp)multiBloomDetector).itemPass +" / "+ preBloomSum);
-            	System.out.println(" [visit count] " + frequentDetector.itemCounters.size() +" / "+ preSum);
+//            	System.out.println("  |  [visit count]: " + frequentDetector.itemCounters.size() +" / "+ preSum);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -90,7 +87,7 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
                 });
 
                 try {
-                    File file = new File(hotspotPath);
+                    File file = new File(hotSpotPath);
                     if (!file.exists()) {
                         file.createNewFile();
                     }
@@ -119,15 +116,16 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
         if (currentHotspotSet.contains(key)) {
             return;
         }
-        boolean isFrequentItem = true;
+        boolean isFrequentItem;
         isFrequentItem = multiBloomDetector.registerItem(key);
 
+
         if (isFrequentItem) {
-            if (frequentDetector.registerItem(key, preBloomSum)) {
-                // todo
+//            if (frequentDetector.registerItem(key, preBloomSum)) {
+//                // todo
 //                currentHotspotSet.add(key);
 //                dealHotData(key);
-            }
+//            }
         }
     }
 
@@ -141,10 +139,5 @@ public class HotspotDetector extends BaseHotspotDetector implements Runnable, Ca
 
     public void dealHotData(String key) {
         callBack.dealHotspot(key);
-    }
-
-
-    public void removeHotspot(String key) {
-        currentHotspotSet.remove(key);
     }
 }

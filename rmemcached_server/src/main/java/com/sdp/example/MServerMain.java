@@ -2,7 +2,6 @@ package com.sdp.example;
 
 import com.sdp.common.RegisterHandler;
 import com.sdp.config.GlobalConfigMgr;
-import com.sdp.replicas.LocalSpots;
 import com.sdp.server.MServer;
 import com.sdp.server.MServerHandler;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
@@ -29,7 +28,6 @@ public class MServerMain {
 	public void start() {
         GlobalConfigMgr.init();
 		RegisterHandler.initHandler();
-		initLocalHotspot();
 		int id = getMemcachedNumber();
         GlobalConfigMgr.setId(id);
 		Log.setInstanceId(id);
@@ -42,10 +40,6 @@ public class MServerMain {
 		rServerHandler.setMServer(mServer);
 		rServerHandler.replicasMgr.initHotspotDetector();
 		mServer.init(wServerHandler, rServerHandler);
-	}
-	
-	public void initLocalHotspot() {
-		LocalSpots.threshold = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOTSPOT_THRESHOLD);
 	}
 	
 	public int getMemcachedNumber() {
