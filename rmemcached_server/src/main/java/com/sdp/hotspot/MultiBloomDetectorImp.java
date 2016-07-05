@@ -16,7 +16,7 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
 
     private static int BLOOM_FILTER_NUMBER = 1;
     private static int BLOOM_FILTER_LENGTH = 10;
-    private static int HOTSPOT_THRESHOLD = 100;
+    private static int HOT_SPOT_THRESHOLD = 100;
 
     public int itemSum = 0;
     public int itemPass = 0;
@@ -37,8 +37,8 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
     public void initConfig() {
         BLOOM_FILTER_NUMBER = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.MULTI_BLOOM_FILTER_NUMBER);
         BLOOM_FILTER_LENGTH = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.BLOOM_FILTER_LENGTH);
-        HOTSPOT_THRESHOLD = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOTSPOT_THRESHOLD);
-        System.out.println("bloom_filter_number: " + BLOOM_FILTER_NUMBER + "; bloom_filter_length: " + BLOOM_FILTER_LENGTH + "; hotspot_threshold: " + HOTSPOT_THRESHOLD);
+        HOT_SPOT_THRESHOLD = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOTSPOT_THRESHOLD);
+        System.out.println("bloom_filter_number: " + BLOOM_FILTER_NUMBER + "; bloom_filter_length: " + BLOOM_FILTER_LENGTH + "; hotspot_threshold: " + HOT_SPOT_THRESHOLD);
     }
 
     public int[] getHashIndex(String key) {
@@ -53,7 +53,7 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
         for (int i = 0; i < BLOOM_FILTER_NUMBER; i++) {
             int index = indexs[i];
             bloomCounterList.get(i)[index] += 1;
-            if (bloomCounterList.get(i)[index] < HOTSPOT_THRESHOLD) {
+            if (bloomCounterList.get(i)[index] < HOT_SPOT_THRESHOLD) {
                 isHotspot = false;
             }
         }
