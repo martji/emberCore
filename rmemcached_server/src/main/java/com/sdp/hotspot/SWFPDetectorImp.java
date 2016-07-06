@@ -2,6 +2,9 @@ package com.sdp.hotspot;
 
 import com.sdp.config.GlobalConfigMgr;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -10,88 +13,130 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SWFPDetectorImp implements BaseFrequentDetector {
 
-    private ConcurrentHashMap<String, SWFPCounter> swfpMap = new ConcurrentHashMap<String, SWFPCounter>();
+    /**
+     * The really counter to count the visit times of item.
+     */
+    private ConcurrentHashMap<String, SWFPCounter> CounterMap = new ConcurrentHashMap<String, SWFPCounter>();
 
-    private double frequentPercentage = 0.0001;
-    private int counterNumber = 10000;
+    /**
+     * The threshold of hot spot frequent percentage, which is p.
+     */
+    private double hotSpotPercentage = 0.0001;
+
+    /**
+     * The default influence of hot spot, which is P, this parameter does not change.
+     */
+    private static double HOT_SPOT_INFLUENCE = 0.1;
+
+
+    private int counterNumber;
     public int itemSum = 0;
+    private int preItemSum = 0;
 
     public SWFPDetectorImp() {
         initConfig();
     }
 
     public void initConfig() {
-    	frequentPercentage = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.FREQUENT_PERCENTAGE);
-    	counterNumber = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.COUNTER_NUMBER);
+    	hotSpotPercentage = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_PERCENTAGE);
+        HOT_SPOT_INFLUENCE = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_INFLUENCE);
+
+    	counterNumber = (int) (1 / hotSpotPercentage);
     }
 
-    public boolean registerItem(String key, int preSum) {
+    /**
+     *
+     * @param key
+     * @param bloomFilterSum
+     * @return whether the item key is hot spot.
+     */
+    public boolean registerItem(String key, int bloomFilterSum) {
         itemSum ++;
 
-        if (swfpMap.containsKey(key)) {
-            swfpMap.get(key).add();
-            int threshold = (int)(frequentPercentage * (itemSum > preSum ? itemSum : preSum));
-            if (swfpMap.get(key).getCount() > threshold) {
-            	itemCounters.put(key, swfpMap.get(key).frequent);
+        if (CounterMap.containsKey(key)) {
+            CounterMap.get(key).add();
+            int threshold = (int)(hotSpotPercentage * (itemSum > bloomFilterSum ? itemSum : bloomFilterSum));
+            if (CounterMap.get(key).getCount() > threshold) {
+            	itemCounters.put(key, CounterMap.get(key).getReallyCount());
             }
         } else {
-            if (swfpMap.size() < counterNumber) {
-                swfpMap.put(key, new SWFPCounter(key));
+            if (CounterMap.size() < counterNumber) {
+                CounterMap.put(key, new SWFPCounter(key));
             } else {
-                Set<String> keySet = swfpMap.keySet();
+                Set<String> keySet = CounterMap.keySet();
                 for (String item: keySet) {
-                    swfpMap.get(item).del();
+                    CounterMap.get(item).del();
 
-                    if (swfpMap.get(item).frequent <= 0) {
-                        swfpMap.remove(item);
+                    if (CounterMap.get(item).frequent <= 0) {
+                        CounterMap.remove(item);
                     }
                 }
 
-                if (swfpMap.size() < counterNumber) {
-                    swfpMap.put(key, new SWFPCounter(key));
+                if (CounterMap.size() < counterNumber) {
+                    CounterMap.put(key, new SWFPCounter(key));
                 }
             }
         }
+
         if (itemCounters.containsKey(key)) {
             return true;
         }
         return false;
     }
 
-    public void refreshSWFPCounter() {
-        Set<String> keySet = swfpMap.keySet();
-        for (String item: keySet) {
-            swfpMap.get(item).refresh();
+    /**
+     * Adjust hotSpotPercentage, the workload influence of hot spot must larger
+     * than HOT_SPOT_INFLUENCE.
+     */
+    public void updateItemSum() {
+        itemSum -= preItemSum;
+        preItemSum = itemSum;
+
+        ArrayList<Integer> hotSpots = (ArrayList<Integer>) itemCounters.values();
+        int totalCount = 0;
+        for (int i = 0; i < hotSpots.size(); i++) {
+            totalCount += hotSpots.get(i);
         }
-    }
+        double tmp = (double) totalCount / itemSum;
+        if (tmp < HOT_SPOT_INFLUENCE) {
+            hotSpotPercentage /= 2;
+            counterNumber = (int) (1 / hotSpotPercentage);
+        }
 
-    public void updateItemsum(int preSum) {
-        itemSum -= preSum;
-    }
-
-    public ConcurrentHashMap<String, Integer> getItemCounters() {
-        return itemCounters;
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println(df.format(new Date()) + ": [visit count]: " + itemCounters.size() + " / "+ itemSum);
     }
 
     public void resetCounter() {
         itemCounters.clear();
     }
 
-    public void refreshItemCounters() {
-        itemCounters.clear();
+    public void refreshSWFPCounter() {
+        Set<String> keySet = CounterMap.keySet();
+        for (String item: keySet) {
+            CounterMap.get(item).refresh();
+        }
+    }
+
+    public ConcurrentHashMap<String, Integer> getItemCounters() {
+        return itemCounters;
     }
 
     static class SWFPCounter implements Comparable<SWFPCounter>{
         private String key;
         private int frequent;
-        private int dfrequent;
-        private int prefrequent;
+        private int dFrequent;
+        private int preFrequent;
+
+        public String getKey() {
+            return key;
+        }
 
         public SWFPCounter(String key) {
             this.key = key;
             this.frequent = 1;
-            this.dfrequent = 0;
-            this.prefrequent = 0;
+            this.dFrequent = 0;
+            this.preFrequent = 0;
         }
 
         public void add () {
@@ -100,17 +145,24 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
 
         public void del() {
             frequent -= 1;
-            dfrequent += 1;
+            dFrequent += 1;
         }
 
         public void refresh() {
-            dfrequent = 0;
-            prefrequent = prefrequent/2 + frequent/2;
+            dFrequent = 0;
+            preFrequent = preFrequent /2 + frequent/2;
             frequent = frequent/2;
         }
 
         public int getCount() {
-            return frequent + dfrequent + prefrequent;
+            return frequent + dFrequent + preFrequent;
+        }
+
+        /**
+         * @return the really visit times in this period.
+         */
+        public int getReallyCount() {
+            return frequent + dFrequent;
         }
 
         public int compareTo(SWFPCounter o) {

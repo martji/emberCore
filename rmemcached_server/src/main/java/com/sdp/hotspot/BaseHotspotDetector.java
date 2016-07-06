@@ -11,13 +11,15 @@ public abstract class BaseHotspotDetector implements Runnable {
 
     public void handleRegister(String key) {}
 
+    public void finishDealHotSpot(String key) {}
+
     public void setCallBack(MCallBack callBack) {
         this.callBack = callBack;
     }
 
     public interface MCallBack {
-        public void dealHotspot();
-        public void dealColdspot();
-        public void dealHotspot(String key);
+        void dealHotSpot();
+        void dealColdSpot();
+        void dealHotSpot(String key);
     }
 }

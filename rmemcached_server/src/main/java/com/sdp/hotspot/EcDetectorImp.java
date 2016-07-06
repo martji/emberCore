@@ -22,7 +22,7 @@ public class EcDetectorImp extends Thread implements BaseFrequentDetector {
     }
     
     public void initConfig() {
-		frequentPercentage =  (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.FREQUENT_PERCENTAGE);
+		frequentPercentage =  (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_PERCENTAGE);
     	errorRate = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.ERROR_RATE);
 //    	counterNumber = (int) (1/errorRate);
 	}

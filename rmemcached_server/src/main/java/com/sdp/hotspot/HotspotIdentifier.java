@@ -41,7 +41,7 @@ public class HotspotIdentifier extends BaseHotspotDetector implements Runnable{
 			}
 			
 			if (LocalSpots.hotspots.keySet() != null) {
-				callBack.dealHotspot();
+				callBack.dealHotSpot();
 			}
 //			dealColdData();
 
@@ -63,7 +63,7 @@ public class HotspotIdentifier extends BaseHotspotDetector implements Runnable{
 				}
 			}
 			if (LocalSpots.coldspots.keySet() != null) {
-				callBack.dealColdspot();
+				callBack.dealColdSpot();
 			}
 		}
 	}

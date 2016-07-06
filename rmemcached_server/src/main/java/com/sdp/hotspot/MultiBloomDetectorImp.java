@@ -17,11 +17,11 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
     private List<Integer[]> bloomCounterList;
 
     /**
-     * The number of bloom filters
+     * The number of bloom filters.
      */
     private static int BLOOM_FILTER_NUMBER = 1;
     /**
-     * The length of single bloom filter
+     * The length of single bloom filter.
      */
     private static int BLOOM_FILTER_LENGTH = 10;
 
@@ -65,22 +65,27 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
         return hashFunction.getHashIndex(key);
     }
 
+    /**
+     *
+     * @param key
+     * @return whether the item key can through bloom filter.
+     */
     public boolean registerItem(String key) {
         itemSum++;
 
-        boolean isHotSpot = true;
+        boolean isHotSpotCandidate = true;
         int[] indexArray = hashFunction.getHashIndex(key);
         for (int i = 0; i < BLOOM_FILTER_NUMBER; i++) {
             int index = indexArray[i];
             bloomCounterList.get(i)[index] += 1;
             if (bloomCounterList.get(i)[index] < frequent_threshold) {
-                isHotSpot = false;
+                isHotSpotCandidate = false;
             }
         }
-        if (isHotSpot) {
+        if (isHotSpotCandidate) {
             itemPass++;
         }
-        return isHotSpot;
+        return isHotSpotCandidate;
     }
 
     public void resetBloomCounters() {
@@ -93,7 +98,7 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
 
     /**
      * This method is callback each period, adjust the frequent_threshold to
-     * ensure the frequent items through
+     * ensure the frequent items through.
      */
     public void updateItemSum() {
         if (itemSum > 0) {
@@ -124,7 +129,7 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
     }
 
     /**
-     * reset the counter of bloom filter each period
+     * Reset the counter of bloom filter each period.
      */
     public void resetCounter() {
         for (int i = 0; i < BLOOM_FILTER_NUMBER; i++) {

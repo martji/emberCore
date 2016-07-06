@@ -41,7 +41,7 @@ public class ReplicasMgr implements CallBack {
 	int protocol;
 	int replicasMode = 0;
 	
-	private static int exptime = 60*60*24*10;
+	private static int expTime = 60*60*24*10;
 	ExecutorService pool = Executors.newCachedThreadPool();
 	
 	ConcurrentHashMap<Integer, MemcachedClient> spyClientMap = new ConcurrentHashMap<Integer, MemcachedClient>();
@@ -82,15 +82,15 @@ public class ReplicasMgr implements CallBack {
             hotspotDetector = new HotspotIdentifier(this.replicasIdMap);
         }
 		hotspotDetector.setCallBack(new BaseHotspotDetector.MCallBack() {
-			public void dealHotspot() {
+			public void dealHotSpot() {
 				dealHotData();
 			}
 
-			public void dealColdspot() {
+			public void dealColdSpot() {
 				dealColdData();
 			}
 
-			public void dealHotspot(String key) {
+			public void dealHotSpot(String key) {
 				dealHotData(key);
 			}
 		});
@@ -260,7 +260,7 @@ public class ReplicasMgr implements CallBack {
 				value = (String) mc.get(oriKey);
 				if (value != null && value.length() > 0) {
 					MemcachedClient mClient = spyClientMap.get(failedId);
-					mClient.set(oriKey, exptime, value);
+					mClient.set(oriKey, expTime, value);
 				}
 			}
 			nr_read_res.Builder builder = nr_read_res.newBuilder();
@@ -276,7 +276,7 @@ public class ReplicasMgr implements CallBack {
 	/**
 	 * @param channel
 	 * @param key
-	 * collect the register info
+	 * collect the register info.
 	 */
 	private void handleRegister(Channel channel, String key) {
 		hotspotDetector.handleRegister(key);
@@ -284,6 +284,7 @@ public class ReplicasMgr implements CallBack {
 
     public void dealHotData(String key) {
         //TODO
+		hotspotDetector.finishDealHotSpot(key);
     }
 
 	public void dealHotData() {
@@ -320,7 +321,7 @@ public class ReplicasMgr implements CallBack {
 						}
 						hotitems.put(key, encodeReplicasInfo(vector));
 						
-						// caculate replicas number
+						// calculate replicas number
 						int localCount = vector.size() - 1;
 						if (localCount <= 1) {
 							hotspotsList.put(1, hotspotsList.get(1) + 1);
@@ -504,7 +505,7 @@ public class ReplicasMgr implements CallBack {
 			System.out.println("[ERROR] no value fo this key: " + key);
 			return false;
 		}
-		OperationFuture<Boolean> out = replicaClient.set(key, exptime, value);
+		OperationFuture<Boolean> out = replicaClient.set(key, expTime, value);
 		try {
 			return out.get();
 		} catch (Exception e) {}
@@ -555,7 +556,7 @@ public class ReplicasMgr implements CallBack {
 			}
 		}
 		
-		OperationFuture<Boolean> res = mc.set(orikey, exptime, value);
+		OperationFuture<Boolean> res = mc.set(orikey, expTime, value);
 		boolean setState = getSetState(res);
 		if (!setState) {
 			value = "";
