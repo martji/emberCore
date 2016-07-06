@@ -2,9 +2,7 @@ package com.sdp.hotspot;
 
 import com.sdp.config.GlobalConfigMgr;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -88,23 +86,26 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
      * Adjust hotSpotPercentage, the workload influence of hot spot must larger
      * than HOT_SPOT_INFLUENCE.
      */
-    public void updateItemSum() {
+    public String updateItemSum() {
         itemSum -= preItemSum;
         preItemSum = itemSum;
 
-        ArrayList<Integer> hotSpots = (ArrayList<Integer>) itemCounters.values();
+        ArrayList<Integer> hotSpots = new ArrayList<Integer>(itemCounters.values());
         int totalCount = 0;
         for (int i = 0; i < hotSpots.size(); i++) {
             totalCount += hotSpots.get(i);
         }
         double tmp = (double) totalCount / itemSum;
-        if (tmp < HOT_SPOT_INFLUENCE) {
+        if (totalCount > 0 && tmp < HOT_SPOT_INFLUENCE) {
             hotSpotPercentage /= 2;
-            counterNumber = (int) (1 / hotSpotPercentage);
+        } else if (totalCount == 0) {
+            hotSpotPercentage = 0.0001;
         }
+        counterNumber = (int) (1 / hotSpotPercentage);
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        System.out.println(df.format(new Date()) + ": [visit count]: " + itemCounters.size() + " / "+ itemSum);
+        String result =  "  |  [visit count]: " + totalCount + " / "+ itemSum +
+                " [hot_spot_percentage]: " + hotSpotPercentage;
+        return result;
     }
 
     public void resetCounter() {
@@ -122,7 +123,7 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
         return itemCounters;
     }
 
-    static class SWFPCounter implements Comparable<SWFPCounter>{
+    static class SWFPCounter implements Comparable<SWFPCounter> {
         private String key;
         private int frequent;
         private int dFrequent;

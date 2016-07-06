@@ -6,16 +6,24 @@ package com.sdp.manager;
  */
 
 import com.sdp.common.EMSGID;
+import com.sdp.config.GlobalConfigMgr;
+import com.sdp.example.Log;
 import com.sdp.hotspot.BaseHotspotDetector;
 import com.sdp.messageBody.CtsMsg;
 import com.sdp.messageBody.CtsMsg.nr_read;
 import com.sdp.messageBody.CtsMsg.nr_register;
 import com.sdp.netty.NetMsg;
 import com.sdp.server.MServer;
+import com.sdp.server.ServerNode;
 import net.spy.memcached.MemcachedClient;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
+
+import java.net.InetSocketAddress;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * Created by magq on 16/7/6.
@@ -28,15 +36,68 @@ public class MessageManager {
 
     private ConsistencyManager consistencyManager;
 
+    private MServer mServer;
     private ConcurrentHashMap<Integer, Channel> clientChannelMap;
 
+    public void setMServer(MServer mServer) {
+        this.mServer = mServer;
+    }
+
+    /**
+     * The map of connection to other memcached servers.
+     */
+    private ConcurrentHashMap<Integer, MemcachedClient> spyClientMap;
+
     public MessageManager() {
-        hotSpotManager = new HotSpotManager();
         replicaManager = new ReplicaManager();
         consistencyManager = new ConsistencyManager();
 
-        clientChannelMap = new ConcurrentHashMap<Integer, Channel>();
+        init();
+    }
 
+    public void init() {
+        initSpyClientMap();
+
+        clientChannelMap = new ConcurrentHashMap<Integer, Channel>();
+        replicaManager.setClientChannelMap(clientChannelMap);
+    }
+
+    public void initManager(MServer server, MemcachedClient client) {
+        initManager(server, client, new ConcurrentHashMap<String, Vector<Integer>>());
+    }
+
+    public void initManager(MServer server, MemcachedClient client,
+                            ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
+        this.mServer = server;
+        replicaManager.initLocalReference(mServer, client, replicasIdMap, spyClientMap);
+        consistencyManager.initLocalReference(client, replicasIdMap, spyClientMap);
+    }
+
+    public void initSpyClientMap() {
+        spyClientMap = new ConcurrentHashMap<Integer, MemcachedClient>();
+        new Thread(new Runnable() {
+            public void run() {
+                int serverId = GlobalConfigMgr.id;
+                Map<Integer, ServerNode> serversMap = GlobalConfigMgr.serversMap;
+
+                Iterator<Map.Entry<Integer, ServerNode>> iterator = serversMap.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<Integer, ServerNode> map = iterator.next();
+                    int id = map.getKey();
+                    if (id != serverId) {
+                        MemcachedClient spyClient = buildAMClient(id);
+                        spyClientMap.put(id, spyClient);
+                    }
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Call this method to start hot spot detection.
+     */
+    public void startHotSpotDetection() {
+        hotSpotManager = new HotSpotManager();
         hotSpotManager.setOnFindHotSpot(new BaseHotspotDetector.OnFindHotSpot() {
             public void dealHotSpot() {
                 replicaManager.dealHotData();
@@ -51,11 +112,7 @@ public class MessageManager {
             }
         });
 
-        replicaManager.setClientChannelMap(clientChannelMap);
-    }
-
-    public void initReplicaManager(MServer server, MemcachedClient client, int serverId) {
-        replicaManager.initLocalReference(server, client, serverId);
+        new Thread(hotSpotManager).start();
     }
 
     public void handleMessage(MessageEvent messageEvent) {
@@ -69,7 +126,7 @@ public class MessageManager {
 
             // connect signal from server
             case nm_connected: {
-                System.out.println("[Netty] server hear channelConnected from other server: " +
+                Log.log.info("[Netty] server hear channelConnected from other server: " +
                         messageEvent.getChannel());
             }
             break;
@@ -101,7 +158,7 @@ public class MessageManager {
         NetMsg msg = (NetMsg) messageEvent.getMessage();
         int clientId = msg.getNodeRoute();
         clientChannelMap.put(clientId, messageEvent.getChannel());
-        System.out.println("[Netty] server hear channelConnected from client: " + messageEvent.getChannel());
+        Log.log.info("[Netty] server hear channelConnected from client: " + messageEvent.getChannel());
         CtsMsg.nr_connected_mem_back.Builder builder = CtsMsg.nr_connected_mem_back.newBuilder();
         NetMsg send = NetMsg.newMessage();
         send.setMessageLite(builder);
@@ -127,4 +184,28 @@ public class MessageManager {
         consistencyManager.handleWrite(messageEvent);
     }
 
+    /**
+     *
+     * @param replicaId
+     * @return the spyClient to server.
+     */
+    public static MemcachedClient buildAMClient(int replicaId){
+        try {
+            MemcachedClient replicaClient;
+            Map<Integer, ServerNode> serversMap = GlobalConfigMgr.serversMap;
+            ServerNode serverNode = serversMap.get(replicaId);
+            String host = serverNode.getHost();
+            int port = serverNode.getMemcached();
+            replicaClient = new MemcachedClient(new InetSocketAddress(host, port));
+            return replicaClient;
+        } catch (Exception e) {}
+        return null;
+    }
+
+    public static String getOriKey(String key) {
+        if (key.contains(":")) {
+            return key.substring(key.indexOf(":") + 1);
+        }
+        return key;
+    }
 }

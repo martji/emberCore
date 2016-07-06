@@ -1,6 +1,7 @@
 package com.sdp.manager;
 
 import com.sdp.config.GlobalConfigMgr;
+import com.sdp.example.Log;
 import com.sdp.hotspot.BaseHotspotDetector;
 import com.sdp.hotspot.MultiBloomDetectorImp;
 import com.sdp.hotspot.SWFPDetectorImp;
@@ -29,7 +30,7 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
     private MultiBloomDetectorImp multiBloomDetector;
     private SWFPDetectorImp frequentDetector;
 
-    private HashSet<String> currentHotspotSet = new HashSet<String>();
+    private HashSet<String> currentHotSpotSet = new HashSet<String>();
 
     private int bloomFilterSum = 0;
 
@@ -46,7 +47,7 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
      */
     private void initConfig() {
         SLICE_TIME = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.SLICE_TIME);
-        System.out.println("[Hot spot detection period]: " + SLICE_TIME);
+        Log.log.info("[Hot spot detection period]: " + SLICE_TIME);
     }
 
     /**
@@ -55,21 +56,23 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
      */
     @Override
     public void handleRegister(String key) {
-        if (currentHotspotSet.contains(key)) {
+        if (currentHotSpotSet.contains(key)) {
             return;
         }
 
-        if (multiBloomDetector.registerItem(key)) {
-            if (frequentDetector.registerItem(key, bloomFilterSum)) {
-                currentHotspotSet.add(key);
-                dealHotData(key);
+        if (multiBloomDetector != null && frequentDetector != null) {
+            if (multiBloomDetector.registerItem(key)) {
+                if (frequentDetector.registerItem(key, bloomFilterSum)) {
+//                    currentHotSpotSet.add(key);
+//                    dealHotData(key);
+                }
             }
         }
     }
 
     @Override
     public void finishDealHotSpot(String key) {
-        currentHotspotSet.remove(key);
+        currentHotSpotSet.remove(key);
     }
 
     /**
@@ -79,15 +82,17 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
         while (true) {
             try {
                 // multi bloom filter refresh
-                multiBloomDetector.updateItemSum();
+                String bloomFilterOut = multiBloomDetector.updateItemSum();
                 multiBloomDetector.resetCounter();
 
                 // frequent counter refresh
-                frequentDetector.updateItemSum();
+                String frequentCounterOut = frequentDetector.updateItemSum();
                 frequentDetector.resetCounter();
                 frequentDetector.refreshSWFPCounter();
 
-                currentHotspotSet.clear();
+                Log.log.info(bloomFilterOut + frequentCounterOut);
+
+                currentHotSpotSet.clear();
 
                 Thread.sleep(SLICE_TIME);
 
@@ -100,6 +105,9 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
         }
     }
 
+    /**
+     * Record the current hot spots.
+     */
     public void write2fileBackground() {
         final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>
                 (frequentDetector.getItemCounters().entrySet());

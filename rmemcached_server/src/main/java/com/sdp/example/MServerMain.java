@@ -20,7 +20,6 @@ public class MServerMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Log.init();
 		MServerMain emberLauncher = new MServerMain();
 		emberLauncher.start();
 	}
@@ -31,14 +30,16 @@ public class MServerMain {
 		int id = getMemcachedNumber();
         GlobalConfigMgr.setId(id);
 		Log.setInstanceId(id);
-		Log.log.info(Log.id + " new r-memcached instance start, instance id: " + id);
+		Log.init();
+
+		Log.log.info("New r-memcached instance start, instance id: " + id);
 		
 		MServer mServer = new MServer();
 		ConcurrentHashMap<String, Vector<Integer>> replicasIdMap = new ConcurrentHashMap<String, Vector<Integer>>();
 		MServerHandler wServerHandler = new MServerHandler(replicasIdMap);
 		MServerHandler rServerHandler = new MServerHandler(replicasIdMap);
 		rServerHandler.setMServer(mServer);
-		rServerHandler.replicasMgr.initHotspotDetector();
+		rServerHandler.initMessageManager();
 		mServer.init(wServerHandler, rServerHandler);
 	}
 	

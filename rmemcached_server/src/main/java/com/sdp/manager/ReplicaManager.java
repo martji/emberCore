@@ -9,6 +9,7 @@ import com.sdp.example.Log;
 import com.sdp.messageBody.CtsMsg;
 import com.sdp.netty.NetMsg;
 import com.sdp.replicas.DealHotSpotInterface;
+import com.sdp.replicas.LocalSpots;
 import com.sdp.server.MServer;
 import com.sdp.server.ServerNode;
 import net.spy.memcached.MemcachedClient;
@@ -16,13 +17,17 @@ import net.spy.memcached.internal.OperationFuture;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
-import java.net.InetSocketAddress;
 import java.util.*;
 
 /**
  * Created by magq on 16/7/6.
  */
 public class ReplicaManager implements DealHotSpotInterface, Runnable {
+
+    private final int REPLICA_MODE = 0;
+    private final int EXPIRE_TIME = 60*60*24*10;
+    private final int UPDATE_STATUS_TIME = 5*1000;
+    private final int BUFFER_SIZE = 10;
 
     /**
      * Local reference, mServer connect with other server and monitor, while
@@ -38,10 +43,6 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      */
     private ConcurrentHashMap<Integer, Channel> clientChannelMap;
 
-    private final int REPLICA_MODE = 0;
-    private final int EXPIRE_TIME = 60*60*24*10;
-    private final int UPDATE_STATUS_TIME = 5*1000;
-
     /**
      * Map of the replica location of all hot spots, this will bring some memory overhead.
      */
@@ -52,8 +53,14 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      */
     private ConcurrentHashMap<Integer, MemcachedClient> spyClientMap;
 
+    /**
+     * These variables are maintained by itself, where serverInfoList is the current
+     * status of all servers, hotSpotList is the hot spot distribution, bufferHotSpot is
+     * a list of hot spots need replica.
+     */
     private List<Map.Entry<Integer, Double>> serverInfoList;
     private ConcurrentHashMap<Integer, Integer> hotSpotsList;
+    private Set<String> bufferHotSpots;
 
     public ReplicaManager() {
         init();
@@ -64,16 +71,22 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.spyClientMap = new ConcurrentHashMap<Integer, MemcachedClient>();
         this.serverInfoList = new LinkedList<Map.Entry<Integer, Double>>();
         this.hotSpotsList = new ConcurrentHashMap<Integer, Integer>();
+        this.bufferHotSpots = new HashSet<String>();
     }
 
     public void setClientChannelMap(ConcurrentHashMap<Integer, Channel> clientChannelMap) {
         this.clientChannelMap = clientChannelMap;
     }
 
-    public void initLocalReference(MServer server, MemcachedClient client, int serverId) {
+    public void initLocalReference(MServer server, MemcachedClient client,
+                                   ConcurrentHashMap<String, Vector<Integer>> replicasIdMap,
+                                   ConcurrentHashMap<Integer, MemcachedClient> spyClientMap) {
         this.mServer = server;
         this.memcachedClient = client;
-        this.serverId = serverId;
+        this.replicasIdMap = replicasIdMap;
+        this.spyClientMap = spyClientMap;
+
+        this.serverId = GlobalConfigMgr.id;
         this.serversMap = GlobalConfigMgr.serversMap;
     }
 
@@ -87,7 +100,9 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     public void dealHotData() {
-        Set<String> hotSpots = new HashSet<String>();
+        Set<String> hotSpots = new HashSet<String>(bufferHotSpots);
+        bufferHotSpots.clear();
+
         Set<String> handledHotSpots = new HashSet<String>();
         Map<String, Integer> hotItems = new HashMap<String, Integer>();
 
@@ -111,19 +126,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
                     }
                     hotItems.put(key, encodeReplicasInfo(vector));
 
-                    // calculate replicas number
                     int localCount = vector.size() - 1;
-                    if (localCount <= 1) {
-                        hotSpotsList.put(1, hotSpotsList.get(1) + 1);
-                    } else {
-                        if (hotSpotsList.containsKey(localCount - 1)) {
-                            hotSpotsList.put(localCount - 1, hotSpotsList.get(localCount - 1) - 1);
-                            if (!hotSpotsList.containsKey(localCount)) {
-                                hotSpotsList.put(localCount, 0);
-                            }
-                            hotSpotsList.put(localCount, hotSpotsList.get(localCount) + 1);
-                        }
-                    }
+                    updateReplicaDistribute(localCount);
                 }
             }
         }
@@ -133,23 +137,91 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     public void dealColdData() {
+        if (LocalSpots.coldspots.keySet().size() > 0) {
+            Set<String> coldSpots = new HashSet<String>(LocalSpots.coldspots.keySet());
+            Map<String, Integer> coldItems = new HashMap<String, Integer>();
 
+            for (String key : coldSpots) {
+                int localCount = replicasIdMap.get(key).size() - 1;
+                hotSpotsList.put(localCount, hotSpotsList.get(localCount) - 1);
+                if (localCount - 1 >= 1) {
+                    hotSpotsList.put(localCount - 1, hotSpotsList.get(localCount - 1) + 1);
+                }
+                int replicaId = replicasIdMap.get(key).size() - 1;
+                replicasIdMap.get(key).remove(replicaId);
+                coldItems.put(key, encodeReplicasInfo(replicasIdMap.get(key)));
+                if (replicasIdMap.get(key).size() == 1) {
+                    replicasIdMap.remove(key);
+                }
+            }
+            Log.log.info("[PId: " + Log.id + "] new cold spots: " + coldSpots.size() +
+                    " [retire] " + hotSpotsList.toString());
+            infoAllClient(coldItems);
+            LocalSpots.coldspots = new ConcurrentHashMap<String, String>();
+        }
     }
 
     public void dealHotData(String key) {
-
+        bufferHotSpots.add(key);
+        if (bufferHotSpots.size() > BUFFER_SIZE) {
+            dealHotData();
+        }
     }
 
     public void handleReadFailed(Channel channel, String key, int failedServerId) {
+        String oriKey = MessageManager.getOriKey(key);
+        if (replicasIdMap.containsKey(oriKey)) {
+            String value;
+            if (failedServerId == serverId) {
+                Vector<Integer> vector = replicasIdMap.get(oriKey);
+                MemcachedClient mClient = spyClientMap.get(vector.get(0));
+                value = (String) mClient.get(oriKey);
+                if (value != null && value.length() > 0) {
+                    memcachedClient.set(oriKey, EXPIRE_TIME, value);
+                }
 
+            } else {
+                value = (String) memcachedClient.get(oriKey);
+                if (value != null && value.length() > 0) {
+                    MemcachedClient mClient = spyClientMap.get(failedServerId);
+                    mClient.set(oriKey, EXPIRE_TIME, value);
+                }
+            }
+            CtsMsg.nr_read_res.Builder builder = CtsMsg.nr_read_res.newBuilder();
+            builder.setKey(key);
+            builder.setValue(value);
+            NetMsg msg = NetMsg.newMessage();
+            msg.setMessageLite(builder);
+            msg.setMsgID(EMSGID.nr_read_res);
+            channel.write(msg);
+        }
     }
 
+    /**
+     * Update servers information, this method is called each period.
+     */
     private void updateServersInfo() {
         String replicasInfo = mServer.getAReplica();
         if (replicasInfo == null || replicasInfo.length() == 0) {
             return;
         }
         serverInfoList = getServersInfoMap(replicasInfo);
+    }
+
+    /**
+     * Update replicas distribution.
+     * @param localCount
+     */
+    private void updateReplicaDistribute(int localCount) {
+        if (localCount <= 1) {
+            hotSpotsList.put(1, hotSpotsList.get(1) + 1);
+        } else if (hotSpotsList.containsKey(localCount - 1)) {
+            hotSpotsList.put(localCount - 1, hotSpotsList.get(localCount - 1) - 1);
+            if (!hotSpotsList.containsKey(localCount)) {
+                hotSpotsList.put(localCount, 0);
+            }
+            hotSpotsList.put(localCount, hotSpotsList.get(localCount) + 1);
+        }
     }
 
     /**
@@ -255,7 +327,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         if (spyClientMap.containsKey(replicaId)) {
             replicaClient = spyClientMap.get(replicaId);
         } else {
-            replicaClient = buildAMClient(replicaId);
+            replicaClient = MessageManager.buildAMClient(replicaId);
             if (replicaClient != null) {
                 spyClientMap.put(replicaId, replicaClient);
             } else {
@@ -273,23 +345,6 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
             return out.get();
         } catch (Exception e) {}
         return false;
-    }
-
-    /**
-     *
-     * @param replicaId
-     * @return the spyClient to server.
-     */
-    private MemcachedClient buildAMClient(int replicaId){
-        try {
-            MemcachedClient replicaClient;
-            ServerNode serverNode = serversMap.get(replicaId);
-            String host = serverNode.getHost();
-            int port = serverNode.getMemcached();
-            replicaClient = new MemcachedClient(new InetSocketAddress(host, port));
-            return replicaClient;
-        } catch (Exception e) {}
-        return null;
     }
 
     public int encodeReplicasInfo(Vector<Integer> replicas) {

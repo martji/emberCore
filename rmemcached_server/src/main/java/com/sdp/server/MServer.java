@@ -2,6 +2,7 @@ package com.sdp.server;
 
 import com.sdp.client.RMClient;
 import com.sdp.config.GlobalConfigMgr;
+import com.sdp.example.Log;
 import com.sdp.monitor.LocalMonitor;
 import com.sdp.netty.MDecoder;
 import com.sdp.netty.MEncoder;
@@ -53,8 +54,8 @@ public class MServer {
 		int wport = serverNode.getWPort();
 		initRServer(rport, wport);
 		
-		wServerHandler.replicasMgr.initThread();
-		rServerHandler.replicasMgr.initThread();
+//		wServerHandler.replicasMgr.initThread();
+//		rServerHandler.replicasMgr.initThread();
 		
 		registerMonitor();
 	}
@@ -76,7 +77,7 @@ public class MServer {
 	 */
 	private void registerMonitor(int id, String monitorAddress, int memcachedPort) {
 		LocalMonitor.getInstance().setPort(memcachedPort);
-		System.out.println("[monitor]: " + monitorAddress);
+		Log.log.info("[monitor]: " + monitorAddress);
 		String[] arr = monitorAddress.split(":");
 		
 		final String host = arr[0];
@@ -134,8 +135,8 @@ public class MServer {
 		rbootstrap.setOption("child.keepAlive", true);
 		rbootstrap.setOption("reuseAddress", true);
 		rbootstrap.bind(new InetSocketAddress(rport));
-		
-		System.out.println("[Netty] server start.");
+
+		Log.log.info("[Netty] server start.");
 	}
 
 	public String getAReplica() {

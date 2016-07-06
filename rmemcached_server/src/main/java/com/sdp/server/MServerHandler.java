@@ -2,7 +2,6 @@ package com.sdp.server;
 
 import com.sdp.config.GlobalConfigMgr;
 import com.sdp.manager.MessageManager;
-import com.sdp.replicas.ReplicasMgr;
 import net.spy.memcached.MemcachedClient;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
@@ -19,7 +18,6 @@ import java.util.Vector;
 
 public class MServerHandler extends SimpleChannelUpstreamHandler {
 	
-	public ReplicasMgr replicasMgr;
 	MServer mServer = null;
 
 	private MessageManager messageManager = new MessageManager();
@@ -34,28 +32,28 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 	public MServerHandler(int serverId, Map<Integer, ServerNode> serversMap, int protocol) {
 		
 		this();
-		replicasMgr = new ReplicasMgr(serverId, serversMap, mServer, protocol);
 		MemcachedClient mc = null;
 		try {
 			ServerNode serverNode = serversMap.get(serverId);
 			String host = serverNode.getHost();
-			int memcachedPort = serverNode.getMemcached();
-			mc = new MemcachedClient(new InetSocketAddress(host, memcachedPort));
+			int port = serverNode.getMemcached();
+			mc = new MemcachedClient(new InetSocketAddress(host, port));
 		} catch (Exception e) {}
-		replicasMgr.setMemcachedClient(mc);
+
+		messageManager.initManager(mServer, mc);
 	}
 
 	public MServerHandler(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
 		this();
-		replicasMgr = new ReplicasMgr(mServer, replicasIdMap);
 		MemcachedClient mc = null;
 		try {
 			ServerNode serverNode = GlobalConfigMgr.serversMap.get(GlobalConfigMgr.id);
 			String host = serverNode.getHost();
-			int memcachedPort = serverNode.getMemcached();
-			mc = new MemcachedClient(new InetSocketAddress(host, memcachedPort));
+			int port = serverNode.getMemcached();
+			mc = new MemcachedClient(new InetSocketAddress(host, port));
 		} catch (Exception e) {}
-		replicasMgr.setMemcachedClient(mc);
+
+        messageManager.initManager(mServer, mc, replicasIdMap);
 	}
 
 	@Override
@@ -75,8 +73,6 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 	}
 	
 	private void handleMessage(MessageEvent e) {
-//		replicasMgr.handle(e);
-
         messageManager.handleMessage(e);
 	}
 
@@ -86,7 +82,11 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 	 */
 	public void setMServer(MServer mServer) {
 		this.mServer = mServer;
-		replicasMgr.setMServer(mServer);
+        messageManager.setMServer(mServer);
 	}
+
+    public void initMessageManager() {
+        messageManager.startHotSpotDetection();
+    }
 }
 

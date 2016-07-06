@@ -13,15 +13,16 @@ public class Log {
 	
 	public static void init(String path) {
 		PropertyConfigurator.configure(path);
-		log = Logger.getLogger( MServerMain.class.getName());
+		log = Logger.getRootLogger();
 	}
 	
 	public static void init() {
-		PropertyConfigurator.configure(System.getProperty("user.dir") + "/config/log4j.properties");
-		log = Logger.getLogger( MServerMain.class.getName());
+		String path = System.getProperty("user.dir") + "/config/log4j.properties";
+		init(path);
 	}
 
 	public static void setInstanceId(int id) {
 		Log.id = id;
+		System.setProperty("myconfig.id", id + "");
 	}
 }
