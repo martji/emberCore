@@ -22,7 +22,7 @@ import java.util.*;
 /**
  * Created by magq on 16/7/6.
  */
-public class ReplicaManager implements DealHotSpotInterface {
+public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     /**
      * Local reference, mServer connect with other server and monitor, while
@@ -51,6 +51,7 @@ public class ReplicaManager implements DealHotSpotInterface {
      */
     private ConcurrentHashMap<Integer, MemcachedClient> spyClientMap;
 
+    private List<Map.Entry<Integer, Double>> serverInfoList;
     private ConcurrentHashMap<Integer, Integer> hotSpotsList;
 
     public ReplicaManager() {
@@ -60,6 +61,7 @@ public class ReplicaManager implements DealHotSpotInterface {
     public void init() {
         this.replicasIdMap = new ConcurrentHashMap<String, Vector<Integer>>();
         this.spyClientMap = new ConcurrentHashMap<Integer, MemcachedClient>();
+        this.serverInfoList = new LinkedList<Map.Entry<Integer, Double>>();
         this.hotSpotsList = new ConcurrentHashMap<Integer, Integer>();
     }
 
@@ -74,16 +76,19 @@ public class ReplicaManager implements DealHotSpotInterface {
         this.serversMap = GlobalConfigMgr.serversMap;
     }
 
+    public void run() {
+        try {
+            updateServersInfo();
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void dealHotData() {
         Set<String> hotSpots = new HashSet<String>();
         Set<String> handledHotSpots = new HashSet<String>();
         Map<String, Integer> hotItems = new HashMap<String, Integer>();
-
-        String replicasInfo = mServer.getAReplica();
-        if (replicasInfo == null || replicasInfo.length() == 0) {
-            return;
-        }
-        List<Map.Entry<Integer, Double>> serverInfoList = getServersInfoMap(replicasInfo);
 
         for (String key : hotSpots) {
             int replicaId = getReplicaId(serverInfoList, key);
@@ -136,6 +141,14 @@ public class ReplicaManager implements DealHotSpotInterface {
 
     public void handleReadFailed(Channel channel, String key, int failedServerId) {
 
+    }
+
+    private void updateServersInfo() {
+        String replicasInfo = mServer.getAReplica();
+        if (replicasInfo == null || replicasInfo.length() == 0) {
+            return;
+        }
+        serverInfoList = getServersInfoMap(replicasInfo);
     }
 
     /**
