@@ -40,6 +40,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     private final int REPLICA_MODE = 0;
     private final int EXPIRE_TIME = 60*60*24*10;
+    private final int UPDATE_STATUS_TIME = 5*1000;
 
     /**
      * Map of the replica location of all hot spots, this will bring some memory overhead.
@@ -79,7 +80,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     public void run() {
         try {
             updateServersInfo();
-            Thread.sleep(5000);
+            Thread.sleep(UPDATE_STATUS_TIME);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
