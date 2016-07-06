@@ -5,7 +5,7 @@ package com.sdp.hotspot;
  */
 public abstract class BaseHotspotDetector implements Runnable {
 
-    public MCallBack callBack;
+    public OnFindHotSpot onFindHotSpot;
 
     public BaseHotspotDetector() {}
 
@@ -13,11 +13,11 @@ public abstract class BaseHotspotDetector implements Runnable {
 
     public void finishDealHotSpot(String key) {}
 
-    public void setCallBack(MCallBack callBack) {
-        this.callBack = callBack;
+    public void setOnFindHotSpot(OnFindHotSpot onFindHotSpot) {
+        this.onFindHotSpot = onFindHotSpot;
     }
 
-    public interface MCallBack {
+    public interface OnFindHotSpot {
         void dealHotSpot();
         void dealColdSpot();
         void dealHotSpot(String key);

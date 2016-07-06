@@ -1,6 +1,7 @@
 package com.sdp.server;
 
 import com.sdp.config.GlobalConfigMgr;
+import com.sdp.manager.MessageManager;
 import com.sdp.replicas.ReplicasMgr;
 import net.spy.memcached.MemcachedClient;
 import org.jboss.netty.channel.*;
@@ -20,6 +21,8 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 	
 	public ReplicasMgr replicasMgr;
 	MServer mServer = null;
+
+	private MessageManager messageManager = new MessageManager();
 	
 	public MServerHandler() {}
 
@@ -72,7 +75,9 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 	}
 	
 	private void handleMessage(MessageEvent e) {
-		replicasMgr.handle(e);
+//		replicasMgr.handle(e);
+
+        messageManager.handleMessage(e);
 	}
 
 	/**

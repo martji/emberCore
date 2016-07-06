@@ -1,6 +1,9 @@
-package com.sdp.hotspot;
+package com.sdp.manager;
 
 import com.sdp.config.GlobalConfigMgr;
+import com.sdp.hotspot.BaseHotspotDetector;
+import com.sdp.hotspot.MultiBloomDetectorImp;
+import com.sdp.hotspot.SWFPDetectorImp;
 import com.sdp.replicas.DealHotSpotInterface;
 
 import java.io.BufferedWriter;
@@ -13,15 +16,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Created by magq on 16/1/12.
+ * Created by magq on 16/7/6.
  */
-public class HotspotDetector extends BaseHotspotDetector implements DealHotSpotInterface {
+public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotInterface {
 
     private static int SLICE_TIME;
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
-    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String hotSpotPath = String.format(System.getProperty("user.dir") + "/logs/server_%d_hotspot.data", GlobalConfigMgr.id);
+    private String hotSpotPath = String.format(System.getProperty("user.dir") +
+            "/logs/server_%d_hotspot.data", GlobalConfigMgr.id);
 
     private MultiBloomDetectorImp multiBloomDetector;
     private SWFPDetectorImp frequentDetector;
@@ -30,10 +33,11 @@ public class HotspotDetector extends BaseHotspotDetector implements DealHotSpotI
 
     private int bloomFilterSum = 0;
 
-    public HotspotDetector() {
+    public HotSpotManager() {
+        initConfig();
+
         multiBloomDetector = new MultiBloomDetectorImp();
         frequentDetector = new SWFPDetectorImp();
-        initConfig();
     }
 
     /**
@@ -115,6 +119,7 @@ public class HotspotDetector extends BaseHotspotDetector implements DealHotSpotI
                         }
                         BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
 
+                        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         bw.write(df.format(new Date()) + " [Current frequent items]:\n");
                         for (Map.Entry<String, Integer> mapping : list) {
                             bw.write(mapping.getKey() + " = " + mapping.getValue() + "\n");

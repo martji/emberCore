@@ -31,7 +31,7 @@ import java.util.concurrent.Future;
  *
  */
 
-public class ReplicasMgr implements CallBack {
+public class ReplicasMgr implements DealHotSpotInterface {
 	BaseHotspotDetector hotspotDetector;
 	
 	int serverId;
@@ -81,7 +81,7 @@ public class ReplicasMgr implements CallBack {
         } else {
             hotspotDetector = new HotspotIdentifier(this.replicasIdMap);
         }
-		hotspotDetector.setCallBack(new BaseHotspotDetector.MCallBack() {
+		hotspotDetector.setOnFindHotSpot(new BaseHotspotDetector.OnFindHotSpot() {
 			public void dealHotSpot() {
 				dealHotData();
 			}
