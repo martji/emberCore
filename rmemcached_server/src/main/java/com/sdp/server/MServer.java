@@ -140,7 +140,10 @@ public class MServer {
 	}
 
 	public String getAReplica() {
-		return monitorClient.asynGetAReplica();
+		if (monitorClient != null) {
+			return monitorClient.asynGetAReplica();
+		}
+		return null;
 	}
 
 	private class MServerPipelineFactory implements ChannelPipelineFactory {

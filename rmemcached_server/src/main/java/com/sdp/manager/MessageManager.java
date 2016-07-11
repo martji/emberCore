@@ -39,8 +39,9 @@ public class MessageManager {
     private MServer mServer;
     private ConcurrentHashMap<Integer, Channel> clientChannelMap;
 
-    public void setMServer(MServer mServer) {
-        this.mServer = mServer;
+    public void setMServer(MServer server) {
+        this.mServer = server;
+        replicaManager.setServer(mServer);
     }
 
     /**
@@ -49,8 +50,23 @@ public class MessageManager {
     private ConcurrentHashMap<Integer, MemcachedClient> spyClientMap;
 
     public MessageManager() {
+        hotSpotManager = new HotSpotManager();
         replicaManager = new ReplicaManager();
         consistencyManager = new ConsistencyManager();
+
+        hotSpotManager.setOnFindHotSpot(new BaseHotspotDetector.OnFindHotSpot() {
+            public void dealHotSpot() {
+                replicaManager.dealHotData();
+            }
+
+            public void dealColdSpot() {
+                replicaManager.dealColdData();
+            }
+
+            public void dealHotSpot(String key) {
+                replicaManager.dealHotData(key);
+            }
+        });
 
         init();
     }
@@ -97,21 +113,7 @@ public class MessageManager {
      * Call this method to start hot spot detection.
      */
     public void startHotSpotDetection() {
-        hotSpotManager = new HotSpotManager();
-        hotSpotManager.setOnFindHotSpot(new BaseHotspotDetector.OnFindHotSpot() {
-            public void dealHotSpot() {
-                replicaManager.dealHotData();
-            }
-
-            public void dealColdSpot() {
-                replicaManager.dealColdData();
-            }
-
-            public void dealHotSpot(String key) {
-                replicaManager.dealHotData(key);
-            }
-        });
-
+        new Thread(replicaManager).start();
         new Thread(hotSpotManager).start();
     }
 

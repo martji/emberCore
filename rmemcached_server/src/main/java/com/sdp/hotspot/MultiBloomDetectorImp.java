@@ -119,7 +119,7 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
             frequent_threshold = 2;
         }
 
-        String result = "[bloom visit count]: " + itemPass +" / "+ itemSum +
+        String result = "[bloom filter]: " + itemPass +" / "+ itemSum +
                 " [frequent_threshold]: " + frequent_threshold;
 
         itemSum = 0;

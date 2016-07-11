@@ -18,6 +18,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by magq on 16/7/6.
@@ -27,13 +28,18 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     private final int REPLICA_MODE = 0;
     private final int EXPIRE_TIME = 60*60*24*10;
     private final int UPDATE_STATUS_TIME = 5*1000;
-    private final int BUFFER_SIZE = 10;
+    private final int BUFFER_SIZE = 1000;
 
     /**
      * Local reference, mServer connect with other server and monitor, while
      * memcachedClient connect to local memcached server. The whole server information of cluster.
      */
     private MServer mServer;
+
+    public void setServer(MServer mServer) {
+        this.mServer = mServer;
+    }
+
     private MemcachedClient memcachedClient;
     private int serverId;
     private Map<Integer, ServerNode> serversMap;
@@ -60,7 +66,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      */
     private List<Map.Entry<Integer, Double>> serverInfoList;
     private ConcurrentHashMap<Integer, Integer> hotSpotsList;
-    private Set<String> bufferHotSpots;
+    private ConcurrentLinkedQueue<String> bufferHotSpots;
 
     public ReplicaManager() {
         init();
@@ -71,7 +77,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.spyClientMap = new ConcurrentHashMap<Integer, MemcachedClient>();
         this.serverInfoList = new LinkedList<Map.Entry<Integer, Double>>();
         this.hotSpotsList = new ConcurrentHashMap<Integer, Integer>();
-        this.bufferHotSpots = new HashSet<String>();
+        hotSpotsList.put(1, 0);
+        this.bufferHotSpots = new ConcurrentLinkedQueue<String>();
     }
 
     public void setClientChannelMap(ConcurrentHashMap<Integer, Channel> clientChannelMap) {
@@ -92,16 +99,39 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     public void run() {
         try {
-            updateServersInfo();
-            Thread.sleep(UPDATE_STATUS_TIME);
+            while (true) {
+                updateServersInfo();
+                Thread.sleep(UPDATE_STATUS_TIME);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Update servers information, this method is called each period.
+     */
+    private void updateServersInfo() {
+        if (mServer != null) {
+            String replicasInfo = mServer.getAReplica();
+            if (replicasInfo == null || replicasInfo.length() == 0) {
+                return;
+            }
+            serverInfoList = getServersInfoMap(replicasInfo);
+        }
+    }
+
+    /**
+     * Deal the hot spot in buffer and create replicas.
+     */
     public void dealHotData() {
-        Set<String> hotSpots = new HashSet<String>(bufferHotSpots);
+        if (bufferHotSpots.size() == 0) {
+            return;
+        }
+        LinkedList<String> hotSpots = new LinkedList<String>(bufferHotSpots);
         bufferHotSpots.clear();
+
+        Log.log.info("[hot spots]: [new hot spots number]: " + hotSpots.size());
 
         Set<String> handledHotSpots = new HashSet<String>();
         Map<String, Integer> hotItems = new HashMap<String, Integer>();
@@ -131,8 +161,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
                 }
             }
         }
-        Log.log.info("[PId: " + Log.id + "] new hot spots: " + handledHotSpots.size() +
-                " [create] " + hotSpotsList.toString());
+        Log.log.info("[hot spots]: [handled hot spots number]: " + handledHotSpots.size() +
+                "  |  [distribution]: " + hotSpotsList.toString());
         infoAllClient(hotItems);
     }
 
@@ -161,6 +191,12 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         }
     }
 
+    /**
+     * Deal a single hot spot, the hot spot will not be dealt at once, and the hot spot will
+     * be inset to a buffer. If the buffer size reaches the predefined BUFFER_SIZE, @method dealHotData()
+     * will be invoked.
+     * @param key
+     */
     public void dealHotData(String key) {
         bufferHotSpots.add(key);
         if (bufferHotSpots.size() > BUFFER_SIZE) {
@@ -168,6 +204,12 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         }
     }
 
+    /**
+     * Handle read failed from other server.
+     * @param channel
+     * @param key
+     * @param failedServerId
+     */
     public void handleReadFailed(Channel channel, String key, int failedServerId) {
         String oriKey = MessageManager.getOriKey(key);
         if (replicasIdMap.containsKey(oriKey)) {
@@ -198,17 +240,6 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     /**
-     * Update servers information, this method is called each period.
-     */
-    private void updateServersInfo() {
-        String replicasInfo = mServer.getAReplica();
-        if (replicasInfo == null || replicasInfo.length() == 0) {
-            return;
-        }
-        serverInfoList = getServersInfoMap(replicasInfo);
-    }
-
-    /**
      * Update replicas distribution.
      * @param localCount
      */
@@ -225,7 +256,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     /**
-     *
+     * Transfer replicasInfo to list.
      * @param replicasInfo
      * @return list of server workload status.
      */

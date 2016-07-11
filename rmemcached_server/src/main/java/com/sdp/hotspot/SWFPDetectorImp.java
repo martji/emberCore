@@ -103,7 +103,7 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
         }
         counterNumber = (int) (1 / hotSpotPercentage);
 
-        String result =  "  |  [visit count]: " + totalCount + " / "+ itemSum +
+        String result =  "  |  [frequent counter]: " + totalCount + " / "+ itemSum +
                 " [hot_spot_percentage]: " + hotSpotPercentage;
         return result;
     }

@@ -63,8 +63,8 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
         if (multiBloomDetector != null && frequentDetector != null) {
             if (multiBloomDetector.registerItem(key)) {
                 if (frequentDetector.registerItem(key, bloomFilterSum)) {
-//                    currentHotSpotSet.add(key);
-//                    dealHotData(key);
+                    currentHotSpotSet.add(key);
+                    dealHotData(key);
                 }
             }
         }
@@ -90,15 +90,16 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
                 frequentDetector.resetCounter();
                 frequentDetector.refreshSWFPCounter();
 
-                Log.log.info(bloomFilterOut + frequentCounterOut);
-
-                currentHotSpotSet.clear();
+                Log.log.info(bloomFilterOut + frequentCounterOut + "\n");
 
                 Thread.sleep(SLICE_TIME);
 
                 write2fileBackground();
 
                 bloomFilterSum = multiBloomDetector.itemSum;
+
+                dealHotData();
+                currentHotSpotSet.clear();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
