@@ -4,6 +4,8 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import com.sdp.example.Log;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelException;
@@ -132,6 +134,10 @@ public class RMClient{
 		msg.setNodeRoute(serverId);
 		msg.setMessageLite(builder);
 		msg.setMsgID(EMSGID.nr_apply_replica);
+		if (mChannel == null) {
+			Log.log.error("do not connect to monitor");
+			return null;
+		}
 		mChannel.write(msg);
 		
 		try {

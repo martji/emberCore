@@ -19,6 +19,8 @@ import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by magq on 16/7/6.
@@ -68,6 +70,13 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     private ConcurrentHashMap<Integer, Integer> hotSpotsList;
     private ConcurrentLinkedQueue<String> bufferHotSpots;
 
+    /**
+     * The percentage of handled hot spots.
+     */
+    private double handledPercentage;
+
+    private ExecutorService threadPool;
+
     public ReplicaManager() {
         init();
     }
@@ -79,6 +88,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.hotSpotsList = new ConcurrentHashMap<Integer, Integer>();
         hotSpotsList.put(1, 0);
         this.bufferHotSpots = new ConcurrentLinkedQueue<String>();
+        this.threadPool = Executors.newCachedThreadPool();
     }
 
     public void setClientChannelMap(ConcurrentHashMap<Integer, Channel> clientChannelMap) {
@@ -121,17 +131,30 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         }
     }
 
-    /**
-     * Deal the hot spot in buffer and create replicas.
-     */
     public void dealHotData() {
         if (bufferHotSpots.size() == 0) {
             return;
         }
-        LinkedList<String> hotSpots = new LinkedList<String>(bufferHotSpots);
-        bufferHotSpots.clear();
 
-        Log.log.info("[hot spots]: [new hot spots number]: " + hotSpots.size());
+        final LinkedList<String> hotSpots = new LinkedList<String>(bufferHotSpots);
+        bufferHotSpots.clear();
+        threadPool.submit(new Runnable() {
+            public void run() {
+                dealHotData(hotSpots);
+            }
+        });
+    }
+
+    /**
+     * Deal the hot spot in buffer and create replicas.
+     */
+    public void dealHotData(LinkedList<String> hotSpots) {
+        if (hotSpots.size() == 0) {
+            handledPercentage = 1;
+            return;
+        }
+        int id = (int) (Math.random() * BUFFER_SIZE);
+        Log.log.info(id + " [new hot spots number]: " + hotSpots.size());
 
         Set<String> handledHotSpots = new HashSet<String>();
         Map<String, Integer> hotItems = new HashMap<String, Integer>();
@@ -161,8 +184,11 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
                 }
             }
         }
-        Log.log.info("[hot spots]: [handled hot spots number]: " + handledHotSpots.size() +
-                "  |  [distribution]: " + hotSpotsList.toString());
+        handledPercentage = (double) handledHotSpots.size() / hotSpots.size();
+
+        Log.log.info(id + " [hot spots]: [handled number]: " + handledHotSpots.size() +
+                " [handled percentage]: " + handledPercentage +
+                "  |  [current distribution]: " + hotSpotsList.toString());
         infoAllClient(hotItems);
     }
 

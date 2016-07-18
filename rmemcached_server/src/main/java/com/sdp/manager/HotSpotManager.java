@@ -90,7 +90,7 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
                 frequentDetector.resetCounter();
                 frequentDetector.refreshSWFPCounter();
 
-                Log.log.info(bloomFilterOut + frequentCounterOut + "\n");
+                Log.log.info(bloomFilterOut + frequentCounterOut);
 
                 Thread.sleep(SLICE_TIME);
 
