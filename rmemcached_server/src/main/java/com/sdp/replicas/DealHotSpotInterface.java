@@ -6,7 +6,7 @@ package com.sdp.replicas;
 public interface DealHotSpotInterface {
 
     /**
-     * create replica for hotspot
+     * create replica for hot spot set
      */
     void dealHotData();
 
@@ -15,5 +15,9 @@ public interface DealHotSpotInterface {
      */
     void dealColdData();
 
+    /**
+     * deal single hot spot
+     * @param key
+     */
     void dealHotData(String key);
 }
