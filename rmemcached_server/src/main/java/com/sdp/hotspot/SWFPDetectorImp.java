@@ -1,7 +1,6 @@
 package com.sdp.hotspot;
 
 import com.sdp.config.GlobalConfigMgr;
-import com.sdp.example.Log;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -26,7 +25,6 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
      * The default influence of hot spot, which is P, this parameter does not change.
      */
     private static double HOT_SPOT_INFLUENCE = 0.1;
-    private static double HOT_SPOT_PERCENTAGE = 0.0001;
 
 
     private int counterNumber;
@@ -38,11 +36,9 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     }
 
     public void initConfig() {
-        HOT_SPOT_PERCENTAGE = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_PERCENTAGE);
+    	hotSpotPercentage = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_PERCENTAGE);
         HOT_SPOT_INFLUENCE = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_INFLUENCE);
-        Log.log.info("[frequent counter parameters]: " + "p = " + hotSpotPercentage + ", P = " + HOT_SPOT_INFLUENCE);
 
-        hotSpotPercentage = HOT_SPOT_PERCENTAGE;
     	counterNumber = (int) (1 / hotSpotPercentage);
     }
 
@@ -103,7 +99,7 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
         if (totalCount > 0 && tmp < HOT_SPOT_INFLUENCE) {
             hotSpotPercentage /= 2;
         } else if (totalCount == 0) {
-            hotSpotPercentage = HOT_SPOT_PERCENTAGE;
+            hotSpotPercentage = 0.0001;
         }
         counterNumber = (int) (1 / hotSpotPercentage);
 
