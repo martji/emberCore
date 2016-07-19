@@ -18,13 +18,13 @@ public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
 	 
 	private ArrayList topElementsList = new ArrayList();
 
-	public static TopKDetectorImp getInstance() {
+	/*public static TopKDetectorImp getInstance() {
 		if (ourInstance == null) {
 			ourInstance = new TopKDetectorImp();
 			ourInstance.start();
 		}
 		return ourInstance;
-	}
+	}*/
 
 	private TopKDetectorImp() {
 		initConfig();
@@ -53,11 +53,10 @@ public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
 					min = itemCounters.get(str);
 				}
 			}
-			int preCounterValue = itemCounters.get(strMin);
 			itemCounters.remove(strMin);
 			preValue.remove(strMin);
-			itemCounters.put(key, preCounterValue + 1);
-			preValue.put(key, preCounterValue);
+			itemCounters.put(key, min + 1);
+			preValue.put(key, min);
 		}
 		if(topElementsList.contains(key)){
 			return true;
@@ -87,7 +86,7 @@ public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
 				for(i = i + 1;i < itemCounters.size(); i ++){
 					if(itemCounters.get(str) - preValue.get(str) < minGuarFreq){
 						minGuarFreq = itemCounters.get(str) - preValue.get(str);
-					}
+					} 
 					str = (String) iter.next();
 					if(itemCounters.get(str) <= minGuarFreq){
 						break;
