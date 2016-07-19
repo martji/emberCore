@@ -156,7 +156,7 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
         public void refresh() {
             dFrequent = 0;
             preFrequent = preFrequent /2 + frequent/2;
-            frequent = frequent/2;
+            frequent = 0;
         }
 
         public int getCount() {

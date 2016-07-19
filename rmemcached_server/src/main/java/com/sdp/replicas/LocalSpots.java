@@ -2,6 +2,9 @@ package com.sdp.replicas;
 
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class LocalSpots {
 	public static ConcurrentHashMap<String, String> hotspots = new ConcurrentHashMap<String, String>();
 	public static ConcurrentHashMap<String, String> coldspots = new ConcurrentHashMap<String, String>();
@@ -41,4 +44,11 @@ public class LocalSpots {
 	public static void removeCold(String key) {
 		coldspots.remove(key);
 	}
+
+
+    /**
+     * Record hot spots and cold spots in current period.
+     */
+	public static ConcurrentLinkedQueue<String> candidateHotSpots = new ConcurrentLinkedQueue<String>();
+    public static AtomicInteger hotSpotNumber = new AtomicInteger(0);
 }

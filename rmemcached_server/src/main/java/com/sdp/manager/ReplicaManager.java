@@ -137,6 +137,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         }
 
         final LinkedList<String> hotSpots = new LinkedList<String>(bufferHotSpots);
+        LocalSpots.hotSpotNumber.addAndGet(hotSpots.size());
         bufferHotSpots.clear();
         threadPool.submit(new Runnable() {
             public void run() {
@@ -193,11 +194,26 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     public void dealColdData() {
-        if (LocalSpots.coldspots.keySet().size() > 0) {
-            Set<String> coldSpots = new HashSet<String>(LocalSpots.coldspots.keySet());
-            Map<String, Integer> coldItems = new HashMap<String, Integer>();
+        if (replicasIdMap.size() > 0) {
+            final HashSet<String> candidates = new HashSet<String>(LocalSpots.candidateHotSpots);
+            final int hotSpotNumber = LocalSpots.hotSpotNumber.get();
+            threadPool.submit(new Runnable() {
+                public void run() {
+                    dealColdData(candidates, hotSpotNumber);
+                }
+            });
 
-            for (String key : coldSpots) {
+            LocalSpots.candidateHotSpots.clear();
+            LocalSpots.hotSpotNumber.set(0);
+        }
+    }
+
+    public void dealColdData(HashSet<String> candidateHotSpots, int hotSpotNumber) {
+        Set<String> coldSpots = new HashSet<String>(replicasIdMap.keySet());
+        Map<String, Integer> coldItems = new HashMap<String, Integer>();
+
+        for (String key : coldSpots) {
+            if (!candidateHotSpots.contains(key)) {
                 int localCount = replicasIdMap.get(key).size() - 1;
                 hotSpotsList.put(localCount, hotSpotsList.get(localCount) - 1);
                 if (localCount - 1 >= 1) {
@@ -210,11 +226,10 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
                     replicasIdMap.remove(key);
                 }
             }
-            Log.log.info("[PId: " + Log.id + "] new cold spots: " + coldSpots.size() +
-                    " [retire] " + hotSpotsList.toString());
-            infoAllClient(coldItems);
-            LocalSpots.coldspots = new ConcurrentHashMap<String, String>();
         }
+        Log.log.info("[new cold spots]: " + coldSpots.size() + " [cold spots / hot spots]: " + (double) coldSpots.size() / hotSpotNumber +
+                "  |  [current distribution]: " + hotSpotsList.toString());
+        infoAllClient(coldItems);
     }
 
     /**
