@@ -14,7 +14,6 @@ import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,7 +32,6 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
     private SWFPDetectorImp frequentDetector;
 
     private HashSet<String> currentHotSpotSet = new HashSet<String>();
-    private ConcurrentLinkedQueue<String> candidateHotSpotSet = new ConcurrentLinkedQueue<String>();
 
     private int bloomFilterSum = 0;
 
@@ -60,7 +58,7 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
     @Override
     public void handleRegister(String key) {
         if (multiBloomDetector != null && frequentDetector != null) {
-            candidateHotSpotSet.add(key);
+            LocalSpots.candidateColdSpots.remove(key);
             if (multiBloomDetector.registerItem(key)) {
                 if (frequentDetector.registerItem(key, bloomFilterSum)) {
                     if (currentHotSpotSet.contains(key)) {
@@ -71,11 +69,6 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
                 }
             }
         }
-    }
-
-    @Override
-    public void finishDealHotSpot(String key) {
-        currentHotSpotSet.remove(key);
     }
 
     /**
@@ -102,10 +95,10 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
                 bloomFilterSum = multiBloomDetector.itemSum;
 
                 dealHotData();
-                currentHotSpotSet.clear();
 
+                LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
+                currentHotSpotSet.clear();
                 dealColdData();
-                candidateHotSpotSet.clear();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -155,7 +148,6 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
     }
 
     public void dealColdData() {
-        LocalSpots.candidateHotSpots = new ConcurrentLinkedQueue<String>(candidateHotSpotSet);
         onFindHotSpot.dealColdSpot();
     }
 

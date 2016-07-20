@@ -1,6 +1,7 @@
 package com.sdp.hotspot;
 
 import com.sdp.config.GlobalConfigMgr;
+import com.sdp.example.Log;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -14,7 +15,7 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     /**
      * The really counter to count the visit times of item.
      */
-    private ConcurrentHashMap<String, SWFPCounter> CounterMap = new ConcurrentHashMap<String, SWFPCounter>();
+    private ConcurrentHashMap<String, SWFPCounter> counterMap = new ConcurrentHashMap<String, SWFPCounter>();
 
     /**
      * The threshold of hot spot frequent percentage, which is p.
@@ -25,6 +26,8 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
      * The default influence of hot spot, which is P, this parameter does not change.
      */
     private static double HOT_SPOT_INFLUENCE = 0.1;
+    private static double HOT_SPOT_PERCENTAGE = 0.0001;
+    private static int MINIMUM_F = 2;
 
 
     private int counterNumber;
@@ -36,9 +39,11 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     }
 
     public void initConfig() {
-    	hotSpotPercentage = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_PERCENTAGE);
+    	HOT_SPOT_PERCENTAGE = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_PERCENTAGE);
         HOT_SPOT_INFLUENCE = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_INFLUENCE);
+        Log.log.info("[frequent counter parameters]: " + "p = " + HOT_SPOT_PERCENTAGE + ", P = " + HOT_SPOT_INFLUENCE);
 
+        hotSpotPercentage = HOT_SPOT_PERCENTAGE;
     	counterNumber = (int) (1 / hotSpotPercentage);
     }
 
@@ -51,27 +56,27 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     public boolean registerItem(String key, int bloomFilterSum) {
         itemSum ++;
 
-        if (CounterMap.containsKey(key)) {
-            CounterMap.get(key).add();
+        if (counterMap.containsKey(key)) {
+            counterMap.get(key).add();
             int threshold = (int)(hotSpotPercentage * (itemSum > bloomFilterSum ? itemSum : bloomFilterSum));
-            if (CounterMap.get(key).getCount() > threshold) {
-            	itemCounters.put(key, CounterMap.get(key).getReallyCount());
+            if (counterMap.get(key).frequent >= MINIMUM_F && counterMap.get(key).getCount() > threshold) {
+            	itemCounters.put(key, counterMap.get(key).getReallyCount());
             }
         } else {
-            if (CounterMap.size() < counterNumber) {
-                CounterMap.put(key, new SWFPCounter(key));
+            if (counterMap.size() < counterNumber) {
+                counterMap.put(key, new SWFPCounter(key));
             } else {
-                Set<String> keySet = CounterMap.keySet();
+                Set<String> keySet = counterMap.keySet();
                 for (String item: keySet) {
-                    CounterMap.get(item).del();
+                    counterMap.get(item).del();
 
-                    if (CounterMap.get(item).frequent <= 0) {
-                        CounterMap.remove(item);
+                    if (counterMap.get(item).frequent <= 0) {
+                        counterMap.remove(item);
                     }
                 }
 
-                if (CounterMap.size() < counterNumber) {
-                    CounterMap.put(key, new SWFPCounter(key));
+                if (counterMap.size() < counterNumber) {
+                    counterMap.put(key, new SWFPCounter(key));
                 }
             }
         }
@@ -99,7 +104,7 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
         if (totalCount > 0 && tmp < HOT_SPOT_INFLUENCE) {
             hotSpotPercentage /= 2;
         } else if (totalCount == 0) {
-            hotSpotPercentage = 0.0001;
+            hotSpotPercentage = HOT_SPOT_PERCENTAGE;
         }
         counterNumber = (int) (1 / hotSpotPercentage);
 
@@ -113,9 +118,9 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     }
 
     public void refreshSWFPCounter() {
-        Set<String> keySet = CounterMap.keySet();
+        Set<String> keySet = counterMap.keySet();
         for (String item: keySet) {
-            CounterMap.get(item).refresh();
+            counterMap.get(item).refresh();
         }
     }
 
