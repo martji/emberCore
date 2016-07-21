@@ -12,7 +12,6 @@ public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetec
 	private static int counterNumber = 20;
 	private static double HOT_SPOT_INFLUENCE = 0.1;
 	private double hotSpotPercentage = 0.0001;
-	private ArrayList topElementsList = new ArrayList();
 	private ConcurrentHashMap<String, Integer> preValue = new ConcurrentHashMap<String, Integer>();
 	private ConcurrentHashMap<String, Integer> CounterMap = new ConcurrentHashMap<String, Integer>();
 	public int itemSum = 0;
@@ -65,19 +64,19 @@ public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetec
 	public String updateItemSum() {
 		itemSum -= preItemSum;
 		preItemSum = itemSum;
-		
+
 		ArrayList<Integer> hotSpots = new ArrayList<Integer>(itemCounters.values());
-        int totalCount = 0;
-        for (int i = 0; i < hotSpots.size(); i++) {
-            totalCount += hotSpots.get(i);
-        }
-        double tmp = (double) totalCount / itemSum;
-        if (totalCount > 0 && tmp < HOT_SPOT_INFLUENCE) {
-            hotSpotPercentage /= 2;
-        } else if (totalCount == 0) {
-            hotSpotPercentage = 0.0001;
-        }
-        
+		int totalCount = 0;
+		for (int i = 0; i < hotSpots.size(); i++) {
+			totalCount += hotSpots.get(i);
+		}
+		double tmp = (double) totalCount / itemSum;
+		if (totalCount > 0 && tmp < HOT_SPOT_INFLUENCE) {
+			hotSpotPercentage /= 2;
+		} else if (totalCount == 0) {
+			hotSpotPercentage = 0.0001;
+		}
+
 		String result = "  |  [frequent counter]: " + totalCount + " / " + itemSum + " [hot_spot_percentage]: "
 				+ hotSpotPercentage;
 		return result;
@@ -85,7 +84,7 @@ public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetec
 
 	public ConcurrentHashMap<String, Integer> getItemCounters() {
 		// TODO Auto-generated method stub
-		return null;
+		return itemCounters;
 	}
 
 	public void resetCounter() {

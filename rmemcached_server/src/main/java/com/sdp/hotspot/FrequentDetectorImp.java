@@ -13,16 +13,9 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
 
     private int frequentItemsNumber = 1;
     private double hotSpotPercentage = 0.0001;
-    private static FrequentDetectorImp ourInstance = null;
     private static double HOT_SPOT_INFLUENCE = 0.1;
     private int itemSum = 0;
     private int preItemSum = 0;
-    /*public static FrequentDetectorImp getInstance() {
-        if (ourInstance == null) {
-            ourInstance = new FrequentDetectorImp();
-        }
-        return ourInstance;
-    }*/
 
     public FrequentDetectorImp() {
         initConfig();
@@ -91,6 +84,5 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
     
     public void resetCounter() {
 		// TODO Auto-generated method stub
-		itemCounters.clear();
 	}
 }

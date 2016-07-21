@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,26 +19,34 @@ import java.util.concurrent.Executors;
 import com.sdp.config.GlobalConfigMgr;
 import com.sdp.example.Log;
 import com.sdp.hotspot.BaseHotspotDetector;
-import com.sdp.hotspot.FrequentDetectorImp;
+import com.sdp.hotspot.CounterBloomDetectorImp;
 import com.sdp.hotspot.MultiBloomDetectorImp;
 import com.sdp.hotspot.SWFPDetectorImp;
 import com.sdp.replicas.DealHotSpotInterface;
+import com.sdp.replicas.LocalSpots;
 
-public class FrequentContrastManager extends BaseHotspotDetector implements DealHotSpotInterface {
+public class CounterBloomContrastManager extends BaseHotspotDetector implements DealHotSpotInterface {
 
 	private static int SLICE_TIME;
-	private FrequentDetectorImp frequentDetector;
+
 	private ExecutorService threadPool = Executors.newCachedThreadPool();
 	private String hotSpotPath = String.format(System.getProperty("user.dir") + "/logs/server_%d_hotspot.data",
 			GlobalConfigMgr.id);
+
+	private CounterBloomDetectorImp frequentDetector;
+
 	private HashSet<String> currentHotSpotSet = new HashSet<String>();
 
-	public FrequentContrastManager() {
+	public CounterBloomContrastManager() {
 		initConfig();
 
-		frequentDetector = new FrequentDetectorImp();
+		frequentDetector = new CounterBloomDetectorImp();
 	}
 
+	/**
+	 * Read config, get hot spot detection period.
+	 *
+	 */
 	private void initConfig() {
 		SLICE_TIME = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.SLICE_TIME);
 		Log.log.info("[Hot spot detection period]: " + SLICE_TIME);
@@ -50,19 +59,13 @@ public class FrequentContrastManager extends BaseHotspotDetector implements Deal
 				dealHotData(key);
 			}
 		}
-
 	}
 
 	public void run() {
 		// TODO Auto-generated method stub
-
 		while (true) {
 			try {
-				// refresh
-				String frequentCounterOut = frequentDetector.updateFrequent();
-
-				Log.log.info(frequentCounterOut + "\n");
-
+				frequentDetector.resetCounter();
 				Thread.sleep(SLICE_TIME);
 
 				write2fileBackground();
@@ -72,9 +75,21 @@ public class FrequentContrastManager extends BaseHotspotDetector implements Deal
 				e.printStackTrace();
 			}
 		}
+
 	}
 
 	public void write2fileBackground() {
+		for (Iterator it = currentHotSpotSet.iterator(); it.hasNext();) {
+			String str = (String) it.next();
+			int[] indexArray = frequentDetector.hashFunction.getHashIndex(str);
+			int min = Integer.MAX_VALUE;
+			for (int i = 0; i < indexArray.length; i++) {
+				if (indexArray[i] < min) {
+					min = indexArray[i];
+				}
+			}
+			frequentDetector.itemCounters.put(str, min);
+		}
 		final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(
 				frequentDetector.getItemCounters().entrySet());
 		if (list != null && list.size() > 0) {

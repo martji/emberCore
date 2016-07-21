@@ -13,7 +13,7 @@ import com.sdp.config.GlobalConfigMgr;
 
 public class HashFunction {
 	private static int BLOOM_FILTER_LENGTH = 2<<28;
-    private static int HASH_FUNCTION_NUMBER = 4;
+    public static int HASH_FUNCTION_NUMBER = 4;
     private List<String> methodList = new ArrayList<String>();
 
     public HashFunction() {

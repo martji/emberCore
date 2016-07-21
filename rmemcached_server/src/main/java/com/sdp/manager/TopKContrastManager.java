@@ -47,67 +47,73 @@ public class TopKContrastManager extends BaseHotspotDetector implements DealHotS
 	}
 
 	public void handleRegister(String key) {
-		if (frequentDetector.registerItem(key, 0)) {
-			dealHotData(key);
+		if (frequentDetector != null) {
+			if ((frequentDetector.registerItem(key, 0)) && (!currentHotSpotSet.contains(key))) {
+				currentHotSpotSet.add(key);
+				dealHotData(key);
+			}
 		}
 	}
 
 	public void run() {
 		// TODO Auto-generated method stub
-		 while (true) {
-	            try {
-	                // frequent counter refresh
-	                String frequentCounterOut = frequentDetector.updateItemSum();
-	                frequentDetector.resetCounter();
-	                Log.log.info(frequentCounterOut + "\n");
-	                Thread.sleep(SLICE_TIME);
+		while (true) {
+			try {
+				// frequent counter refresh
+				String frequentCounterOut = frequentDetector.updateItemSum();
+				frequentDetector.resetCounter();
+				Log.log.info(frequentCounterOut + "\n");
+				Thread.sleep(SLICE_TIME);
 
-	                write2fileBackground();
+				write2fileBackground();
 
-	                dealHotData();
-	            } catch (InterruptedException e) {
-	                e.printStackTrace();
-	            }
-	        }
+				dealHotData();
+				currentHotSpotSet.clear();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 
 	}
-	  /**
-     * Record the current hot spots.
-     */
-    public void write2fileBackground() {
-        final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>
-                (frequentDetector.getItemCounters().entrySet());
-        if (list != null && list.size() > 0) {
-            threadPool.execute(new Runnable() {
-                public void run() {
-                    Collections.sort(list, new Comparator<ConcurrentHashMap.Entry<String, Integer>>() {
-                        public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                            return (o2.getValue() - o1.getValue());
-                        }
-                    });
 
-                    try {
-                        File file = new File(hotSpotPath);
-                        if (!file.exists()) {
-                            file.createNewFile();
-                        }
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
+	/**
+	 * Record the current hot spots.
+	 */
+	public void write2fileBackground() {
+		final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(
+				frequentDetector.getItemCounters().entrySet());
+		if (list != null && list.size() > 0) {
+			threadPool.execute(new Runnable() {
+				public void run() {
+					Collections.sort(list, new Comparator<ConcurrentHashMap.Entry<String, Integer>>() {
+						public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+							return (o2.getValue() - o1.getValue());
+						}
+					});
 
-                        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        bw.write(df.format(new Date()) + " [Current frequent items]:\n");
-                        for (Map.Entry<String, Integer> mapping : list) {
-                            bw.write(mapping.getKey() + " = " + mapping.getValue() + "\n");
-                        }
-                        bw.write("\n\n\n");
+					try {
+						File file = new File(hotSpotPath);
+						if (!file.exists()) {
+							file.createNewFile();
+						}
+						BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
 
-                        bw.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
-    }
+						SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						bw.write(df.format(new Date()) + " [Current frequent items]:\n");
+						for (Map.Entry<String, Integer> mapping : list) {
+							bw.write(mapping.getKey() + " = " + mapping.getValue() + "\n");
+						}
+						bw.write("\n\n\n");
+
+						bw.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+		}
+	}
+
 	public void dealHotData() {
 		onFindHotSpot.dealHotSpot();
 	}
