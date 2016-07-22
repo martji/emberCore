@@ -51,6 +51,7 @@ public class GlobalConfigMgr {
             int counter_number = Integer.decode(properties.getProperty(COUNTER_NUMBER, "10"));
             double error_rate = Double.parseDouble(properties.getProperty(ERROR_RATE, "0.01"));
             int threshold = Integer.decode(properties.getProperty(THRESHOLD, "10"));
+            int interval = Integer.decode(properties.getProperty(INTERVAL, "30"));
 
 
             propertiesMap.put(REPLICA_PROTOCOL, replica_protocol);
@@ -73,6 +74,7 @@ public class GlobalConfigMgr {
             propertiesMap.put(COUNTER_NUMBER, counter_number);
             propertiesMap.put(ERROR_RATE, error_rate);
             propertiesMap.put(THRESHOLD, threshold);
+            propertiesMap.put(INTERVAL, interval);
         } catch (Exception e) {
             Log.log.error("wrong config.properties", e);
         }
@@ -123,6 +125,7 @@ public class GlobalConfigMgr {
     public static final String COUNTER_NUMBER = "counter_number";
     public static final String ERROR_RATE = "error_rate";
     public static final String THRESHOLD = "threshold";
+    public static final String INTERVAL = "interval";
 
     public static final int DATA_STREAM_MODE = 1;
 }
