@@ -65,6 +65,7 @@ public class CounterBloomContrastManager extends BaseHotspotDetector implements 
 		// TODO Auto-generated method stub
 		while (true) {
 			try {
+				System.out.println(frequentDetector.getItemCounters());
 				frequentDetector.resetCounter();
 				Thread.sleep(SLICE_TIME);
 
@@ -79,16 +80,17 @@ public class CounterBloomContrastManager extends BaseHotspotDetector implements 
 	}
 
 	public void write2fileBackground() {
-		for (Iterator it = currentHotSpotSet.iterator(); it.hasNext();) {
-			String str = (String) it.next();
+		Object[] currentHotSpotSetCopycopy = currentHotSpotSet.toArray();
+		for (int i = 0; i < currentHotSpotSetCopycopy.length; i ++) {
+			String str = (String) currentHotSpotSetCopycopy[i];
 			int[] indexArray = frequentDetector.hashFunction.getHashIndex(str);
 			int min = Integer.MAX_VALUE;
-			for (int i = 0; i < indexArray.length; i++) {
-				if (indexArray[i] < min) {
-					min = indexArray[i];
+			for (int j = 0; j < indexArray.length; j++) {
+				if (indexArray[j] < min) {
+					min = indexArray[j];
 				}
 			}
-			frequentDetector.itemCounters.put(str, min);
+			frequentDetector.getItemCounters().put(str, min);
 		}
 		final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(
 				frequentDetector.getItemCounters().entrySet());

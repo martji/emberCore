@@ -20,8 +20,8 @@ public class MultiBloomCounterDetectorImp extends Thread implements BaseFrequent
 	 * The length of single bloom filter.
 	 */
 	private static int BLOOM_FILTER_LENGTH = 10;
-	private int frequent_threshold = 30;
-	private static int INTERVAL = 30;
+	private int frequent_threshold = 50;
+	private static int INTERVAL = 50;
 	
 	public int itemSum = 0;
 	public int interval = 0;

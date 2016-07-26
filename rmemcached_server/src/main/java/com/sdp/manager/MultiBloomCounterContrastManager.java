@@ -68,6 +68,7 @@ public class MultiBloomCounterContrastManager extends BaseHotspotDetector implem
 		// TODO Auto-generated method stub
 		while (true) {
 			try {
+				frequentDetector.resetCounter();
 				Thread.sleep(SLICE_TIME);
 
 				write2fileBackground();

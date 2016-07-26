@@ -34,7 +34,7 @@ public class CounterBloomDetectorImp extends Thread implements BaseFrequentDetec
 		// TODO Auto-generated method stub
 		boolean isHotSpot = true;
 		int[] indexArray = hashFunction.getHashIndex(key);
-		for (int i = 0; i < hashFunction.HASH_FUNCTION_NUMBER; i++) {
+		for (int i = 0; i < indexArray.length; i++) {
 			int index = indexArray[i];
 			bloomCounter[index] += 1;
 			if (bloomCounter[index] < frequent_threshold) {
