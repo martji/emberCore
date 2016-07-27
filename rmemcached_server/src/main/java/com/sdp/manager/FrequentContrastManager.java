@@ -59,9 +59,9 @@ public class FrequentContrastManager extends BaseHotspotDetector implements Deal
 		while (true) {
 			try {
 				// refresh
-				String frequentCounterOut = frequentDetector.updateFrequent();
+				//String frequentCounterOut = frequentDetector.updateFrequent();
 
-				Log.log.info(frequentCounterOut + "\n");
+				//Log.log.info(frequentCounterOut + "\n");
 
 				Thread.sleep(SLICE_TIME);
 
@@ -75,6 +75,7 @@ public class FrequentContrastManager extends BaseHotspotDetector implements Deal
 	}
 
 	public void write2fileBackground() {
+		System.out.println(frequentDetector.getItemCounters().size());
 		final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(
 				frequentDetector.getItemCounters().entrySet());
 		if (list != null && list.size() > 0) {

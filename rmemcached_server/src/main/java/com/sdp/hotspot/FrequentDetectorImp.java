@@ -26,7 +26,7 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
     public void initConfig() {
     	hotSpotPercentage = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_PERCENTAGE);
         HOT_SPOT_INFLUENCE = (Double) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.HOT_SPOT_INFLUENCE);
-        frequentItemsNumber = (int) (1 / hotSpotPercentage);
+        frequentItemsNumber = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.COUNTER_NUMBER);
     }
 
     /**
@@ -55,7 +55,7 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
         return result;
     }
     
-    public String updateFrequent() {
+    /*public String updateFrequent() {
     	itemSum -= preItemSum;
         preItemSum = itemSum;
         
@@ -78,7 +78,7 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
                 " [hot_spot_percentage]: " + hotSpotPercentage;
         return result;
         
-    }
+    }*/
 
     public ConcurrentHashMap<String, Integer> getItemCounters() {
         return itemCounters;
