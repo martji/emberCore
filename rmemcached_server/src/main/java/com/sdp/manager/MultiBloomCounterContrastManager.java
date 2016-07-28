@@ -49,9 +49,10 @@ public class MultiBloomCounterContrastManager extends BaseHotspotDetector implem
 		SLICE_TIME = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.SLICE_TIME);
 		Log.log.info("[Hot spot detection period]: " + SLICE_TIME);
 	}
-
+	@Override
 	public void handleRegister(String key) {
 		if (frequentDetector != null) {
+			System.out.println("处理数据");
 			if (currentHotSpotSet.contains(key)) {
 				frequentDetector.registerItem(key, 0);
 			} else {
@@ -72,10 +73,10 @@ public class MultiBloomCounterContrastManager extends BaseHotspotDetector implem
 				Thread.sleep(SLICE_TIME);
 
 				write2fileBackground();
-
+                System.out.println(currentHotSpotSet);
 				dealHotData();
 				currentHotSpotSet.clear();
-				dealColdData();
+				//dealColdData();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -84,16 +85,12 @@ public class MultiBloomCounterContrastManager extends BaseHotspotDetector implem
 	}
 
 	public void write2fileBackground() {
-		for (Iterator it = currentHotSpotSet.iterator(); it.hasNext();) {
-			String str = (String) it.next();
-			int[] indexArray = frequentDetector.hashFunction.getHashIndex(str);
-			int min = Integer.MAX_VALUE;
-			for (int i = 0; i < indexArray.length; i++) {
-				if (indexArray[i] < min) {
-					min = indexArray[i];
-				}
-			}
-			frequentDetector.itemCounters.put(str, min);
+		System.out.println("开始写文件");
+		ArrayList<String> li = new ArrayList<String>(currentHotSpotSet);
+		for(int i = 0;i < li.size();i++) {
+			String str = li.get(i);
+			int num = frequentDetector.findBloomNumber(str);
+			frequentDetector.itemCounters.put(str, num);
 		}
 		final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(
 				frequentDetector.getItemCounters().entrySet());

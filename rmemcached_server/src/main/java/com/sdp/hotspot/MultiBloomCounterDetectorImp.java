@@ -21,7 +21,7 @@ public class MultiBloomCounterDetectorImp extends Thread implements BaseFrequent
 	 */
 	private static int BLOOM_FILTER_LENGTH = 10;
 	private int frequent_threshold = 50;
-	private static int INTERVAL = 50;
+	private static int INTERVAL = 30;
 	
 	public int itemSum = 0;
 	public int interval = 0;
@@ -121,6 +121,7 @@ public class MultiBloomCounterDetectorImp extends Thread implements BaseFrequent
 	}
 
 	public void bloomReset() {
+		System.out.println("重置了bloom counter");
 		for(int i = 0;i < BLOOM_FILTER_LENGTH;i++) {
 			bloomCounterList.get(bloomDecay)[i] = 0;
 		}

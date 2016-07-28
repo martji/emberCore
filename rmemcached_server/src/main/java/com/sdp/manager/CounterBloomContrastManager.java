@@ -65,8 +65,7 @@ public class CounterBloomContrastManager extends BaseHotspotDetector implements 
 		// TODO Auto-generated method stub
 		while (true) {
 			try {
-				System.out.println(frequentDetector.getItemCounters());
-				frequentDetector.resetCounter();
+				// frequentDetector.resetCounter();
 				Thread.sleep(SLICE_TIME);
 
 				write2fileBackground();
@@ -80,50 +79,65 @@ public class CounterBloomContrastManager extends BaseHotspotDetector implements 
 	}
 
 	public void write2fileBackground() {
-		Object[] currentHotSpotSetCopycopy = currentHotSpotSet.toArray();
-		for (int i = 0; i < currentHotSpotSetCopycopy.length; i ++) {
-			String str = (String) currentHotSpotSetCopycopy[i];
-			int[] indexArray = frequentDetector.hashFunction.getHashIndex(str);
-			int min = Integer.MAX_VALUE;
-			for (int j = 0; j < indexArray.length; j++) {
-				if (indexArray[j] < min) {
-					min = indexArray[j];
+		try {
+			File file = new File(hotSpotPath);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
+
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			bw.write(df.format(new Date()) + " [Current frequent items]:\n");
+			if (currentHotSpotSet.size() >= 1) {
+				ArrayList<String> list = new ArrayList<String>(currentHotSpotSet);
+				for (int i = 0; i < list.size(); i++) {
+					String str = list.get(i);
+					int[] indexArray = frequentDetector.hashFunction.getHashIndex(str);
+					int min = Integer.MAX_VALUE;
+					for (int j = 0; j < indexArray.length; j++) {
+						if (indexArray[j] < min) {
+							min = indexArray[j];
+						}
+					}
+					bw.write(str + " = " + min + '\n');
 				}
 			}
-			frequentDetector.getItemCounters().put(str, min);
+
+			bw.write("\n\n\n");
+			bw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(
-				frequentDetector.getItemCounters().entrySet());
-		if (list != null && list.size() > 0) {
-			threadPool.execute(new Runnable() {
-				public void run() {
-					Collections.sort(list, new Comparator<ConcurrentHashMap.Entry<String, Integer>>() {
-						public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-							return (o2.getValue() - o1.getValue());
-						}
-					});
 
-					try {
-						File file = new File(hotSpotPath);
-						if (!file.exists()) {
-							file.createNewFile();
-						}
-						BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
-
-						SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						bw.write(df.format(new Date()) + " [Current frequent items]:\n");
-						for (Map.Entry<String, Integer> mapping : list) {
-							bw.write(mapping.getKey() + " = " + mapping.getValue() + "\n");
-						}
-						bw.write("\n\n\n");
-
-						bw.close();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
-		}
+		/*
+		 * Object[] currentHotSpotSetCopycopy = currentHotSpotSet.toArray(); for
+		 * (int i = 0; i < currentHotSpotSetCopycopy.length; i ++) { String str
+		 * = (String) currentHotSpotSetCopycopy[i]; int[] indexArray =
+		 * frequentDetector.hashFunction.getHashIndex(str); int min =
+		 * Integer.MAX_VALUE; for (int j = 0; j < indexArray.length; j++) { if
+		 * (indexArray[j] < min) { min = indexArray[j]; } }
+		 * frequentDetector.getItemCounters().put(str, min); } final
+		 * List<Map.Entry<String, Integer>> list = new
+		 * ArrayList<Map.Entry<String, Integer>>(
+		 * frequentDetector.getItemCounters().entrySet()); if (list != null &&
+		 * list.size() > 0) { threadPool.execute(new Runnable() { public void
+		 * run() { Collections.sort(list, new
+		 * Comparator<ConcurrentHashMap.Entry<String, Integer>>() { public int
+		 * compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2)
+		 * { return (o2.getValue() - o1.getValue()); } });
+		 * 
+		 * try { File file = new File(hotSpotPath); if (!file.exists()) {
+		 * file.createNewFile(); } BufferedWriter bw = new BufferedWriter(new
+		 * FileWriter(file, true));
+		 * 
+		 * SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		 * bw.write(df.format(new Date()) + " [Current frequent items]:\n"); for
+		 * (Map.Entry<String, Integer> mapping : list) {
+		 * bw.write(mapping.getKey() + " = " + mapping.getValue() + "\n"); }
+		 * bw.write("\n\n\n");
+		 * 
+		 * bw.close(); } catch (Exception e) { e.printStackTrace(); } } }); }
+		 */
 	}
 
 	public void dealHotData() {
