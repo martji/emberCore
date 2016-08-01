@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,8 +35,7 @@ public class CounterBloomContrastManager extends BaseHotspotDetector implements 
 			GlobalConfigMgr.id);
 
 	private CounterBloomDetectorImp frequentDetector;
-
-	private HashSet<String> currentHotSpotSet = new HashSet<String>();
+	private Set<String> currentHotSpotSet =  Collections.synchronizedSet(new HashSet<String>());
 
 	public CounterBloomContrastManager() {
 		initConfig();
@@ -56,7 +56,7 @@ public class CounterBloomContrastManager extends BaseHotspotDetector implements 
 		if (frequentDetector != null) {
 			if ((frequentDetector.registerItem(key, 0)) && (!currentHotSpotSet.contains(key))) {
 				currentHotSpotSet.add(key);
-				dealHotData(key);
+				//dealHotData(key);
 			}
 		}
 	}
@@ -69,8 +69,12 @@ public class CounterBloomContrastManager extends BaseHotspotDetector implements 
 				Thread.sleep(SLICE_TIME);
 
 				write2fileBackground();
-				dealHotData();
+				//dealHotData();
+				System.out.println(currentHotSpotSet.size());
+				frequentDetector.updateThreahold(currentHotSpotSet.size());
+				
 				currentHotSpotSet.clear();
+				//dealColdData();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

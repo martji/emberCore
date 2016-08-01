@@ -47,7 +47,7 @@ public class FrequentContrastManager extends BaseHotspotDetector implements Deal
 		if (frequentDetector != null) {
 			if ((frequentDetector.registerItem(key, 0)) && (!currentHotSpotSet.contains(key))) {
 				currentHotSpotSet.add(key);
-				dealHotData(key);
+				//dealHotData(key);
 			}
 		}
 
@@ -66,8 +66,9 @@ public class FrequentContrastManager extends BaseHotspotDetector implements Deal
 				Thread.sleep(SLICE_TIME);
 
 				write2fileBackground();
-				dealHotData();
+				//dealHotData();
 				currentHotSpotSet.clear();
+				//dealColdData();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
