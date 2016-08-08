@@ -27,7 +27,14 @@ import java.util.concurrent.Executors;
  */
 public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
-    private final int REPLICA_MODE = 0;
+    private final int SPORE_MODE = 1;
+    private final int EMBER_MODE = 0;
+
+    /**
+     * The replica mode.
+     */
+    private int replicaMode = EMBER_MODE;
+
     private final int EXPIRE_TIME = 60*60*24*10;
     private final int UPDATE_STATUS_TIME = 5*1000;
     private final int BUFFER_SIZE = 1000;
@@ -105,6 +112,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.replicasIdMap = replicasIdMap;
         this.spyClientMap = spyClientMap;
 
+        this.replicaMode = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.REPLICA_MODE);
         this.serverId = GlobalConfigMgr.id;
         this.serversMap = GlobalConfigMgr.serversMap;
     }
@@ -208,13 +216,19 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     public void dealColdData() {
-        if (LocalSpots.candidateColdSpots.size() > 0) {
-            Log.log.info("++++++++ [cold spots number]: " + LocalSpots.candidateColdSpots.size());
-            final HashSet<String> candidates = new HashSet<String>(LocalSpots.candidateColdSpots.keySet());
+        HashSet<String> candidates = null;
+        if (replicaMode == SPORE_MODE) {
+            candidates = new HashSet<String>(replicasIdMap.keySet());
+        } else if (LocalSpots.candidateColdSpots.size() > 0) {
+            candidates = new HashSet<String>(LocalSpots.candidateColdSpots.keySet());
+        }
+        if (candidates.size() > 0) {
+            Log.log.info("++++++++ [cold spots number]: " + candidates.size());
             final int hotSpotNumber = LocalSpots.hotSpotNumber.get();
+            final HashSet<String> finalCandidates = candidates;
             retireThread.execute(new Runnable() {
                 public void run() {
-                    dealColdData(candidates, hotSpotNumber);
+                    dealColdData(finalCandidates, hotSpotNumber);
                 }
             });
         }
@@ -329,7 +343,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * @return the location serverId where can a replica be created on for key.
      */
     private int getReplicaId(List<Map.Entry<Integer, Double>> list, String key) {
-        if (REPLICA_MODE == 0) {
+        if (replicaMode == EMBER_MODE) {
             return getReplicaIdStrict(list, key);
         } else {
             return getReplicaIdRandomly(list, key);
