@@ -30,7 +30,7 @@ import java.util.Vector;
  */
 public class MessageManager {
 
-    private CounterBloomContrastManager hotSpotManager;
+    private HotSpotManager hotSpotManager;
 
     private ReplicaManager replicaManager;
 
@@ -50,7 +50,7 @@ public class MessageManager {
     private ConcurrentHashMap<Integer, MemcachedClient> spyClientMap;
 
     public MessageManager() {
-        hotSpotManager = new CounterBloomContrastManager();
+        hotSpotManager = new HotSpotManager();
         replicaManager = new ReplicaManager();
         consistencyManager = new ConsistencyManager();
 

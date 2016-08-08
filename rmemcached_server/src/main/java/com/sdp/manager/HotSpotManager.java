@@ -26,7 +26,7 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
     private String hotSpotPath = String.format(System.getProperty("user.dir") +
-            "/logs/server_%d_hotspot.data", GlobalConfigMgr.id);
+            "/logs/server_%d_hot_spot.data", GlobalConfigMgr.id);
 
     private MultiBloomDetectorImp multiBloomDetector;
     private SWFPDetectorImp frequentDetector;

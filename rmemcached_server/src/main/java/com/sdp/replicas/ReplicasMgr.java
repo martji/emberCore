@@ -289,9 +289,9 @@ public class ReplicasMgr implements DealHotSpotInterface {
 
 	public void dealHotData() {
 		if (LocalSpots.hotspots.keySet().size() > 0) {
-			Set<String> hotspots = new HashSet<String>();
-			hotspots.addAll(LocalSpots.hotspots.keySet());
-			Map<String, Integer> hotitems = new HashMap<String, Integer>();
+			Set<String> hotSpots = new HashSet<String>();
+			hotSpots.addAll(LocalSpots.hotspots.keySet());
+			Map<String, Integer> hotItems = new HashMap<String, Integer>();
 			if (mServer == null) {
 				return;
 			}
@@ -300,13 +300,13 @@ public class ReplicasMgr implements DealHotSpotInterface {
 				return;
 			}
 			List<Map.Entry<Integer, Double>> list = getReplicasInfoMap(replicasInfo);
-			Set<String> dealedHotspots = new HashSet<String>();
-			for (String key : hotspots) {
+			Set<String> dealtHotSpots = new HashSet<String>();
+			for (String key : hotSpots) {
 				int replicaId = getReplicaId(list, key);
 				if (replicaId != -1) {
 					boolean result = createReplica(key, replicaId);
 					if (result) {
-						dealedHotspots.add(key);
+						dealtHotSpots.add(key);
 						Vector<Integer> vector = null;
 						if (!replicasIdMap.containsKey(key)) {
 							vector = new Vector<Integer>();
@@ -319,7 +319,7 @@ public class ReplicasMgr implements DealHotSpotInterface {
 								vector = replicasIdMap.get(key);
 							}
 						}
-						hotitems.put(key, encodeReplicasInfo(vector));
+						hotItems.put(key, encodeReplicasInfo(vector));
 						
 						// calculate replicas number
 						int localCount = vector.size() - 1;
@@ -337,19 +337,19 @@ public class ReplicasMgr implements DealHotSpotInterface {
 					}
 				}
 			}
-			Log.log.info("[PId: " + Log.id + "] new hotspots: " + dealedHotspots.size() +
+			Log.log.info("[PId: " + Log.id + "] new hotSpots: " + dealtHotSpots.size() +
 					" [create] " + hotspotsList.toString());
-			infoAllClient(hotitems);
+			infoAllClient(hotItems);
 			LocalSpots.hotspots = new ConcurrentHashMap<String, String>();
 		}
 	}
 	
 	public void dealColdData() {
 		if (LocalSpots.coldspots.keySet().size() > 0) {
-			Set<String> coldspots = new HashSet<String>();
-			coldspots.addAll(LocalSpots.coldspots.keySet());
-			Map<String, Integer> colditems = new HashMap<String, Integer>();
-			for (String key : coldspots) {
+			Set<String> coldSpots = new HashSet<String>();
+			coldSpots.addAll(LocalSpots.coldspots.keySet());
+			Map<String, Integer> coldItems = new HashMap<String, Integer>();
+			for (String key : coldSpots) {
 				int localCount = replicasIdMap.get(key).size() - 1;
 				hotspotsList.put(localCount, hotspotsList.get(localCount) - 1);
 				if (localCount - 1 >= 1) {
@@ -357,14 +357,14 @@ public class ReplicasMgr implements DealHotSpotInterface {
 				}
 				int replicaId = replicasIdMap.get(key).size() - 1;
 				replicasIdMap.get(key).remove(replicaId);
-				colditems.put(key, encodeReplicasInfo(replicasIdMap.get(key)));
+				coldItems.put(key, encodeReplicasInfo(replicasIdMap.get(key)));
 				if (replicasIdMap.get(key).size() == 1) {
 					replicasIdMap.remove(key);
 				}
 			}
-			Log.log.info("[PId: " + Log.id + "] new coldspots: " + coldspots.size() +
+			Log.log.info("[PId: " + Log.id + "] new coldSpots: " + coldSpots.size() +
 					" [retire] " + hotspotsList.toString());
-			infoAllClient(colditems);
+			infoAllClient(coldItems);
 			LocalSpots.coldspots = new ConcurrentHashMap<String, String>();
 		}
 	}
