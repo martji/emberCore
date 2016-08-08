@@ -34,28 +34,32 @@ public class MServer {
 	 * @param id : the id of the server instance
 	 * @param serversMap : all the server instances info
 	 */
-	public void init(int id, Map<Integer, ServerNode> serversMap, int protocol) {
+	public void init(int id, Map<Integer, ServerNode> serversMap) {
 		ServerNode serverNode = serversMap.get(id);
-		wServerHandler = new MServerHandler(id, serversMap, protocol);
-		rServerHandler = new MServerHandler(id, serversMap, protocol);
-		int rport = serverNode.getRPort();
-		int wport = serverNode.getWPort();
-		initRServer(rport, wport);
+		wServerHandler = new MServerHandler(id, serversMap);
+		rServerHandler = new MServerHandler(id, serversMap);
+		int rPort = serverNode.getRPort();
+		int wPort = serverNode.getWPort();
+		initRServer(rPort, wPort);
 		registerMonitor();
 	}
 
+	/**
+	 * Init the server, and register to the monitor.
+	 * @param id
+	 * @param serversMap
+	 * @param wServerHandler
+	 * @param rServerHandler
+     */
 	public void init(int id, Map<Integer, ServerNode> serversMap,
 			MServerHandler wServerHandler, MServerHandler rServerHandler) {
 		this.wServerHandler = wServerHandler;
 		this.rServerHandler = rServerHandler;
 		ServerNode serverNode = serversMap.get(id);
 		
-		int rport = serverNode.getRPort();
-		int wport = serverNode.getWPort();
-		initRServer(rport, wport);
-		
-//		wServerHandler.replicasMgr.initThread();
-//		rServerHandler.replicasMgr.initThread();
+		int rPort = serverNode.getRPort();
+		int wPort = serverNode.getWPort();
+		initRServer(rPort, wPort);
 		
 		registerMonitor();
 	}
@@ -73,7 +77,7 @@ public class MServer {
 	 * 
 	 * @param id : the id of the server instance
 	 * @param monitorAddress : the address of the monitor node
-	 * @param memcachedPort : the memcachedPort 
+	 * @param memcachedPort : the memcachedPort
 	 */
 	private void registerMonitor(int id, String monitorAddress, int memcachedPort) {
 		LocalMonitor.getInstance().setPort(memcachedPort);
@@ -117,24 +121,24 @@ public class MServer {
 		}).start();
 	}
 
-	public void initRServer(int rport, int wport) {
-		ServerBootstrap wbootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
+	public void initRServer(int rPort, int wPort) {
+		ServerBootstrap wBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
-		wbootstrap.setPipelineFactory(new MServerPipelineFactory(wServerHandler));
-		wbootstrap.setOption("child.tcpNoDelay", true);
-		wbootstrap.setOption("child.keepAlive", true);
-		wbootstrap.setOption("reuseAddress", true);
-		wbootstrap.bind(new InetSocketAddress(wport));
+		wBootstrap.setPipelineFactory(new MServerPipelineFactory(wServerHandler));
+		wBootstrap.setOption("child.tcpNoDelay", true);
+		wBootstrap.setOption("child.keepAlive", true);
+		wBootstrap.setOption("reuseAddress", true);
+		wBootstrap.bind(new InetSocketAddress(wPort));
 		
-		ServerBootstrap rbootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
+		ServerBootstrap rBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
-		rbootstrap.setPipelineFactory(new MServerPipelineFactory(rServerHandler));
-		rbootstrap.setOption("child.tcpNoDelay", true);
-		rbootstrap.setOption("child.keepAlive", true);
-		rbootstrap.setOption("reuseAddress", true);
-		rbootstrap.bind(new InetSocketAddress(rport));
+		rBootstrap.setPipelineFactory(new MServerPipelineFactory(rServerHandler));
+		rBootstrap.setOption("child.tcpNoDelay", true);
+		rBootstrap.setOption("child.keepAlive", true);
+		rBootstrap.setOption("reuseAddress", true);
+		rBootstrap.bind(new InetSocketAddress(rPort));
 
 		Log.log.info("[Netty] server start.");
 	}

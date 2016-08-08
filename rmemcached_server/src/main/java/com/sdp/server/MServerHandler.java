@@ -29,7 +29,7 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 	 * @param serverId : the id of the server instance
 	 * @param serversMap : all server nodes
 	 */
-	public MServerHandler(int serverId, Map<Integer, ServerNode> serversMap, int protocol) {
+	public MServerHandler(int serverId, Map<Integer, ServerNode> serversMap) {
 		
 		this();
 		MemcachedClient mc = null;
@@ -43,6 +43,10 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
 		messageManager.initManager(mServer, mc);
 	}
 
+	/**
+	 *
+	 * @param replicasIdMap ：the replicasIdMap is shared by all threads.
+     */
 	public MServerHandler(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
 		this();
 		MemcachedClient mc = null;

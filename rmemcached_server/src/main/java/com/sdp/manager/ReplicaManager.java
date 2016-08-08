@@ -148,6 +148,19 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     /**
+     * Deal a single hot spot, the hot spot will not be dealt at once, and the hot spot will
+     * be inset to a buffer. If the buffer size reaches the predefined BUFFER_SIZE, @method dealHotData()
+     * will be invoked.
+     * @param key
+     */
+    public void dealHotData(String key) {
+        bufferHotSpots.add(key);
+        if (bufferHotSpots.size() > BUFFER_SIZE) {
+            dealHotData();
+        }
+    }
+
+    /**
      * Deal the hot spot in buffer and create replicas.
      */
     public void dealHotData(LinkedList<String> hotSpots) {
@@ -233,19 +246,6 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
                 " [cold spots / hot spots]: " + (double) coldSpots.size() / hotSpotNumber +
                 "  |  [current distribution]: " + hotSpotsList.toString());
         infoAllClient(coldItems);
-    }
-
-    /**
-     * Deal a single hot spot, the hot spot will not be dealt at once, and the hot spot will
-     * be inset to a buffer. If the buffer size reaches the predefined BUFFER_SIZE, @method dealHotData()
-     * will be invoked.
-     * @param key
-     */
-    public void dealHotData(String key) {
-        bufferHotSpots.add(key);
-        if (bufferHotSpots.size() > BUFFER_SIZE) {
-            dealHotData();
-        }
     }
 
     /**
