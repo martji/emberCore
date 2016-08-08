@@ -1,4 +1,4 @@
-package com.sdp.replicas;
+package com.sdp.manager.interfaces;
 
 /**
  * Created by Guoqing on 2016/1/13.
@@ -11,13 +11,13 @@ public interface DealHotSpotInterface {
     void dealHotData();
 
     /**
-     * retire replica of cold items
-     */
-    void dealColdData();
-
-    /**
      * deal single hot spot
      * @param key
      */
     void dealHotData(String key);
+
+    /**
+     * retire replica of cold items
+     */
+    void dealColdData();
 }

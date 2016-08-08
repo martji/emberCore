@@ -61,7 +61,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.sdp.example.MServerMain</mainClass>
+							<mainClass>com.sdp.MServerMain</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

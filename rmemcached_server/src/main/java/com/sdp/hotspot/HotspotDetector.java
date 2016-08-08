@@ -1,7 +1,10 @@
 package com.sdp.hotspot;
 
 import com.sdp.config.GlobalConfigMgr;
-import com.sdp.replicas.DealHotSpotInterface;
+import com.sdp.hotspot.abstracts.BaseHotspotDetector;
+import com.sdp.hotspot.bloom.MultiBloomDetectorImp;
+import com.sdp.hotspot.frequent.SWFPDetectorImp;
+import com.sdp.manager.interfaces.DealHotSpotInterface;
 
 import java.io.BufferedWriter;
 import java.io.File;

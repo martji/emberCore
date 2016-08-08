@@ -1,5 +1,8 @@
 package com.sdp.hotspot;
 
+import com.sdp.hotspot.abstracts.BaseHotspotDetector;
+import com.sdp.hotspot.model.CountItem;
+import com.sdp.hotspot.model.RankItem;
 import com.sdp.monitor.LocalMonitor;
 import com.sdp.replicas.LocalSpots;
 import org.jboss.netty.util.internal.ConcurrentHashMap;

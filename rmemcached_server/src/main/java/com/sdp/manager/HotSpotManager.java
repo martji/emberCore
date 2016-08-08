@@ -1,11 +1,11 @@
 package com.sdp.manager;
 
 import com.sdp.config.GlobalConfigMgr;
-import com.sdp.example.Log;
-import com.sdp.hotspot.BaseHotspotDetector;
-import com.sdp.hotspot.MultiBloomDetectorImp;
-import com.sdp.hotspot.SWFPDetectorImp;
-import com.sdp.replicas.DealHotSpotInterface;
+import com.sdp.log.Log;
+import com.sdp.hotspot.abstracts.BaseHotspotDetector;
+import com.sdp.hotspot.bloom.MultiBloomDetectorImp;
+import com.sdp.hotspot.frequent.SWFPDetectorImp;
+import com.sdp.manager.interfaces.DealHotSpotInterface;
 import com.sdp.replicas.LocalSpots;
 
 import java.io.BufferedWriter;
@@ -147,11 +147,11 @@ public class HotSpotManager extends BaseHotspotDetector implements DealHotSpotIn
         onFindHotSpot.dealHotSpot();
     }
 
-    public void dealColdData() {
-        onFindHotSpot.dealColdSpot();
-    }
-
     public void dealHotData(String key) {
         onFindHotSpot.dealHotSpot(key);
+    }
+
+    public void dealColdData() {
+        onFindHotSpot.dealColdSpot();
     }
 }

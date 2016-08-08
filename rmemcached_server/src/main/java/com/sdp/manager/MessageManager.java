@@ -7,8 +7,8 @@ package com.sdp.manager;
 
 import com.sdp.common.EMSGID;
 import com.sdp.config.GlobalConfigMgr;
-import com.sdp.example.Log;
-import com.sdp.hotspot.BaseHotspotDetector;
+import com.sdp.log.Log;
+import com.sdp.hotspot.abstracts.BaseHotspotDetector;
 import com.sdp.messageBody.CtsMsg;
 import com.sdp.messageBody.CtsMsg.nr_read;
 import com.sdp.messageBody.CtsMsg.nr_register;

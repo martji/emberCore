@@ -1,6 +1,6 @@
 package com.sdp.config;
 
-import com.sdp.example.Log;
+import com.sdp.log.Log;
 import com.sdp.server.ServerNode;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;

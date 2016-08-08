@@ -1,4 +1,4 @@
-package com.sdp.hotspot;
+package com.sdp.hotspot.abstracts;
 
 /**
  * Created by magq on 16/1/18.
@@ -19,7 +19,7 @@ public abstract class BaseHotspotDetector implements Runnable {
 
     public interface OnFindHotSpot {
         void dealHotSpot();
-        void dealColdSpot();
         void dealHotSpot(String key);
+        void dealColdSpot();
     }
 }

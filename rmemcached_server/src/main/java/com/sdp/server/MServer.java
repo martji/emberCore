@@ -2,7 +2,7 @@ package com.sdp.server;
 
 import com.sdp.client.RMClient;
 import com.sdp.config.GlobalConfigMgr;
-import com.sdp.example.Log;
+import com.sdp.log.Log;
 import com.sdp.monitor.LocalMonitor;
 import com.sdp.netty.MDecoder;
 import com.sdp.netty.MEncoder;

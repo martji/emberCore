@@ -1,7 +1,8 @@
-package com.sdp.example;
+package com.sdp;
 
 import com.sdp.common.RegisterHandler;
 import com.sdp.config.GlobalConfigMgr;
+import com.sdp.log.Log;
 import com.sdp.server.MServer;
 import com.sdp.server.MServerHandler;
 import org.jboss.netty.util.internal.ConcurrentHashMap;

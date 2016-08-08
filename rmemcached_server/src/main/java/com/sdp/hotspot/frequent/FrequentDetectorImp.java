@@ -1,8 +1,8 @@
-package com.sdp.hotspot;
+package com.sdp.hotspot.frequent;
 
 import com.sdp.config.GlobalConfigMgr;
+import com.sdp.hotspot.interfaces.BaseFrequentDetector;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 

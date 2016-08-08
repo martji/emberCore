@@ -1,4 +1,4 @@
-package com.sdp.example;
+package com.sdp.log;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
