@@ -1,12 +1,6 @@
 # RMemcached Server
 Ember server, which is the core of Ember and in responsible for the hot spot detection, replica management and consistency management.
 
-## 3-party components(core)
-- gson 2.3.1
-- protobuf-java 2.4.1
-- netty 3.5.7.Final
-- spymemcached 2.7.3
-
 ## Update log
 - 20160718, V2.0: restructure the code and implement the new hot spot detection algorithm;
 
@@ -23,4 +17,15 @@ The whole work is a universal middleware for distributed memory stores, which ca
 ## Config
 - serverlist.xml: the servers info
 - config.properties: core config parameters
+
+More details about the config are in the wiki.
+
+## Run
+Run the *MServerMain* class and input the server id.
+
+## 3-party components(core)
+- gson 2.3.1
+- protobuf-java 2.4.1
+- netty 3.5.7.Final
+- spymemcached 2.7.3
 
