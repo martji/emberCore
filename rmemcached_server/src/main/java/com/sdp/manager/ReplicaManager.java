@@ -222,7 +222,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         } else if (LocalSpots.candidateColdSpots.size() > 0) {
             candidates = new HashSet<String>(LocalSpots.candidateColdSpots.keySet());
         }
-        if (candidates.size() > 0) {
+        if (candidates != null && candidates.size() > 0) {
             Log.log.info("++++++++ [cold spots number]: " + candidates.size());
             final int hotSpotNumber = LocalSpots.hotSpotNumber.get();
             final HashSet<String> finalCandidates = candidates;
