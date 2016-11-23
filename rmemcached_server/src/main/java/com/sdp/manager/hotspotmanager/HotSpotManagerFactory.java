@@ -1,7 +1,4 @@
-package com.sdp.manager.abstracts;
-
-import com.sdp.manager.CounterHotSpotManager;
-import com.sdp.manager.StreamHotSpotManager;
+package com.sdp.manager.hotspotmanager;
 
 /**
  * Created by Guoqing on 2016/11/22.
@@ -14,6 +11,10 @@ public class HotSpotManagerFactory {
 
     private static final int COUNTER_MODE = 0;
     private static final int STREAM_MODE = 1;
+    private static final int TOP_K_MODE = 2;
+    private static final int MULTI_BLOOM_MODE = 3;
+    private static final int COUNTER_BLOOM_MODE = 4;
+    private static final int FREQUENT_MODE = 5;
 
     public static BaseHotSpotManager createInstance() {
         return createInstance(STREAM_MODE);
@@ -25,6 +26,14 @@ public class HotSpotManagerFactory {
                 return new CounterHotSpotManager();
             case STREAM_MODE:
                 return new StreamHotSpotManager();
+            case TOP_K_MODE:
+                return new TopKHotSpotManager();
+            case MULTI_BLOOM_MODE:
+                return new MultiBloomHotSpotManager();
+            case COUNTER_BLOOM_MODE:
+                return new CounterBloomHotSpotManager();
+            case FREQUENT_MODE:
+                return new FrequentHotSpotManager();
         }
         return null;
     }

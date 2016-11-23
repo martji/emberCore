@@ -1,12 +1,12 @@
 package com.sdp.manager;
 
 import com.sdp.common.EMSGID;
-import com.sdp.messageBody.CtsMsg.nr_write;
-import com.sdp.messageBody.CtsMsg.nr_write_res;
+import com.sdp.config.ConfigManager;
+import com.sdp.messagebody.CtsMsg.nr_write;
+import com.sdp.messagebody.CtsMsg.nr_write_res;
 import com.sdp.netty.NetMsg;
 import com.sdp.replicas.MCThread;
-import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.internal.OperationFuture;
+import com.sdp.server.DataClient;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
@@ -20,12 +20,10 @@ import java.util.concurrent.Future;
  */
 public class ConsistencyManager {
 
-    private final int EXPIRE_TIME = 60*60*24*10;
-
     /**
-     * The memcachedClient connect to local memcached server.
+     * The mClient connect to local data server.
      */
-    private MemcachedClient memcachedClient;
+    private DataClient mClient;
 
     /**
      * Map of the replica location of all hot spots, this will bring some memory overhead.
@@ -33,9 +31,9 @@ public class ConsistencyManager {
     private ConcurrentHashMap<String, Vector<Integer>> replicasIdMap;
 
     /**
-     * The map of connection to other memcached servers.
+     * The map of connection to other data servers.
      */
-    private ConcurrentHashMap<Integer, MemcachedClient> spyClientMap;
+    private ConcurrentHashMap<Integer, DataClient> dataClientMap;
 
     /**
      * A thread pool to submit write operation.
@@ -50,12 +48,11 @@ public class ConsistencyManager {
         this.pool = Executors.newCachedThreadPool();
     }
 
-    public void initLocalReference(MemcachedClient client,
-                                   ConcurrentHashMap<String, Vector<Integer>> replicasIdMap,
-                                   ConcurrentHashMap<Integer, MemcachedClient> spyClientMap) {
-        this.memcachedClient = client;
+    public void initLocalReference(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap,
+                                   ConcurrentHashMap<Integer, DataClient> dataClientMap) {
         this.replicasIdMap = replicasIdMap;
-        this.spyClientMap = spyClientMap;
+        this.dataClientMap = dataClientMap;
+        this.mClient = dataClientMap.get(ConfigManager.id);
     }
 
     public void handleWrite(MessageEvent messageEvent) {
@@ -76,15 +73,14 @@ public class ConsistencyManager {
                 threshold = count - 1;
             }
             for (int i = 1; i < count; i++) {
-                MemcachedClient mClient = spyClientMap.get(replications.get(i));
+                DataClient mClient = dataClientMap.get(replications.get(i));
                 MCThread thread = new MCThread(mClient, key, value);
                 Future<Boolean> f = pool.submit(thread);
                 resultVector.add(f);
             }
         }
 
-        OperationFuture<Boolean> res = memcachedClient.set(oriKey, EXPIRE_TIME, value);
-        boolean setState = getSetState(res);
+        boolean setState = mClient.set(oriKey, value);
         if (!setState) {
             value = "";
         } else if (threshold > 0){
@@ -113,15 +109,6 @@ public class ConsistencyManager {
         } else {
             return replicasNum;
         }
-    }
-
-    public boolean getSetState(OperationFuture<Boolean> res) {
-        try {
-            if (res.get()) {
-                return true;
-            }
-        } catch (Exception e) {}
-        return false;
     }
 
     private NetMsg getWriteResponse(String key, String value) {

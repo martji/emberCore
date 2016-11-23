@@ -1,4 +1,4 @@
-package com.sdp.manager.abstracts;
+package com.sdp.manager.hotspotmanager;
 
 import com.sdp.config.ConfigManager;
 import com.sdp.log.Log;
@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by magq on 16/1/18.
  * Detect the hot spots in requests stream, two managers have been implemented:
- * {@link com.sdp.manager.CounterHotSpotManager} and {@link com.sdp.manager.StreamHotSpotManager}.
+ * {@link CounterHotSpotManager} and {@link StreamHotSpotManager}.
  *
  * The core processes are implement in the single thread: resetCounter -> sleep -> write2file -> dealData.
  */

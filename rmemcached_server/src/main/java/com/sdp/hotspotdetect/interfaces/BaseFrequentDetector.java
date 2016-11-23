@@ -1,4 +1,4 @@
-package com.sdp.hotspot.interfaces;
+package com.sdp.hotspotdetect.interfaces;
 
 import java.util.concurrent.ConcurrentHashMap;
 

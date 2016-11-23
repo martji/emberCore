@@ -5,43 +5,52 @@ import org.jboss.netty.util.internal.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LocalSpots {
-	public static ConcurrentHashMap<String, String> hotspots = new ConcurrentHashMap<String, String>();
-	public static ConcurrentHashMap<String, String> coldspots = new ConcurrentHashMap<String, String>();
+
+    /**
+     * @deprecated
+     */
+	public static ConcurrentHashMap<String, String> hotSpots = new ConcurrentHashMap<String, String>();
+    /**
+     * @deprecated
+     */
+	public static ConcurrentHashMap<String, String> coldSpots = new ConcurrentHashMap<String, String>();
+    /**
+     * @deprecated
+     */
 	private static final String table = "usertable:user";
-	
+
 	public static int threshold = 10000;
-	public static int coldThreshold = 1;
-	
-	public static boolean containsHot(String key) {
-		return hotspots.containsKey(key);
+
+    public static boolean containsHot(String key) {
+		return hotSpots.containsKey(key);
 	}
 	
-	public static void addHot(Integer keynum) {
-		hotspots.put(table + keynum, "");
+	public static void addHot(Integer keyNum) {
+		hotSpots.put(table + keyNum, "");
 	}
 
 	public static void addHot(String key) {
-		hotspots.put(key, "");
+		hotSpots.put(key, "");
 	}
 
 	public static void removeHot(String key) {
-		hotspots.remove(key);
+		hotSpots.remove(key);
 	}
 	
 	public static boolean containsCold(String key) {
-		return coldspots.containsKey(key);
+		return coldSpots.containsKey(key);
 	}
 	
-	public static void addCold(Integer keynum) {
-		coldspots.put(table + Utils.hash(keynum), "");
+	public static void addCold(Integer keyNum) {
+		coldSpots.put(table + Utils.hash(keyNum), "");
 	}
 
 	public static void addCold(String key) {
-		coldspots.put(key, "");
+		coldSpots.put(key, "");
 	}
 
 	public static void removeCold(String key) {
-		coldspots.remove(key);
+		coldSpots.remove(key);
 	}
 
 

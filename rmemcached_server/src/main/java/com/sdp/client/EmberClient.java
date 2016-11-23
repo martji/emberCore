@@ -18,9 +18,9 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import com.sdp.common.EMSGID;
 import com.sdp.future.MCallback;
 import com.sdp.future.MFuture;
-import com.sdp.messageBody.CtsMsg.nr_apply_replica;
-import com.sdp.messageBody.StsMsg.nm_read;
-import com.sdp.messageBody.StsMsg.nm_read_recovery;
+import com.sdp.messagebody.CtsMsg.nr_apply_replica;
+import com.sdp.messagebody.StsMsg.nm_read;
+import com.sdp.messagebody.StsMsg.nm_read_recovery;
 import com.sdp.netty.MDecoder;
 import com.sdp.netty.MEncoder;
 import com.sdp.netty.NetMsg;
@@ -30,27 +30,28 @@ import com.sdp.server.EmberServerNode;
 /**
  * 
  * @author martji
- * 
+ *
+ * Common client of netty.
  */
 
-public class MonitorClient {
+public class EmberClient {
 
 	int serverId;
 	String host;
 	int port;
 	ClientBootstrap bootstrap;
 	Channel mChannel = null;
-	RMClientHandler mClientHandler;
+	EmberClientHandler mClientHandler;
 	private static long timeout = 2500;
 
-	public MonitorClient(int id, String host, int port) {
+	public EmberClient(int id, String host, int port) {
 		this.serverId = id;
 		this.host = host;
 		this.port = port;
 		init(id, host, port);
 	}
 	
-	public MonitorClient(EmberServerNode serverNode) {
+	public EmberClient(EmberServerNode serverNode) {
 		int serverId = serverNode.getId();
 		String host = serverNode.getHost();
 		int port = serverNode.getReadPort();
@@ -61,7 +62,7 @@ public class MonitorClient {
 		init(serverId, host, port);
 	}
 	
-	public MonitorClient(int serverId, EmberServerNode serverNode) {
+	public EmberClient(int serverId, EmberServerNode serverNode) {
 		String host = serverNode.getHost();
 		int port = serverNode.getReadPort();
 		
@@ -85,7 +86,7 @@ public class MonitorClient {
 					Executors.newCachedThreadPool(),
 					Executors.newCachedThreadPool()));
 
-			mClientHandler = new RMClientHandler(id);
+			mClientHandler = new EmberClientHandler(id);
 			bootstrap.setPipelineFactory(new MClientPipelineFactory(mClientHandler));
 
 			try {
@@ -197,9 +198,9 @@ public class MonitorClient {
 	
 
 	private class MClientPipelineFactory implements ChannelPipelineFactory {
-		private RMClientHandler mClientHandler;
+		private EmberClientHandler mClientHandler;
 
-		public MClientPipelineFactory(RMClientHandler mClientHandler) {
+		public MClientPipelineFactory(EmberClientHandler mClientHandler) {
 			this.mClientHandler = mClientHandler;
 		}
 

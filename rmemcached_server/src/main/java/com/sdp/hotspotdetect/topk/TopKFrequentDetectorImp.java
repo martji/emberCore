@@ -1,11 +1,11 @@
-package com.sdp.hotspot.topk;
+package com.sdp.hotspotdetect.topk;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspot.interfaces.BaseFrequentDetector;
+import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
 
 public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetector {
 

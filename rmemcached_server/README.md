@@ -2,6 +2,7 @@
 Ember server, which is the core of Ember and in responsible for the hot spot detection, replica management and consistency management.
 
 ## Update log
+- 20161123, V3.0: refactored the code;
 - 20160718, V2.0: restructure the code and implement the new hot spot detection algorithm;
 
 ## Architecture

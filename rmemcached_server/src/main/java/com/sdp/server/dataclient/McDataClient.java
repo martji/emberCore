@@ -1,4 +1,4 @@
-package com.sdp.server.dataServer;
+package com.sdp.server.dataclient;
 
 import com.sdp.config.ConfigManager;
 import com.sdp.server.DataClient;

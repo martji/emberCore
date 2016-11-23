@@ -1,7 +1,7 @@
-package com.sdp.hotspot.ec;
+package com.sdp.hotspotdetect.ec;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspot.interfaces.BaseFrequentDetector;
+import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;

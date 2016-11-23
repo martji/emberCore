@@ -1,7 +1,7 @@
-package com.sdp.hotspot.frequent;
+package com.sdp.hotspotdetect.frequent;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspot.interfaces.BaseFrequentDetector;
+import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
 import com.sdp.log.Log;
 
 import java.util.ArrayList;

@@ -4,16 +4,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sdp.common.EMSGID;
-import com.sdp.config.GlobalConfigMgr;
+import com.sdp.config.ConfigManager;
 import com.sdp.log.Log;
-import com.sdp.messageBody.CtsMsg;
+import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
+import com.sdp.messagebody.CtsMsg;
 import com.sdp.netty.NetMsg;
-import com.sdp.manager.interfaces.DealHotSpotInterface;
 import com.sdp.replicas.LocalSpots;
-import com.sdp.server.MServer;
-import com.sdp.server.ServerNode;
-import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.internal.OperationFuture;
+import com.sdp.server.DataClient;
+import com.sdp.server.EmberServer;
+import com.sdp.server.EmberServerNode;
+import com.sdp.server.dataclient.DataClientFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
@@ -35,23 +35,21 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      */
     private int replicaMode = EMBER_MODE;
 
-    private final int EXPIRE_TIME = 60*60*24*10;
     private final int UPDATE_STATUS_TIME = 5*1000;
     private final int BUFFER_SIZE = 1000;
 
     /**
-     * Local reference, mServer connect with other server and monitor, while
-     * memcachedClient connect to local memcached server. The whole server information of cluster.
+     * Local reference, mServer connect with other ember servers and monitor.
      */
-    private MServer mServer;
+    private EmberServer mServer;
 
-    public void setServer(MServer mServer) {
+    public void setServer(EmberServer mServer) {
         this.mServer = mServer;
     }
 
-    private MemcachedClient memcachedClient;
+    private DataClient mClient;
     private int serverId;
-    private Map<Integer, ServerNode> serversMap;
+    private Map<Integer, EmberServerNode> serversMap;
 
     /**
      * Client channel, use to push replica info to clients.
@@ -64,9 +62,9 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     private ConcurrentHashMap<String, Vector<Integer>> replicasIdMap;
 
     /**
-     * The map of connection to other memcached servers.
+     * The map of connection to other data servers.
      */
-    private ConcurrentHashMap<Integer, MemcachedClient> spyClientMap;
+    private ConcurrentHashMap<Integer, DataClient> dataClientMap;
 
     /**
      * These variables are maintained by itself, where serverInfoList is the current
@@ -91,7 +89,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     public void init() {
         this.replicasIdMap = new ConcurrentHashMap<String, Vector<Integer>>();
-        this.spyClientMap = new ConcurrentHashMap<Integer, MemcachedClient>();
+        this.dataClientMap = new ConcurrentHashMap<Integer, DataClient>();
         this.serverInfoList = new LinkedList<Map.Entry<Integer, Double>>();
         this.hotSpotsList = new ConcurrentHashMap<Integer, Integer>();
         hotSpotsList.put(1, 0);
@@ -104,17 +102,15 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.clientChannelMap = clientChannelMap;
     }
 
-    public void initLocalReference(MServer server, MemcachedClient client,
-                                   ConcurrentHashMap<String, Vector<Integer>> replicasIdMap,
-                                   ConcurrentHashMap<Integer, MemcachedClient> spyClientMap) {
+    public void initLocalReference(EmberServer server, ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
         this.mServer = server;
-        this.memcachedClient = client;
         this.replicasIdMap = replicasIdMap;
-        this.spyClientMap = spyClientMap;
+        this.dataClientMap = server.getDataClientMap();
+        this.mClient = dataClientMap.get(ConfigManager.id);
 
-        this.replicaMode = (Integer) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.REPLICA_MODE);
-        this.serverId = GlobalConfigMgr.id;
-        this.serversMap = GlobalConfigMgr.serversMap;
+        this.replicaMode = (Integer) ConfigManager.propertiesMap.get(ConfigManager.REPLICA_MODE);
+        this.serverId = ConfigManager.id;
+        this.serversMap = ConfigManager.serversMap;
     }
 
     public void run() {
@@ -274,17 +270,17 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
             String value;
             if (failedServerId == serverId) {
                 Vector<Integer> vector = replicasIdMap.get(oriKey);
-                MemcachedClient mClient = spyClientMap.get(vector.get(0));
-                value = (String) mClient.get(oriKey);
+                DataClient mClient = dataClientMap.get(vector.get(0));
+                value = mClient.get(oriKey);
                 if (value != null && value.length() > 0) {
-                    memcachedClient.set(oriKey, EXPIRE_TIME, value);
+                    this.mClient.set(oriKey, value);
                 }
 
             } else {
-                value = (String) memcachedClient.get(oriKey);
+                value = mClient.get(oriKey);
                 if (value != null && value.length() > 0) {
-                    MemcachedClient mClient = spyClientMap.get(failedServerId);
-                    mClient.set(oriKey, EXPIRE_TIME, value);
+                    DataClient mClient = dataClientMap.get(failedServerId);
+                    mClient.set(oriKey, value);
                 }
             }
             CtsMsg.nr_read_res.Builder builder = CtsMsg.nr_read_res.newBuilder();
@@ -412,28 +408,24 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * @return whether the replica create succeed.
      */
     public boolean createReplica(String key, int replicaId) {
-        MemcachedClient replicaClient;
-        if (spyClientMap.containsKey(replicaId)) {
-            replicaClient = spyClientMap.get(replicaId);
+        DataClient replicaClient;
+        if (dataClientMap.containsKey(replicaId)) {
+            replicaClient = dataClientMap.get(replicaId);
         } else {
-            replicaClient = MessageManager.buildAMClient(replicaId);
+            replicaClient = DataClientFactory.createDataClient(replicaId);
             if (replicaClient != null) {
-                spyClientMap.put(replicaId, replicaClient);
+                dataClientMap.put(replicaId, replicaClient);
             } else {
                 return false;
             }
         }
 
-        String value = (String) memcachedClient.get(key);
+        String value = mClient.get(key);
         if (value == null || value.length() == 0) {
             System.out.println("[ERROR] no value fo this key: " + key);
             return false;
         }
-        OperationFuture<Boolean> out = replicaClient.set(key, EXPIRE_TIME, value);
-        try {
-            return out.get();
-        } catch (Exception e) {}
-        return false;
+        return replicaClient.set(key, value);
     }
 
     public int encodeReplicasInfo(Vector<Integer> replicas) {

@@ -1,4 +1,4 @@
-package com.sdp.manager.interfaces;
+package com.sdp.manager.hotspotmanager.interfaces;
 
 /**
  * Created by Guoqing on 2016/1/13.

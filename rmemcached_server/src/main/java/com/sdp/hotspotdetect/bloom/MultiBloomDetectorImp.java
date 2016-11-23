@@ -1,8 +1,8 @@
-package com.sdp.hotspot.bloom;
+package com.sdp.hotspotdetect.bloom;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspot.hash.HashFunction;
-import com.sdp.hotspot.interfaces.BaseBloomDetector;
+import com.sdp.hotspotdetect.hash.HashFunction;
+import com.sdp.hotspotdetect.interfaces.BaseBloomDetector;
 import com.sdp.log.Log;
 
 import java.util.ArrayList;

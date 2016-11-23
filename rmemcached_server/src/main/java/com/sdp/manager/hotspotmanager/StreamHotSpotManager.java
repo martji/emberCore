@@ -1,13 +1,11 @@
-package com.sdp.manager;
+package com.sdp.manager.hotspotmanager;
 
 import com.sdp.hotspotdetect.bloom.MultiBloomDetectorImp;
 import com.sdp.hotspotdetect.frequent.SWFPDetectorImp;
 import com.sdp.hotspotdetect.interfaces.BaseBloomDetector;
 import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
 import com.sdp.log.Log;
-import com.sdp.manager.hotspotmanager.BaseHotSpotManager;
-import com.sdp.manager.hotspotmanager.abstracts.BaseHotSpotManager;
-import com.sdp.manager.interfaces.DealHotSpotInterface;
+import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
 import com.sdp.replicas.LocalSpots;
 
 import java.util.ArrayList;

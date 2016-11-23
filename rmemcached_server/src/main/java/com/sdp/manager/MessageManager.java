@@ -1,60 +1,58 @@
 package com.sdp.manager;
 
 /**
- * This class only handle the message received by MServerHandler, and send the
- * message to other managers according to the message type.
+ * @author magq
+ * MessageManager implement {@link com.sdp.manager.MessageManagerInterface} and handles the messages
+ * received by EmberServerHandler, and send the message to other managers according to the message type.
+ *
+ * There are three different managers to handle different messages: hotSpotManager,
+ * replicaManager and consistencyManager.
+ *
+ * The hotSpotManager{@link com.sdp.manager.hotspotmanager.StreamHotSpotManager} deals with the sampling messages and
+ * detects the hot spots by analyzing the request stream. The hot spots found by hotSpotManager
+ * will dealt by the replicaManager.
+ *
+ * The replicaManager{@link com.sdp.manager.ReplicaManager} deals with the replicas management of
+ * hot spots, including create replicas for hot spots, retire the redundant replicas and recovery
+ * the data.
+ *
+ * The consistencyManager{@link com.sdp.manager.ConsistencyManager} mainly deals with the write
+ * requests and guarantee the consistency among different replicas.
  */
 
 import com.sdp.common.EMSGID;
-import com.sdp.config.GlobalConfigMgr;
+import com.sdp.manager.hotspotmanager.BaseHotSpotManager;
+import com.sdp.manager.hotspotmanager.HotSpotManagerFactory;
 import com.sdp.log.Log;
-import com.sdp.hotspot.abstracts.BaseHotspotDetector;
-import com.sdp.messageBody.CtsMsg;
-import com.sdp.messageBody.CtsMsg.nr_read;
-import com.sdp.messageBody.CtsMsg.nr_register;
+import com.sdp.messagebody.CtsMsg;
+import com.sdp.messagebody.CtsMsg.nr_read;
+import com.sdp.messagebody.CtsMsg.nr_register;
 import com.sdp.netty.NetMsg;
-import com.sdp.server.MServer;
-import com.sdp.server.ServerNode;
-import net.spy.memcached.MemcachedClient;
+import com.sdp.server.EmberServer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
-import java.net.InetSocketAddress;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Vector;
 
 /**
  * Created by magq on 16/7/6.
  */
-public class MessageManager {
+public class MessageManager implements MessageManagerInterface{
 
-    private HotSpotManager hotSpotManager;
-
+    private BaseHotSpotManager hotSpotManager;
     private ReplicaManager replicaManager;
-
     private ConsistencyManager consistencyManager;
 
-    private MServer mServer;
+    private EmberServer mServer;
     private ConcurrentHashMap<Integer, Channel> clientChannelMap;
 
-    public void setMServer(MServer server) {
-        this.mServer = server;
-        replicaManager.setServer(mServer);
-    }
-
-    /**
-     * The map of connection to other memcached servers.
-     */
-    private ConcurrentHashMap<Integer, MemcachedClient> spyClientMap;
-
     public MessageManager() {
-        hotSpotManager = new HotSpotManager();
+        hotSpotManager = HotSpotManagerFactory.createInstance();
         replicaManager = new ReplicaManager();
         consistencyManager = new ConsistencyManager();
 
-        hotSpotManager.setOnFindHotSpot(new BaseHotspotDetector.OnFindHotSpot() {
+        hotSpotManager.setOnFindHotSpot(new BaseHotSpotManager.OnFindHotSpot() {
             public void dealHotSpot() {
                 replicaManager.dealHotData();
             }
@@ -72,41 +70,14 @@ public class MessageManager {
     }
 
     public void init() {
-        initSpyClientMap();
-
         clientChannelMap = new ConcurrentHashMap<Integer, Channel>();
         replicaManager.setClientChannelMap(clientChannelMap);
     }
 
-    public void initManager(MServer server, MemcachedClient client) {
-        initManager(server, client, new ConcurrentHashMap<String, Vector<Integer>>());
-    }
-
-    public void initManager(MServer server, MemcachedClient client,
-                            ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
+    public void initManager(EmberServer server, ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
         this.mServer = server;
-        replicaManager.initLocalReference(mServer, client, replicasIdMap, spyClientMap);
-        consistencyManager.initLocalReference(client, replicasIdMap, spyClientMap);
-    }
-
-    public void initSpyClientMap() {
-        spyClientMap = new ConcurrentHashMap<Integer, MemcachedClient>();
-        new Thread(new Runnable() {
-            public void run() {
-                int serverId = GlobalConfigMgr.id;
-                Map<Integer, ServerNode> serversMap = GlobalConfigMgr.serversMap;
-
-                Iterator<Map.Entry<Integer, ServerNode>> iterator = serversMap.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Map.Entry<Integer, ServerNode> map = iterator.next();
-                    int id = map.getKey();
-                    if (id != serverId) {
-                        MemcachedClient spyClient = buildAMClient(id);
-                        spyClientMap.put(id, spyClient);
-                    }
-                }
-            }
-        }).start();
+        replicaManager.initLocalReference(mServer, replicasIdMap);
+        consistencyManager.initLocalReference(replicasIdMap, server.getDataClientMap());
     }
 
     /**
@@ -184,24 +155,6 @@ public class MessageManager {
 
     public void handleWrite(MessageEvent messageEvent) {
         consistencyManager.handleWrite(messageEvent);
-    }
-
-    /**
-     *
-     * @param replicaId
-     * @return the spyClient to server.
-     */
-    public static MemcachedClient buildAMClient(int replicaId){
-        try {
-            MemcachedClient replicaClient;
-            Map<Integer, ServerNode> serversMap = GlobalConfigMgr.serversMap;
-            ServerNode serverNode = serversMap.get(replicaId);
-            String host = serverNode.getHost();
-            int port = serverNode.getMemcached();
-            replicaClient = new MemcachedClient(new InetSocketAddress(host, port));
-            return replicaClient;
-        } catch (Exception e) {}
-        return null;
     }
 
     public static String getOriKey(String key) {

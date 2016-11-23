@@ -1,63 +1,100 @@
 package com.sdp.server;
 
-import com.sdp.client.RMClient;
-import com.sdp.config.GlobalConfigMgr;
+import com.sdp.client.EmberClient;
+import com.sdp.config.ConfigManager;
 import com.sdp.log.Log;
 import com.sdp.monitor.LocalMonitor;
 import com.sdp.netty.MDecoder;
 import com.sdp.netty.MEncoder;
+import com.sdp.server.dataclient.DataClientFactory;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.net.InetSocketAddress;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
 /**
  * 
  * @author martji
- * 
+ * Emberserver is the core of this replication middle ware. This server consists of three parts:
+ * connect to the data server(redis, memcached, etc.), handle the connections from clients and
+ * maitain the connection to the global monitor.
+ *
+ * As an universal miidle ware, ember server does not store the data, and all the data is stored
+ * by the data server(redis, memcached, etc.), and ember server hold the dataClientMap{@link DataClient}
+ * to the data servers.
+ *
+ * To enasure ember server can handle the large amounts of connections form clitens, ember server
+ * adopts netty to implement the communication module. Ember server seperates the read requests with
+ * write requests and uses two emberServerHandler{@link EmberServerHandler} to deal with the requests
+ * to achieve higher throughput.
+ *
+ * The monitorClient{@link EmberClient} keep connection with the global monitor, and can get the
+ * workload informations by this connection.
  */
 
-public class MServer {
-	MServerHandler wServerHandler;
-	MServerHandler rServerHandler;
-	RMClient monitorClient;
+public class EmberServer {
 
-	public static final int SLEEP_TIME = 30 * 1000;
+    private ConcurrentHashMap<Integer, DataClient> dataClientMap;
+	private EmberServerHandler wServerHandler;
+	private EmberServerHandler rServerHandler;
+	private EmberClient monitorClient;
 
-	public MServer() {}
+	public static final int SLEEP_TIME = 30*1000;
+
+	public EmberServer() {
+		initDataClientMap();
+	}
 
 	/**
-	 * Init the server, and register to the monitor.
+	 * Init the ember server, and register to the monitor.
 	 * @param id
 	 * @param serversMap
 	 * @param wServerHandler
 	 * @param rServerHandler
      */
-	public void init(int id, Map<Integer, ServerNode> serversMap,
-			MServerHandler wServerHandler, MServerHandler rServerHandler) {
+	public void init(int id, Map<Integer, EmberServerNode> serversMap,
+					 EmberServerHandler wServerHandler, EmberServerHandler rServerHandler) {
 		this.wServerHandler = wServerHandler;
 		this.rServerHandler = rServerHandler;
-		ServerNode serverNode = serversMap.get(id);
+		EmberServerNode serverNode = serversMap.get(id);
 		
-		int rPort = serverNode.getRPort();
-		int wPort = serverNode.getWPort();
-		initRServer(rPort, wPort);
+		int rPort = serverNode.getReadPort();
+		int wPort = serverNode.getWritePort();
+		initEmberServer(rPort, wPort);
 		
 		registerMonitor();
 	}
 
-	public void init(MServerHandler wServerHandler, MServerHandler rServerHandler) {
-		init(GlobalConfigMgr.id, GlobalConfigMgr.serversMap, wServerHandler, rServerHandler);
+	public void init(EmberServerHandler wServerHandler, EmberServerHandler rServerHandler) {
+		init(ConfigManager.id, ConfigManager.serversMap, wServerHandler, rServerHandler);
 	}
 
+	/**
+	 * Connect to the data servers.
+	 */
+    public void initDataClientMap() {
+        dataClientMap = new ConcurrentHashMap<Integer, DataClient>();
+		Map<Integer, EmberServerNode> serversMap = ConfigManager.serversMap;
+		Iterator<Map.Entry<Integer, EmberServerNode>> iterator = serversMap.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry<Integer, EmberServerNode> map = iterator.next();
+			int id = map.getKey();
+			DataClient dataClient = DataClientFactory.createDataClient(id);
+			dataClientMap.put(id, dataClient);
+		}
+		Log.log.info("[Ember server] finish init data clients");
+    }
+
 	private void registerMonitor() {
-		registerMonitor(GlobalConfigMgr.id, (String) GlobalConfigMgr.propertiesMap.get(GlobalConfigMgr.MONITOR_ADDRESS),
-				GlobalConfigMgr.serversMap.get(GlobalConfigMgr.id).getMemcached());
+		registerMonitor(ConfigManager.id, (String) ConfigManager.propertiesMap.get(ConfigManager.MONITOR_ADDRESS),
+				ConfigManager.serversMap.get(ConfigManager.id).getDataPort());
 	}
 
 	/**
@@ -68,13 +105,13 @@ public class MServer {
 	 */
 	private void registerMonitor(int id, String monitorAddress, int serverPort) {
 		LocalMonitor.getInstance().setPort(serverPort);
-		Log.log.info("[monitor]: " + monitorAddress);
+		Log.log.info("[Monitor] " + monitorAddress);
 		String[] arr = monitorAddress.split(":");
 		
 		final String host = arr[0];
 		final int port = Integer.parseInt(arr[1]);
-		monitorClient = new RMClient(id, host, port);
-		while (monitorClient.getmChannel() == null) {
+		monitorClient = new EmberClient(id, host, port);
+		while (monitorClient.getMChannel() == null) {
 			try {
 				Thread.sleep(SLEEP_TIME);
 			} catch (Exception e) {
@@ -82,7 +119,7 @@ public class MServer {
 			}
 			monitorClient.connect(host, port);
 		}
-		LocalMonitor.getInstance().setMonitorChannel(monitorClient.getmChannel());
+		LocalMonitor.getInstance().setMonitorChannel(monitorClient.getMChannel());
 		
 		new Thread(new Runnable() {
 			public void run() {
@@ -92,8 +129,8 @@ public class MServer {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					if (!monitorClient.getmChannel().isConnected()) {
-						while (!monitorClient.getmChannel().isConnected()) {
+					if (!monitorClient.getMChannel().isConnected()) {
+						while (!monitorClient.getMChannel().isConnected()) {
 							monitorClient.connect(host, port);
 							try {
 								Thread.sleep(SLEEP_TIME);
@@ -101,14 +138,14 @@ public class MServer {
 								e.printStackTrace();
 							}
 						}
-						LocalMonitor.getInstance().setMonitorChannel(monitorClient.getmChannel());
+						LocalMonitor.getInstance().setMonitorChannel(monitorClient.getMChannel());
 					}
 				}
 			}
 		}).start();
 	}
 
-	public void initRServer(int rPort, int wPort) {
+	public void initEmberServer(int rPort, int wPort) {
 		ServerBootstrap wBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
@@ -132,15 +169,15 @@ public class MServer {
 
 	public String getAReplica() {
 		if (monitorClient != null) {
-			return monitorClient.asynGetAReplica();
+			return monitorClient.asyncGetAReplica();
 		}
 		return null;
 	}
 
 	private class MServerPipelineFactory implements ChannelPipelineFactory {
-		MServerHandler mServerHandler;
+		EmberServerHandler mServerHandler;
 		
-		public MServerPipelineFactory(MServerHandler mServerHandler) {
+		public MServerPipelineFactory(EmberServerHandler mServerHandler) {
 			this.mServerHandler = mServerHandler;
 		}
 
@@ -152,5 +189,8 @@ public class MServer {
 			return pipeline;
 		}
 	}
-	
+
+    public ConcurrentHashMap<Integer, DataClient> getDataClientMap() {
+        return dataClientMap;
+    }
 }

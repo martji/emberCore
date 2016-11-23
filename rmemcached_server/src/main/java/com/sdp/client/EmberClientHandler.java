@@ -12,11 +12,11 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 import com.sdp.common.EMSGID;
-import com.sdp.messageBody.CtsMsg.nr_apply_replica_res;
-import com.sdp.messageBody.CtsMsg.nr_cpuStats_res;
-import com.sdp.messageBody.StsMsg.nm_connected;
-import com.sdp.messageBody.StsMsg.nm_read;
-import com.sdp.messageBody.StsMsg.nm_read_recovery;
+import com.sdp.messagebody.CtsMsg.nr_apply_replica_res;
+import com.sdp.messagebody.CtsMsg.nr_cpuStats_res;
+import com.sdp.messagebody.StsMsg.nm_connected;
+import com.sdp.messagebody.StsMsg.nm_read;
+import com.sdp.messagebody.StsMsg.nm_read_recovery;
 import com.sdp.monitor.LocalMonitor;
 import com.sdp.netty.NetMsg;
 import com.sdp.operation.BaseOperation;
@@ -27,12 +27,12 @@ import com.sdp.operation.BaseOperation;
  * 
  */
 
-public class RMClientHandler extends SimpleChannelUpstreamHandler {
+public class EmberClientHandler extends SimpleChannelUpstreamHandler {
 
 	public int id;
 	Map<String, BaseOperation<?>> opMap;
 
-	public RMClientHandler(int id) {
+	public EmberClientHandler(int id) {
 		this.id = id;
 		opMap = new HashMap<String, BaseOperation<?>>();
 	}

@@ -17,7 +17,7 @@ import java.util.Properties;
  * The Config contains the {@link EmberServerNode} information in servers.xml and
  * the properties for {@link com.sdp.manager.MessageManager} in config.properties.
  */
-public class GlobalConfigMgr {
+public class ConfigManager {
 
     public static HashMap<String, Object> propertiesMap = new HashMap<String, Object>();
     public static HashMap<Integer, EmberServerNode> serversMap = new HashMap<Integer, EmberServerNode>();
@@ -104,7 +104,7 @@ public class GlobalConfigMgr {
     }
 
     public static void setId (int id) {
-        GlobalConfigMgr.id = id;
+        ConfigManager.id = id;
     }
 
     public static final String REPLICA_PROTOCOL = "replica_protocol";

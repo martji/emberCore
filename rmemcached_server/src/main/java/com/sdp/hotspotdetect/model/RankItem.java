@@ -1,4 +1,4 @@
-package com.sdp.hotspot.model;
+package com.sdp.hotspotdetect.model;
 
 import java.util.LinkedList;
 import java.util.Queue;

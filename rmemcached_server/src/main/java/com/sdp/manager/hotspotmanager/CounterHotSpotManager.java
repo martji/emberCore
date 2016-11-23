@@ -1,9 +1,7 @@
-package com.sdp.manager;
+package com.sdp.manager.hotspotmanager;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.manager.hotspotmanager.BaseHotSpotManager;
-import com.sdp.manager.hotspotmanager.abstracts.BaseHotSpotManager;
-import com.sdp.manager.interfaces.DealHotSpotInterface;
+import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
 import com.sdp.replicas.LocalSpots;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 

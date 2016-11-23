@@ -1,4 +1,4 @@
-package com.sdp.hotspot.model;
+package com.sdp.hotspotdetect.model;
 
 public class CountItem {
 	int sliceId;

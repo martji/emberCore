@@ -1,43 +1,35 @@
 package com.sdp.server;
 
-import com.sdp.config.GlobalConfigMgr;
 import com.sdp.manager.MessageManager;
-import net.spy.memcached.MemcachedClient;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
-import java.net.InetSocketAddress;
 import java.util.Vector;
 
 /**
  * 
  * @author martji
- * 
+ * The hander of ember server, which really handles the requests from clients.
+ * This handler is a inner module of netty, all the logical codes are wrote here.
+ *
+ * All the messages ermberServerHandler received are passing down to the messgeManager{@link MessageManager},
+ * and the messageManager will deal with the requests.
  */
 
-public class MServerHandler extends SimpleChannelUpstreamHandler {
-	
-	EmberServer mServer = null;
+public class EmberServerHandler extends SimpleChannelUpstreamHandler {
 
 	private MessageManager messageManager = new MessageManager();
-	
-	public MServerHandler() {}
 
-	/**
-	 *
-	 * @param replicasIdMap ：the replicasIdMap is shared by all threads.
+    public EmberServerHandler() {}
+
+    /**
+     *
+     * @param replicasIdMap : the replicasIdMap is shared by all threads.
+     * @param mServer : ember server
      */
-	public MServerHandler(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
+	public EmberServerHandler(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap, EmberServer mServer) {
 		this();
-		MemcachedClient mc = null;
-		try {
-			ServerNode serverNode = GlobalConfigMgr.serversMap.get(GlobalConfigMgr.id);
-			String host = serverNode.getHost();
-			int port = serverNode.getMemcached();
-			mc = new MemcachedClient(new InetSocketAddress(host, port));
-		} catch (Exception e) {}
-
-        messageManager.initManager(mServer, mc, replicasIdMap);
+		messageManager.initManager(mServer, replicasIdMap);
 	}
 
 	@Override
@@ -60,16 +52,7 @@ public class MServerHandler extends SimpleChannelUpstreamHandler {
         messageManager.handleMessage(e);
 	}
 
-	/**
-	 * 
-	 * @param mServer : this server is used to get the monitor client
-	 */
-	public void setMServer(EmberServer mServer) {
-		this.mServer = mServer;
-        messageManager.setMServer(mServer);
-	}
-
-    public void initMessageManager() {
+    public void detectHotSpot() {
         messageManager.startHotSpotDetection();
     }
 }
