@@ -19,8 +19,6 @@ public class LocalSpots {
      */
 	private static final String table = "usertable:user";
 
-	public static int threshold = 10000;
-
     public static boolean containsHot(String key) {
 		return hotSpots.containsKey(key);
 	}

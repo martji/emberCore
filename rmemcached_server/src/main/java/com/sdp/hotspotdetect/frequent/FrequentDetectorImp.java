@@ -35,20 +35,20 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
     public boolean registerItem(String key, int preSum) {
     	itemSum ++;
         boolean result = false;
-        if(itemCounters.containsKey(key)) {
-            itemCounters.put(key, itemCounters.get(key) + 1);
+        if(currentHotSpotCounters.containsKey(key)) {
+            currentHotSpotCounters.put(key, currentHotSpotCounters.get(key) + 1);
             result = true;
-        } else if(itemCounters.size() < frequentItemsNumber) {
-            itemCounters.put(key, 1);
+        } else if(currentHotSpotCounters.size() < frequentItemsNumber) {
+            currentHotSpotCounters.put(key, 1);
         } else {
             String str = null;
-            Iterator iter = itemCounters.keySet().iterator();
+            Iterator iter = currentHotSpotCounters.keySet().iterator();
             while(iter.hasNext()){
                 str = (String) iter.next();
-                if (itemCounters.get(str) > 1) {
-                    itemCounters.put(str, itemCounters.get(str) - 1);
+                if (currentHotSpotCounters.get(str) > 1) {
+                    currentHotSpotCounters.put(str, currentHotSpotCounters.get(str) - 1);
                 } else {
-                    itemCounters.remove(str);
+                    currentHotSpotCounters.remove(str);
                 }
             }
         }
@@ -59,7 +59,7 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
     	itemSum -= preItemSum;
         preItemSum = itemSum;
         
-    	ArrayList<Integer> hotSpots = new ArrayList<Integer>(itemCounters.values());
+    	ArrayList<Integer> hotSpots = new ArrayList<Integer>(currentHotSpotCounters.values());
     	
         int totalCount = 0;
         for (int i = 0; i < hotSpots.size(); i++) {
@@ -80,15 +80,15 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
         
     }*/
 
-    public ConcurrentHashMap<String, Integer> getItemCounters() {
-        return itemCounters;
+    public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
+        return currentHotSpotCounters;
     }
     
     public void resetCounter() {
 		// TODO Auto-generated method stub
 	}
 
-    public String updateItemSum() {
+    public String updateFrequentCounter() {
         return null;
     }
 

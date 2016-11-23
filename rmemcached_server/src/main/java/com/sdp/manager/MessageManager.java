@@ -47,24 +47,26 @@ public class MessageManager implements MessageManagerInterface{
     private EmberServer mServer;
     private ConcurrentHashMap<Integer, Channel> clientChannelMap;
 
-    public MessageManager() {
-        hotSpotManager = HotSpotManagerFactory.createInstance();
+    public MessageManager(boolean isDetect) {
         replicaManager = new ReplicaManager();
         consistencyManager = new ConsistencyManager();
 
-        hotSpotManager.setOnFindHotSpot(new BaseHotSpotManager.OnFindHotSpot() {
-            public void dealHotSpot() {
-                replicaManager.dealHotData();
-            }
+        if (isDetect) {
+            hotSpotManager = HotSpotManagerFactory.createInstance();
+            hotSpotManager.setOnFindHotSpot(new BaseHotSpotManager.OnFindHotSpot() {
+                public void dealHotSpot() {
+                    replicaManager.dealHotData();
+                }
 
-            public void dealColdSpot() {
-                replicaManager.dealColdData();
-            }
+                public void dealColdSpot() {
+                    replicaManager.dealColdData();
+                }
 
-            public void dealHotSpot(String key) {
-                replicaManager.dealHotData(key);
-            }
-        });
+                public void dealHotSpot(String key) {
+                    replicaManager.dealHotData(key);
+                }
+            });
+        }
 
         init();
     }

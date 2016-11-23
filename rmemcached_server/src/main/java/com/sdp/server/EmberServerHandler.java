@@ -18,17 +18,21 @@ import java.util.Vector;
 
 public class EmberServerHandler extends SimpleChannelUpstreamHandler {
 
-	private MessageManager messageManager = new MessageManager();
+	private MessageManager messageManager;
 
-    public EmberServerHandler() {}
+    public EmberServerHandler(boolean isDetect) {
+        messageManager = new MessageManager(isDetect);
+        messageManager.startHotSpotDetection();
+	}
 
     /**
      *
      * @param replicasIdMap : the replicasIdMap is shared by all threads.
      * @param mServer : ember server
      */
-	public EmberServerHandler(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap, EmberServer mServer) {
-		this();
+	public EmberServerHandler(boolean isDetect, ConcurrentHashMap<String, Vector<Integer>> replicasIdMap,
+                              EmberServer mServer) {
+		this(isDetect);
 		messageManager.initManager(mServer, replicasIdMap);
 	}
 
@@ -51,9 +55,5 @@ public class EmberServerHandler extends SimpleChannelUpstreamHandler {
 	private void handleMessage(MessageEvent e) {
         messageManager.handleMessage(e);
 	}
-
-    public void detectHotSpot() {
-        messageManager.startHotSpotDetection();
-    }
 }
 

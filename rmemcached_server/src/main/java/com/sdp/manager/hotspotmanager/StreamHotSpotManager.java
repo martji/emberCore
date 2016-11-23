@@ -70,23 +70,23 @@ public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotS
     public void resetCounter() {
         super.resetCounter();
 
-        // multi bloom filter refresh
-        String bloomFilterOut = bloomDetector.updateItemSum();
+        String bloomFilterOut = bloomDetector.updateFilterThreshold();
         bloomDetector.resetCounter();
 
-        // frequent counter refresh
-        String frequentCounterOut = frequentDetector.updateItemSum();
+        String frequentCounterOut = frequentDetector.updateFrequentCounter();
         frequentDetector.resetCounter();
-        frequentDetector.refreshSWFPCounter();
 
-        Log.log.info(bloomFilterOut + frequentCounterOut);
+        Log.log.info(bloomFilterOut + " | " +  frequentCounterOut);
     }
 
     @Override
-    public void write2fileBackground() {
-        final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>
-                (frequentDetector.getItemCounters().entrySet());
-        write2file(list);
+    public void recordHotSpot() {
+        final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
+        Map<String, Integer> map = frequentDetector.getCurrentHotSpot();
+        for (String key : map.keySet()) {
+            list.add(new HotSpotItem(key, map.get(key)));
+        }
+        recordCurrentHotSpot(list);
     }
 
     @Override

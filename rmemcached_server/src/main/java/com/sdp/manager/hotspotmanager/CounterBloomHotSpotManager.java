@@ -39,7 +39,7 @@ public class CounterBloomHotSpotManager extends BaseHotSpotManager implements De
     }
 
     @Override
-	public void write2fileBackground() {
+	public void recordHotSpot() {
 
 	}
 

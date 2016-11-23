@@ -7,8 +7,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,7 +42,7 @@ public abstract class BaseHotSpotManager implements Runnable {
 
                 Thread.sleep(SLICE_TIME);
 
-                write2fileBackground();
+                recordHotSpot();
 
                 dealData();
             } catch (InterruptedException e) {
@@ -56,7 +57,7 @@ public abstract class BaseHotSpotManager implements Runnable {
      */
     public void initConfig() {
         SLICE_TIME = (Integer) ConfigManager.propertiesMap.get(ConfigManager.SLICE_TIME);
-        Log.log.info("[Hot spot detection period]: " + SLICE_TIME);
+        Log.log.info("[HotSpot Manager] hot spot detection period = " + SLICE_TIME);
     }
 
     /**
@@ -67,39 +68,14 @@ public abstract class BaseHotSpotManager implements Runnable {
 
     public void resetCounter() {}
 
-    public void write2fileBackground() {}
-
     /**
      * Write the current hot spots to file.
      */
-    public void write2file(final List<Map.Entry<String, Integer>> list) {
-        if (list != null && list.size() > 0) {
-            threadPool.execute(new Runnable() {
-                public void run() {
-                    Collections.sort(list, new Comparator<ConcurrentHashMap.Entry<String, Integer>>() {
-                        public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                            return (o2.getValue() - o1.getValue());
-                        }
-                    });
+    public void recordHotSpot() {}
 
-                    try {
-                        File file = new File(hotSpotPath);
-                        if (!file.exists()) {
-                            file.createNewFile();
-                        }
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
-                        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        bw.write(df.format(new Date()) + " [Current frequent items]:\n");
-                        for (Map.Entry<String, Integer> mapping : list) {
-                            bw.write(mapping.getKey() + " = " + mapping.getValue() + "\n");
-                        }
-                        bw.write("\n\n\n");
-                        bw.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+    public void recordCurrentHotSpot(final List<HotSpotItem> list) {
+        if (list != null && list.size() > 0) {
+            threadPool.execute(new RecordHotSpotThread(list));
         }
     }
 
@@ -113,5 +89,40 @@ public abstract class BaseHotSpotManager implements Runnable {
         void dealHotSpot();
         void dealHotSpot(String key);
         void dealColdSpot();
+    }
+
+    /**
+     * Record the current hot spots in a single thread.
+     */
+    public class RecordHotSpotThread implements Runnable {
+
+        public List<HotSpotItem> hotSpotItemList;
+
+        public RecordHotSpotThread(List<HotSpotItem> list) {
+            this.hotSpotItemList = list;
+        }
+
+        public void run() {
+            if (hotSpotItemList == null || hotSpotItemList.size() == 0) {
+                return;
+            }
+            Collections.sort(hotSpotItemList);
+            try {
+                File file = new File(hotSpotPath);
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                bw.write(df.format(new Date()) + " [Current frequent items]:\n");
+                for (HotSpotItem item : hotSpotItemList) {
+                    bw.write(item.getKey() + " = " + item.getCount() + "\n");
+                }
+                bw.write("\n\n\n");
+                bw.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

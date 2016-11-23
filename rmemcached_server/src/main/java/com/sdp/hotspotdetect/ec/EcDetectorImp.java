@@ -62,7 +62,7 @@ public class EcDetectorImp extends Thread implements BaseFrequentDetector {
 			keySumCounters.put(key, itemSum);
 		}
 		if (keyCounters.get(key) + keyPreCounters.get(key) > (frequentPercentage - errorRate) * itemSum) {	//itemSum是一个变量
-			itemCounters.put(key, keyCounters.get(key) + keyPreCounters.get(key));
+			currentHotSpotCounters.put(key, keyCounters.get(key) + keyPreCounters.get(key));
 			return true;
 		}
         return false;
@@ -72,15 +72,15 @@ public class EcDetectorImp extends Thread implements BaseFrequentDetector {
 		itemSum -= preSum;
 	}
 
-	public ConcurrentHashMap<String, Integer> getItemCounters() {
-		return itemCounters;
+	public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
+		return currentHotSpotCounters;
 	}
 
 	public void resetCounter() {
-		itemCounters.clear();
+		currentHotSpotCounters.clear();
 	}
 
-	public String updateItemSum() {
+	public String updateFrequentCounter() {
 		return null;
 	}
 

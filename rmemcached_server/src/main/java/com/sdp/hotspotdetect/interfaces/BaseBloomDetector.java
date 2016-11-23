@@ -33,7 +33,7 @@ public interface BaseBloomDetector {
      */
     Vector<String> getHotSpots();
 
-    String updateItemSum();
+    String updateFilterThreshold();
     void resetCounter();
     int getItemSum();
 

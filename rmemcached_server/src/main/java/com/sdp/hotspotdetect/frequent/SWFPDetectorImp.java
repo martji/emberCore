@@ -5,6 +5,7 @@ import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
 import com.sdp.log.Log;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,35 +17,33 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     /**
      * The really counter to count the visit times of item.
      */
-    private ConcurrentHashMap<String, SWFPCounter> counterMap = new ConcurrentHashMap<String, SWFPCounter>();
-
-    /**
-     * The threshold of hot spot frequent percentage, which is p.
-     */
-    private double hotSpotPercentage = 0.0001;
-
-    /**
-     * The default influence of hot spot, which is P, this parameter does not change.
-     */
-    private static double HOT_SPOT_INFLUENCE = 0.1;
-    private static double HOT_SPOT_PERCENTAGE = 0.0001;
-    private static int MINIMUM_F = 2;
-
-
+    private ConcurrentHashMap<String, SWFPCounter> counterMap;
     private int counterNumber;
+    private HashSet<String> preHotSpotSet;
+
+    /**
+     * The hotSpotThreshold of hot spot frequent percentage, which is p; and the influence of hot spots.
+     */
+    private double hotSpotPercentage;
+    private double hotSpotInfluence;
+    private int MIN_F = 2;
+
     public int itemSum = 0;
     private int preItemSum = 0;
 
     public SWFPDetectorImp() {
         initConfig();
+
+        counterMap = new ConcurrentHashMap<String, SWFPCounter>();
+        preHotSpotSet = new HashSet<String>();
     }
 
     public void initConfig() {
-    	HOT_SPOT_PERCENTAGE = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
-        HOT_SPOT_INFLUENCE = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_INFLUENCE);
-        Log.log.info("[frequent counter parameters]: " + "p = " + HOT_SPOT_PERCENTAGE + ", P = " + HOT_SPOT_INFLUENCE);
+    	hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
+        hotSpotInfluence = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_INFLUENCE);
+        Log.log.info("[SWFP] " + "hotSpotPercentage = " + hotSpotPercentage +
+                ", hotSpotInfluence = " + hotSpotInfluence);
 
-        hotSpotPercentage = HOT_SPOT_PERCENTAGE;
     	counterNumber = (int) (1 / hotSpotPercentage);
     }
 
@@ -57,11 +56,11 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     public boolean registerItem(String key, int preSum) {
         itemSum ++;
 
+        int count = 0;
         if (counterMap.containsKey(key)) {
             counterMap.get(key).add();
-            int threshold = (int)(hotSpotPercentage * (itemSum > preSum ? itemSum : preSum));
-            if (counterMap.get(key).frequent >= MINIMUM_F && counterMap.get(key).getCount() > threshold) {
-            	itemCounters.put(key, counterMap.get(key).getReallyCount());
+            if (counterMap.get(key).frequent >= MIN_F) {
+                count = counterMap.get(key).getReallyCount();
             }
         } else {
             if (counterMap.size() < counterNumber) {
@@ -70,19 +69,18 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
                 Set<String> keySet = counterMap.keySet();
                 for (String item: keySet) {
                     counterMap.get(item).del();
-
                     if (counterMap.get(item).frequent <= 0) {
                         counterMap.remove(item);
                     }
                 }
-
                 if (counterMap.size() < counterNumber) {
                     counterMap.put(key, new SWFPCounter(key));
                 }
             }
         }
 
-        if (itemCounters.containsKey(key)) {
+        if (preHotSpotSet.contains(key)) {
+            currentHotSpotCounters.put(key, count);
             return true;
         }
         return false;
@@ -90,32 +88,34 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
 
     /**
      * Adjust hotSpotPercentage, the workload influence of hot spot must larger
-     * than HOT_SPOT_INFLUENCE.
+     * than hotSpotInfluence.
      */
-    public String updateItemSum() {
+    public String updateFrequentCounter() {
         itemSum -= preItemSum;
         preItemSum = itemSum;
 
-        ArrayList<Integer> hotSpots = new ArrayList<Integer>(itemCounters.values());
+        ArrayList<Integer> hotSpots = new ArrayList<Integer>(currentHotSpotCounters.values());
         int totalCount = 0;
         for (int i = 0; i < hotSpots.size(); i++) {
             totalCount += hotSpots.get(i);
         }
         double tmp = (double) totalCount / itemSum;
-        if (totalCount > 0 && tmp < HOT_SPOT_INFLUENCE) {
-            hotSpotPercentage /= 2;
-        } else if (totalCount == 0) {
-            hotSpotPercentage = HOT_SPOT_PERCENTAGE;
+        if (totalCount > 0) {
+            if (tmp < hotSpotInfluence) {
+                counterNumber *= 2;
+            } else if (tmp > 2 * hotSpotInfluence) {
+                counterNumber /= 2;
+            }
         }
-        counterNumber = (int) (1 / hotSpotPercentage);
 
-        String result =  "  |  [frequent counter]: " + totalCount + " / "+ itemSum +
-                " [hot_spot_percentage]: " + hotSpotPercentage;
+        String result =  "[SWFP] hot spot influence = " + totalCount + "/"+ itemSum +
+                " counterNumber = " + counterNumber;
         return result;
     }
 
     public void resetCounter() {
-        itemCounters.clear();
+        currentHotSpotCounters.clear();
+        refreshSWFPCounter();
     }
 
     public void refreshSWFPCounter() {
@@ -123,13 +123,14 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
         for (String item: keySet) {
             counterMap.get(item).refresh();
         }
+        preHotSpotSet = new HashSet<String>(keySet);
     }
 
-    public ConcurrentHashMap<String, Integer> getItemCounters() {
-        return itemCounters;
+    public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
+        return currentHotSpotCounters;
     }
 
-    static class SWFPCounter implements Comparable<SWFPCounter> {
+    public class SWFPCounter implements Comparable<SWFPCounter> {
         private String key;
         private int frequent;
         private int dFrequent;

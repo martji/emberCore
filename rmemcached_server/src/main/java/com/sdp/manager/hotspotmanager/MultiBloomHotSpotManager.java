@@ -44,16 +44,19 @@ public class MultiBloomHotSpotManager extends BaseHotSpotManager implements Deal
     }
 
 	@Override
-	public void write2fileBackground() {
+	public void recordHotSpot() {
 		ArrayList<String> li = new ArrayList<String>(currentHotSpotSet);
 		for(int i = 0;i < li.size();i++) {
 			String str = li.get(i);
 			int num = frequentDetector.findBloomNumber(str);
-			frequentDetector.itemCounters.put(str, num);
+			frequentDetector.currentHotSpotCounters.put(str, num);
 		}
-		final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(
-				frequentDetector.getItemCounters().entrySet());
-		write2file(list);
+        final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
+        Map<String, Integer> map = frequentDetector.getCurrentHotSpot();
+        for (String key : map.keySet()) {
+            list.add(new HotSpotItem(key, map.get(key)));
+        }
+        recordCurrentHotSpot(list);
 	}
 
     @Override

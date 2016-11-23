@@ -22,7 +22,7 @@ The whole work is a universal middleware for distributed memory stores, which ca
 More details about the config are in the wiki.
 
 ## Run
-Run the *MServerMain* class and input the server id.
+Run the *EmberServerMain* class and input the server id.
 
 ## 3-party components(core)
 - gson 2.3.1

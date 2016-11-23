@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public interface BaseFrequentDetector {
 
-    ConcurrentHashMap<String, Integer> itemCounters = new ConcurrentHashMap<String, Integer>();
+    ConcurrentHashMap<String, Integer> currentHotSpotCounters = new ConcurrentHashMap<String, Integer>();
 
     /**
      * read config
@@ -21,11 +21,8 @@ public interface BaseFrequentDetector {
      */
     boolean registerItem(String key, int preSum);
 
-
-    ConcurrentHashMap<String, Integer> getItemCounters();
+    ConcurrentHashMap<String, Integer> getCurrentHotSpot();
     
     void resetCounter();
-
-    String updateItemSum();
-    void refreshSWFPCounter();
+    String updateFrequentCounter();
 }

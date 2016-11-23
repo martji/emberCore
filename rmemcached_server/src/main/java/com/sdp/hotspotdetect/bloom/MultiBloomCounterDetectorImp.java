@@ -130,18 +130,18 @@ public class MultiBloomCounterDetectorImp extends Thread implements BaseFrequent
 		bloomDecay ++;
 	}
 	
-	public ConcurrentHashMap<String, Integer> getItemCounters() {
+	public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
 		// TODO Auto-generated method stub
-		return itemCounters;
+		return currentHotSpotCounters;
 	}
 
 	public void resetCounter() {
 		// TODO Auto-generated method stub
-		itemCounters.clear();
+		currentHotSpotCounters.clear();
 
 	}
 
-	public String updateItemSum() {
+	public String updateFrequentCounter() {
 		return null;
 	}
 

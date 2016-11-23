@@ -37,16 +37,19 @@ public class TopKHotSpotManager extends BaseHotSpotManager implements DealHotSpo
 
     @Override
     public void resetCounter() {
-        String frequentCounterOut = frequentDetector.updateItemSum();
+        String frequentCounterOut = frequentDetector.updateFrequentCounter();
         frequentDetector.resetCounter();
         Log.log.info(frequentCounterOut + "\n");
     }
 
     @Override
-	public void write2fileBackground() {
-		final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(
-				frequentDetector.getItemCounters().entrySet());
-		write2file(list);
+	public void recordHotSpot() {
+		final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
+		Map<String, Integer> map = frequentDetector.getCurrentHotSpot();
+		for (String key : map.keySet()) {
+			list.add(new HotSpotItem(key, map.get(key)));
+		}
+		recordCurrentHotSpot(list);
 	}
 
     @Override

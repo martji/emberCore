@@ -46,6 +46,7 @@ public class ConfigManager {
             int bloom_filter_length = Integer.decode(properties.getProperty(BLOOM_FILTER_LENGTH, "100"));
             double frequent_percent = Double.parseDouble(properties.getProperty(FREQUENT_PERCENT, "0.8"));
 
+            int hot_spot_threshold = Integer.decode(properties.getProperty(HOT_SPOT_THRESHOLD, "100"));
             double hot_spot_percentage = Double.parseDouble(properties.getProperty(HOT_SPOT_PERCENTAGE, "0.0001"));
             double hot_spot_influence = Double.parseDouble(properties.getProperty(HOT_SPOT_INFLUENCE, "0.1"));
 
@@ -68,6 +69,7 @@ public class ConfigManager {
             propertiesMap.put(BLOOM_FILTER_LENGTH, bloom_filter_length);
             propertiesMap.put(FREQUENT_PERCENT, frequent_percent);
 
+            propertiesMap.put(HOT_SPOT_THRESHOLD, hot_spot_threshold);
             propertiesMap.put(HOT_SPOT_PERCENTAGE, hot_spot_percentage);
             propertiesMap.put(HOT_SPOT_INFLUENCE, hot_spot_influence);
 
@@ -119,6 +121,7 @@ public class ConfigManager {
     public static final String BLOOM_FILTER_LENGTH = "bloom_filter_length";
     public static final String FREQUENT_PERCENT = "frequent_percent";
 
+    public static final String HOT_SPOT_THRESHOLD = "hot_spot_threshold";
     public static final String HOT_SPOT_PERCENTAGE = "hot_spot_percentage";
     public static final String HOT_SPOT_INFLUENCE = "hot_spot_influence";
 

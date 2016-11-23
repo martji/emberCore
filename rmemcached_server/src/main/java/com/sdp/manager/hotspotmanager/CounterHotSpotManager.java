@@ -11,35 +11,33 @@ import java.util.*;
  * @author magq
  * CounterHotSpotManager implement {@link BaseHotSpotManager} and detect the hot spots just by
  * counting the data items.
+ *
+ * Counter all the data. If the visit time of one item is bigger than the predefined hotSpotThreshold,
+ * this item is considered as a hot spot.
  */
 
 public class CounterHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
 
     private ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();
-    private TreeMap<String, Integer> currentHotSpotSet;
+    private HashSet<String> currentHotSpotSet;
 
-    private double hotSpotPercentage = 0.0001;
-    private int heapSize;
+    public int hotSpotThreshold;
+    private double hotSpotPercentage;
+
+    private static final int LOW_HOT_SPOT_THRESHOLD = 2;
 
 	public CounterHotSpotManager() {
         initConfig();
 
-        currentHotSpotSet = new TreeMap<String, Integer>(new Comparator<String>() {
-            public int compare(String str1, String str2) {
-                try {
-                    return countMap.get(str2) - countMap.get(str1);
-                } catch (Exception e) {}
-                return 0;
-            }
-        });
+        currentHotSpotSet = new HashSet<String>();
 	}
 
 	@Override
     public void initConfig() {
         super.initConfig();
 
+        hotSpotThreshold = (Integer) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_THRESHOLD);
         hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
-        heapSize = (int) (1 / hotSpotPercentage);
     }
 
 	@Override
@@ -50,39 +48,38 @@ public class CounterHotSpotManager extends BaseHotSpotManager implements DealHot
 		}
 		int visits = countMap.get(key) + 1;
         countMap.put(key, visits);
-		if (visits >= LocalSpots.threshold && !currentHotSpotSet.containsKey(key)) {
-            if (currentHotSpotSet.size() >= heapSize) {
-                currentHotSpotSet.remove(currentHotSpotSet.lastKey());
-            }
-			currentHotSpotSet.put(key, visits);
+		if (visits >= hotSpotThreshold && !currentHotSpotSet.contains(key)) {
+			currentHotSpotSet.add(key);
             dealHotData(key);
 		}
 	}
 
     @Override
     public void resetCounter() {
-        super.resetCounter();
-
         countMap = new ConcurrentHashMap<String, Integer>();
     }
 
     @Override
-    public void write2fileBackground() {
-        final List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>
-                (currentHotSpotSet.entrySet());
-       write2file(list);
+    public void recordHotSpot() {
+        final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
+        for(String key: currentHotSpotSet) {
+            if (countMap.containsKey(key)) {
+                list.add(new HotSpotItem(key, countMap.get(key)));
+            }
+        }
+        recordCurrentHotSpot(list);
     }
 
     @Override
     public void dealData() {
         dealHotData();
         LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
-        currentHotSpotSet.clear();
         dealColdData();
     }
 
     public void dealHotData() {
-        heapSize = Math.max((int) (countMap.size() * hotSpotPercentage), LocalSpots.threshold);
+        hotSpotThreshold /= (countMap.size() * hotSpotPercentage) / currentHotSpotSet.size();
+        hotSpotThreshold = Math.max(hotSpotThreshold, LOW_HOT_SPOT_THRESHOLD);
         onFindHotSpot.dealHotSpot();
     }
 

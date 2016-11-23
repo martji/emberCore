@@ -14,52 +14,49 @@ import java.util.Vector;
  */
 public class MultiBloomDetectorImp implements BaseBloomDetector {
 
+    private final int LOW_FREQUENT_THRESHOLD = 2;
+
     private HashFunction hashFunction;
     private List<Integer[]> bloomCounterList;
 
     /**
-     * The number of bloom filters.
+     * The number of bloom filters and the length of single bloom filter.
      */
-    private static int BLOOM_FILTER_NUMBER = 1;
-    /**
-     * The length of single bloom filter.
-     */
-    private static int BLOOM_FILTER_LENGTH = 10;
-
-    private static double FREQUENT_PERCENT = 0.8;
-
+    private int bloomFilterNumber;
+    private int bloomFilterLength;
 
     /**
-     * The threshold of frequent item, the default value is 2, which means if a item
+     * The hotSpotThreshold of frequent item, the default value is 2, which means if a item
      * is visited more than once, the item is thought as a frequent item.
-     * This parameter is changed to let 20% (1- FREQUENT_PERCENT) items through.
+     * This parameter is changed to let 20% (1- frequentPercentage) items through.
      */
-    private int frequent_threshold = 2;
-    private int pre_frequent_threshold = 2;
+    private int frequentThreshold = LOW_FREQUENT_THRESHOLD;
+    private int preFrequentThreshold = LOW_FREQUENT_THRESHOLD;
+    private double frequentPercentage;
 
     public int itemSum = 0;
     public int itemPass = 0;
 
     public MultiBloomDetectorImp(){
         initConfig();
+
         hashFunction = new HashFunction();
     	bloomCounterList = new ArrayList<Integer[]>();
-
-        for (int i = 0; i < BLOOM_FILTER_NUMBER; i++) {
-            bloomCounterList.add(new Integer[BLOOM_FILTER_LENGTH]);
-            for (int j = 0; j < BLOOM_FILTER_LENGTH; j++) {
+        for (int i = 0; i < bloomFilterNumber; i++) {
+            bloomCounterList.add(new Integer[bloomFilterLength]);
+            for (int j = 0; j < bloomFilterLength; j++) {
                 bloomCounterList.get(i)[j] = 0;
             }
         }
     }
 
     public void initConfig() {
-        BLOOM_FILTER_NUMBER = (Integer) ConfigManager.propertiesMap.get(ConfigManager.MULTI_BLOOM_FILTER_NUMBER);
-        BLOOM_FILTER_LENGTH = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_LENGTH);
-        FREQUENT_PERCENT = (Double) ConfigManager.propertiesMap.get(ConfigManager.FREQUENT_PERCENT);
-        Log.log.info("[bloom_filter_number]: " + BLOOM_FILTER_NUMBER + "; " +
-                "[bloom_filter_length]: " + BLOOM_FILTER_LENGTH + "; " +
-                "[frequent_percent]: " + FREQUENT_PERCENT);
+        bloomFilterNumber = (Integer) ConfigManager.propertiesMap.get(ConfigManager.MULTI_BLOOM_FILTER_NUMBER);
+        bloomFilterLength = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_LENGTH);
+        frequentPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.FREQUENT_PERCENT);
+        Log.log.info("[Multi-Bloom] bloomFilterNumber = " + bloomFilterNumber + ", " +
+                "bloomFilterLength = " + bloomFilterLength + ", " +
+                "frequent_percent = " + frequentPercentage);
     }
 
     public int[] getHashIndex(String key) {
@@ -72,14 +69,14 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
      * @return whether the item key can through bloom filter.
      */
     public boolean registerItem(String key) {
-        itemSum++;
+        itemSum ++;
 
         boolean isHotSpotCandidate = true;
         int[] indexArray = hashFunction.getHashIndex(key);
-        for (int i = 0; i < BLOOM_FILTER_NUMBER; i++) {
+        for (int i = 0; i < bloomFilterNumber; i++) {
             int index = indexArray[i];
             bloomCounterList.get(i)[index] += 1;
-            if (bloomCounterList.get(i)[index] < frequent_threshold) {
+            if (bloomCounterList.get(i)[index] < frequentThreshold) {
                 isHotSpotCandidate = false;
             }
         }
@@ -89,40 +86,37 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
         return isHotSpotCandidate;
     }
 
-    public void resetBloomCounters() {
-
-    }
+    public void resetBloomCounters() {}
 
     public Vector<String> getHotSpots() {
         return null;
     }
 
     /**
-     * This method is callback each period, adjust the frequent_threshold to
+     * This method is callback each period, adjust the frequentThreshold to
      * ensure the frequent items through.
      */
-    public String updateItemSum() {
+    public String updateFilterThreshold() {
         if (itemSum > 0) {
-            double frequent = (double) itemPass / itemSum;
-            if (frequent > FREQUENT_PERCENT) {
-                if (pre_frequent_threshold != 2) {
-                    frequent_threshold *= 2;
+            double currentPercentage = (double) itemPass / itemSum;
+            if (currentPercentage > frequentPercentage) {
+                if (preFrequentThreshold != LOW_FREQUENT_THRESHOLD) {
+                    frequentThreshold *= 2;
                 } else {
-                    frequent_threshold += 2;
+                    frequentThreshold += 2;
                 }
-                pre_frequent_threshold = frequent_threshold;
-            } else if (frequent < (FREQUENT_PERCENT / 2)) {
-                frequent_threshold = (frequent_threshold + pre_frequent_threshold) / 2;
-                frequent_threshold = (frequent_threshold > 2) ? frequent_threshold : 2;
-
-                pre_frequent_threshold = 2;
+                preFrequentThreshold = frequentThreshold;
+            } else if (currentPercentage < (frequentPercentage / 2)) {
+                frequentThreshold = (frequentThreshold + preFrequentThreshold) / 2;
+                frequentThreshold = Math.max(frequentThreshold, LOW_FREQUENT_THRESHOLD);
+                preFrequentThreshold = LOW_FREQUENT_THRESHOLD;
             }
         } else {
-            frequent_threshold = 2;
+            frequentThreshold = LOW_FREQUENT_THRESHOLD;
         }
 
-        String result = "[bloom filter]: " + itemPass +" / "+ itemSum +
-                " [frequent_threshold]: " + frequent_threshold;
+        String result = "[Multi-Bloom Filter] bloom filter pass percentage = " + itemPass + "/"+ itemSum +
+                " frequentThreshold = " + frequentThreshold;
 
         itemSum = 0;
         itemPass = 0;
@@ -134,8 +128,8 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
      * Reset the counter of bloom filter each period.
      */
     public void resetCounter() {
-        for (int i = 0; i < BLOOM_FILTER_NUMBER; i++) {
-            for (int j = 0; j < BLOOM_FILTER_LENGTH; j++) {
+        for (int i = 0; i < bloomFilterNumber; i++) {
+            for (int j = 0; j < bloomFilterLength; j++) {
                 bloomCounterList.get(i)[j] = 0;
             }
         }

@@ -37,26 +37,26 @@ public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
 	}
 
 	public boolean registerItem(String key, int preSum) {
-		if(itemCounters.contains(key)){
-			itemCounters.put(key, itemCounters.get(key) + 1);
-		} else if(itemCounters.size() < counterNumber){
-			itemCounters.put(key, 1);
+		if(currentHotSpotCounters.contains(key)){
+			currentHotSpotCounters.put(key, currentHotSpotCounters.get(key) + 1);
+		} else if(currentHotSpotCounters.size() < counterNumber){
+			currentHotSpotCounters.put(key, 1);
 			preValue.put(key, 0);
 		}else{
 			int min = Integer.MAX_VALUE;
 			String strMin = null;
 			String str = null;
-			Iterator iter = itemCounters.keySet().iterator();
+			Iterator iter = currentHotSpotCounters.keySet().iterator();
 			while(iter.hasNext()){
 				str = (String) iter.next();
-				if(itemCounters.get(str) < min){
+				if(currentHotSpotCounters.get(str) < min){
 					strMin = str;
-					min = itemCounters.get(str);
+					min = currentHotSpotCounters.get(str);
 				}
 			}
-			itemCounters.remove(strMin);
+			currentHotSpotCounters.remove(strMin);
 			preValue.remove(strMin);
-			itemCounters.put(key, min + 1);
+			currentHotSpotCounters.put(key, min + 1);
 			preValue.put(key, min);
 		}
 		if(topElementsList.contains(key)){
@@ -71,25 +71,25 @@ public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
 			int minGuarFreq = Integer.MAX_VALUE;
 			int i = 0;
 			String str = null;
-			Iterator iter = itemCounters.keySet().iterator();
-			for(i = 0;i < topItemsNumber && i < itemCounters.size();i++){
+			Iterator iter = currentHotSpotCounters.keySet().iterator();
+			for(i = 0; i < topItemsNumber && i < currentHotSpotCounters.size(); i++){
 				if(iter.hasNext()){
 					str = (String) iter.next();
 					topElementsList.add(str);
-					if(itemCounters.get(str) - preValue.get(str) < minGuarFreq){
-						minGuarFreq = itemCounters.get(str) - preValue.get(str);
+					if(currentHotSpotCounters.get(str) - preValue.get(str) < minGuarFreq){
+						minGuarFreq = currentHotSpotCounters.get(str) - preValue.get(str);
 					}
 				}
 			}//遍历完之后，第k+1个需要遍历，i=k;
-			if(iter.hasNext() && itemCounters.get((String) iter.next()) >=  minGuarFreq){
+			if(iter.hasNext() && currentHotSpotCounters.get((String) iter.next()) >=  minGuarFreq){
 				str = iter.toString();
 				topElementsList.add(str);
-				for(i = i + 1;i < itemCounters.size(); i ++){
-					if(itemCounters.get(str) - preValue.get(str) < minGuarFreq){
-						minGuarFreq = itemCounters.get(str) - preValue.get(str);
+				for(i = i + 1; i < currentHotSpotCounters.size(); i ++){
+					if(currentHotSpotCounters.get(str) - preValue.get(str) < minGuarFreq){
+						minGuarFreq = currentHotSpotCounters.get(str) - preValue.get(str);
 					} 
 					str = (String) iter.next();
-					if(itemCounters.get(str) <= minGuarFreq){
+					if(currentHotSpotCounters.get(str) <= minGuarFreq){
 						break;
 					}
 					topElementsList.add(str);
@@ -104,16 +104,16 @@ public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
 		}while(true);
 	}
 
-	public ConcurrentHashMap<String, Integer> getItemCounters() {
-		return itemCounters;
+	public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
+		return currentHotSpotCounters;
 	}
 	
 	public void resetCounter() {
 		// TODO Auto-generated method stub
-		itemCounters.clear();
+		currentHotSpotCounters.clear();
 	}
 
-	public String updateItemSum() {
+	public String updateFrequentCounter() {
 		return null;
 	}
 

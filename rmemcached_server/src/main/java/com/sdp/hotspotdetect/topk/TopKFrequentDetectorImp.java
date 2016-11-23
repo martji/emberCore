@@ -37,7 +37,7 @@ public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetec
 		if (CounterMap.containsKey(key)) {
 			CounterMap.put(key, CounterMap.get(key) + 1);
 			if (CounterMap.get(key) - preValue.get(key) >= hotSpotPercentage * itemSum) {
-				itemCounters.put(key, CounterMap.get(key) - preValue.get(key));
+				currentHotSpotCounters.put(key, CounterMap.get(key) - preValue.get(key));
 				result = true;
 			}
 		} else if (CounterMap.size() < counterNumber) {
@@ -63,12 +63,12 @@ public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetec
 		return result;
 	}
 
-	public String updateItemSum() {
+	public String updateFrequentCounter() {
 		itemSum -= preItemSum;
 		preItemSum = itemSum;
 
-		System.out.println(itemCounters);
-		ArrayList<Integer> hotSpots = new ArrayList<Integer>(itemCounters.values());
+		System.out.println(currentHotSpotCounters);
+		ArrayList<Integer> hotSpots = new ArrayList<Integer>(currentHotSpotCounters.values());
 		int totalCount = 0;
 		for (int i = 0; i < hotSpots.size(); i++) {
 			totalCount += hotSpots.get(i);
@@ -89,14 +89,14 @@ public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetec
 
 	}
 
-	public ConcurrentHashMap<String, Integer> getItemCounters() {
+	public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
 		// TODO Auto-generated method stub
-		return itemCounters;
+		return currentHotSpotCounters;
 	}
 
 	public void resetCounter() {
 		// TODO Auto-generated method stub
-		itemCounters.clear();
+		currentHotSpotCounters.clear();
 
 	}
 
