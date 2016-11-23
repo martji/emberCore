@@ -22,7 +22,9 @@ public class EmberServerHandler extends SimpleChannelUpstreamHandler {
 
     public EmberServerHandler(boolean isDetect) {
         messageManager = new MessageManager(isDetect);
-        messageManager.startHotSpotDetection();
+        if (isDetect) {
+            messageManager.startHotSpotDetection();
+        }
 	}
 
     /**

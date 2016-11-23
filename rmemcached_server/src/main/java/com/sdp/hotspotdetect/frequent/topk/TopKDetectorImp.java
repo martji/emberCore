@@ -1,4 +1,4 @@
-package com.sdp.hotspotdetect.topk;
+package com.sdp.hotspotdetect.frequent.topk;
 
 import java.util.ArrayList;
 import java.util.Iterator;

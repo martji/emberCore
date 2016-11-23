@@ -1,6 +1,6 @@
 package com.sdp.manager.hotspotmanager;
 
-import com.sdp.hotspotdetect.topk.TopKFrequentDetectorImp;
+import com.sdp.hotspotdetect.frequent.topk.TopKFrequentDetectorImp;
 import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
 

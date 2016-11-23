@@ -1,4 +1,4 @@
-package com.sdp.hotspotdetect.ec;
+package com.sdp.hotspotdetect.frequent;
 
 import com.sdp.config.ConfigManager;
 import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;

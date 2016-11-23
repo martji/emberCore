@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspotdetect.hash.HashFunction;
+import com.sdp.hotspotdetect.bloom.hash.HashFunction;
 import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
 import com.sdp.log.Log;
 

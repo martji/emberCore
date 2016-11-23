@@ -1,4 +1,4 @@
-package com.sdp.hotspotdetect.hash;
+package com.sdp.hotspotdetect.bloom.hash;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

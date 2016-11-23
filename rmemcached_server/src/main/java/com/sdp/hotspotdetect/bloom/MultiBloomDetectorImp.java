@@ -1,7 +1,7 @@
 package com.sdp.hotspotdetect.bloom;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspotdetect.hash.HashFunction;
+import com.sdp.hotspotdetect.bloom.hash.HashFunction;
 import com.sdp.hotspotdetect.interfaces.BaseBloomDetector;
 import com.sdp.log.Log;
 
