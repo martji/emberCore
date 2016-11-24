@@ -1,32 +1,36 @@
 package com.sdp.hotspotdetect.frequent;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
+import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
+import com.sdp.log.Log;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by magq on 16/1/12.
  */
-public class FrequentDetectorImp implements BaseFrequentDetector {
+public class FrequentDetectorImp implements FrequentDetectorInterface {
 
     private int frequentItemsNumber = 1;
     private double hotSpotPercentage = 0.0001;
-    private static double HOT_SPOT_INFLUENCE = 0.1;
+    private static double hotSpotInfluence = 0.1;
+
     private int itemSum = 0;
     private int preItemSum = 0;
 
-    public ConcurrentHashMap<String, Integer> PreitemCounters = new ConcurrentHashMap<String, Integer>();
-    
     public FrequentDetectorImp() {
         initConfig();
     }
 
     public void initConfig() {
     	hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
-        HOT_SPOT_INFLUENCE = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_INFLUENCE);
-        frequentItemsNumber = (int) (1/hotSpotPercentage);
+        hotSpotInfluence = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_INFLUENCE);
+        frequentItemsNumber = (int) (1 / hotSpotPercentage);
+
+        Log.log.info("[Frequent] " + "hotSpotPercentage = " + hotSpotPercentage +
+                ", hotSpotInfluence = " + hotSpotInfluence);
     }
 
     /**
@@ -41,10 +45,10 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
         } else if(currentHotSpotCounters.size() < frequentItemsNumber) {
             currentHotSpotCounters.put(key, 1);
         } else {
-            String str = null;
-            Iterator iter = currentHotSpotCounters.keySet().iterator();
-            while(iter.hasNext()){
-                str = (String) iter.next();
+            String str;
+            Iterator iterator = currentHotSpotCounters.keySet().iterator();
+            while(iterator.hasNext()){
+                str = (String) iterator.next();
                 if (currentHotSpotCounters.get(str) > 1) {
                     currentHotSpotCounters.put(str, currentHotSpotCounters.get(str) - 1);
                 } else {
@@ -55,7 +59,7 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
         return result;
     }
     
-    /*public String updateFrequent() {
+    public String updateFrequent() {
     	itemSum -= preItemSum;
         preItemSum = itemSum;
         
@@ -66,7 +70,7 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
             totalCount += hotSpots.get(i);
         }
         double tmp = (double) totalCount / itemSum;
-        if (totalCount > 0 && tmp < HOT_SPOT_INFLUENCE) {
+        if (totalCount > 0 && tmp < hotSpotInfluence) {
         	hotSpotPercentage /= 2;
         } else if (totalCount == 0) {
         	hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
@@ -74,11 +78,11 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
         
         frequentItemsNumber = (int) (1 / hotSpotPercentage);
 
-        String result =  "  |  [frequent counter]: " + totalCount + " / "+ itemSum +
-                " [hot_spot_percentage]: " + hotSpotPercentage;
+        String result = "[Frequent] frequent counter = " + totalCount + "/"+ itemSum +
+                " hot spot percentage = " + hotSpotPercentage;
         return result;
         
-    }*/
+    }
 
     public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
         return currentHotSpotCounters;
@@ -92,7 +96,4 @@ public class FrequentDetectorImp implements BaseFrequentDetector {
         return null;
     }
 
-    public void refreshSWFPCounter() {
-
-    }
 }

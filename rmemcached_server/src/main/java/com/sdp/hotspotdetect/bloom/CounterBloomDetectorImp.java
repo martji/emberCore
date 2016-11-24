@@ -4,46 +4,51 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.sdp.config.ConfigManager;
 import com.sdp.hotspotdetect.bloom.hash.HashFunction;
-import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
+import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
+import com.sdp.log.Log;
 
-public class CounterBloomDetectorImp extends Thread implements BaseFrequentDetector {
+public class CounterBloomDetectorImp implements FrequentDetectorInterface {
 
-	private static int BLOOM_FILTER_LENGTH = 1000;
-	public HashFunction hashFunction;
-	private int frequent_threshold = 30;
+	private int bloomFilterLength = 1000;
+	private int frequentThreshold = 30;
+    private int hotSpotNum = 1000;
+
+    public HashFunction hashFunction;
 	private int[] bloomCounter;
 	private int[] bloomPreCounter;
-	private int hotSpotNum = 1000;
+
 	private int item = 0;
 
 	public CounterBloomDetectorImp() {
 		initConfig();
+
 		hashFunction = new HashFunction();
-		bloomCounter = new int[BLOOM_FILTER_LENGTH];
-		bloomPreCounter = new int[BLOOM_FILTER_LENGTH];
-		for (int i = 0; i < BLOOM_FILTER_LENGTH; i++) {
+		bloomCounter = new int[bloomFilterLength];
+		bloomPreCounter = new int[bloomFilterLength];
+		for (int i = 0; i < bloomFilterLength; i++) {
 			bloomCounter[i] = 0;
 			bloomPreCounter[i] = 0;
 		}
 	}
 
 	public void initConfig() {
-		// TODO Auto-generated method stub
-		BLOOM_FILTER_LENGTH = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_LENGTH);
-		frequent_threshold = (Integer) ConfigManager.propertiesMap.get(ConfigManager.THRESHOLD);
+		bloomFilterLength = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_LENGTH);
+		frequentThreshold = (Integer) ConfigManager.propertiesMap.get(ConfigManager.THRESHOLD);
 		hotSpotNum = (Integer) ConfigManager.propertiesMap.get(ConfigManager.COUNTER_NUMBER);
 
-	}
+        Log.log.info("[Counter Bloom] bloomFilterLength = " + bloomFilterLength
+                + ", frequentThreshold = " + frequentThreshold
+                + ", hotSpotNum = " + hotSpotNum);
+    }
 
 	public boolean registerItem(String key, int preSum) {
-		// TODO Auto-generated method stub
 		item++;
 		boolean isHotSpot = true;
 		int[] indexArray = hashFunction.getHashIndex(key);
 		for (int i = 0; i < indexArray.length; i++) {
 			int index = indexArray[i];
 			bloomCounter[index] += 1;
-			if (bloomCounter[index] < frequent_threshold) {
+			if (bloomCounter[index] < frequentThreshold) {
 				isHotSpot = false;
 			}
 		}
@@ -51,46 +56,39 @@ public class CounterBloomDetectorImp extends Thread implements BaseFrequentDetec
 	}
 
 	public void updateCounter() {
-		for (int i = 0; i < BLOOM_FILTER_LENGTH; i++) {
+		for (int i = 0; i < bloomFilterLength; i++) {
 			bloomCounter[i] -= bloomPreCounter[i];
 			bloomPreCounter[i] = bloomCounter[i];
 		}
 	}
 
-	public void updateThreahold(int number) {
+	public void updateThreshold(int number) {
 		double percent = (double) number / hotSpotNum;
 		if (item > 500) {
 			if (percent < 0.7) {
-				if (frequent_threshold * 0.7 > 15) {
-					frequent_threshold = (int) (frequent_threshold * 0.7);
+				if (frequentThreshold * 0.7 > 15) {
+					frequentThreshold = (int) (frequentThreshold * 0.7);
 				} else {
-					frequent_threshold = 15;
+					frequentThreshold = 15;
 				}
 			} else if (percent > 1.5) {
-				frequent_threshold = (int) (frequent_threshold * (percent + 2))/3;
+				frequentThreshold = (int) (frequentThreshold * (percent + 2))/3;
 			}
 		}
 		item = 0;
-		System.out.println(frequent_threshold + "***");
+		Log.log.info("[Counter Bloom] update frequentThreshold = " + frequentThreshold);
 	}
 
 	public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
-		// TODO Auto-generated method stub
 		return currentHotSpotCounters;
 	}
 
 	public void resetCounter() {
-		// TODO Auto-generated method stub
 		currentHotSpotCounters.clear();
-
 	}
 
 	public String updateFrequentCounter() {
 		return null;
-	}
-
-	public void refreshSWFPCounter() {
-
 	}
 
 }

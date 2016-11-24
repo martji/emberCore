@@ -1,7 +1,9 @@
 package com.sdp.manager.hotspotmanager;
 
 import com.sdp.hotspotdetect.frequent.FrequentDetectorImp;
+import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
+import com.sdp.replicas.LocalSpots;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,15 +31,15 @@ public class FrequentHotSpotManager extends BaseHotSpotManager implements DealHo
 		if (frequentDetector != null) {
 			if ((frequentDetector.registerItem(key, 0)) && (!currentHotSpotSet.contains(key))) {
 				currentHotSpotSet.add(key);
-//				dealHotData(key);
+				dealHotData(key);
 			}
 		}
 	}
 
     @Override
     public void resetCounter() {
-//        String frequentCounterOut = frequentDetector.updateFrequent();
-//        Log.log.info(frequentCounterOut + "\n");
+        String frequentCounterOut = frequentDetector.updateFrequent();
+        Log.log.info("[Frequent] " + frequentCounterOut);
     }
 
     @Override
@@ -52,9 +54,10 @@ public class FrequentHotSpotManager extends BaseHotSpotManager implements DealHo
 
     @Override
     public void dealData() {
-//        dealHotData();
+        dealHotData();
+        LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
         currentHotSpotSet.clear();
-//        dealColdData();
+        dealColdData();
     }
 
     public void dealHotData() {

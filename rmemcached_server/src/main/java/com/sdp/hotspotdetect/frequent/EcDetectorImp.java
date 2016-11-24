@@ -1,12 +1,12 @@
 package com.sdp.hotspotdetect.frequent;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
+import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class EcDetectorImp extends Thread implements BaseFrequentDetector {
+public class EcDetectorImp extends Thread implements FrequentDetectorInterface {
 
     private static double frequentPercentage =  0.0001;
 	static int counterNumber = 10000;

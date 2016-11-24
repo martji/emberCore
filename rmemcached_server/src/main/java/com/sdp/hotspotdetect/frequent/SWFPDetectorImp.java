@@ -1,7 +1,7 @@
 package com.sdp.hotspotdetect.frequent;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
+import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
 import com.sdp.log.Log;
 
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by Guoqing on 2016/3/29.
  */
-public class SWFPDetectorImp implements BaseFrequentDetector {
+public class SWFPDetectorImp implements FrequentDetectorInterface {
 
     /**
      * The really counter to count the visit times of item.
@@ -41,10 +41,10 @@ public class SWFPDetectorImp implements BaseFrequentDetector {
     public void initConfig() {
     	hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
         hotSpotInfluence = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_INFLUENCE);
+        counterNumber = (int) (1 / hotSpotPercentage);
+
         Log.log.info("[SWFP] " + "hotSpotPercentage = " + hotSpotPercentage +
                 ", hotSpotInfluence = " + hotSpotInfluence);
-
-    	counterNumber = (int) (1 / hotSpotPercentage);
     }
 
     /**

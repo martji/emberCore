@@ -2,6 +2,7 @@ package com.sdp.manager.hotspotmanager;
 
 import com.sdp.hotspotdetect.bloom.CounterBloomDetectorImp;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
+import com.sdp.replicas.LocalSpots;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,14 +29,14 @@ public class CounterBloomHotSpotManager extends BaseHotSpotManager implements De
 		if (frequentDetector != null) {
 			if ((frequentDetector.registerItem(key, 0)) && (!currentHotSpotSet.contains(key))) {
 				currentHotSpotSet.add(key);
-//				dealHotData(key);
+				dealHotData(key);
 			}
 		}
 	}
 
     @Override
     public void resetCounter() {
-//         frequentDetector.resetCounter();
+         frequentDetector.resetCounter();
     }
 
     @Override
@@ -45,10 +46,11 @@ public class CounterBloomHotSpotManager extends BaseHotSpotManager implements De
 
     @Override
     public void dealData() {
-//        dealHotData();
-        frequentDetector.updateThreahold(currentHotSpotSet.size());
-        currentHotSpotSet.clear();
-//        dealColdData();
+		dealHotData();
+        frequentDetector.updateThreshold(currentHotSpotSet.size());
+		LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
+		currentHotSpotSet.clear();
+		dealColdData();
     }
 
     public void dealHotData() {

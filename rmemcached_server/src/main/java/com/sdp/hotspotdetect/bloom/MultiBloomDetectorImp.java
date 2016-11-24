@@ -2,7 +2,7 @@ package com.sdp.hotspotdetect.bloom;
 
 import com.sdp.config.ConfigManager;
 import com.sdp.hotspotdetect.bloom.hash.HashFunction;
-import com.sdp.hotspotdetect.interfaces.BaseBloomDetector;
+import com.sdp.hotspotdetect.interfaces.BloomDetectorInterface;
 import com.sdp.log.Log;
 
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.Vector;
 /**
  * Created by magq on 16/1/12.
  */
-public class MultiBloomDetectorImp implements BaseBloomDetector {
+public class MultiBloomDetectorImp implements BloomDetectorInterface {
 
     private final int LOW_FREQUENT_THRESHOLD = 2;
 
@@ -54,9 +54,10 @@ public class MultiBloomDetectorImp implements BaseBloomDetector {
         bloomFilterNumber = (Integer) ConfigManager.propertiesMap.get(ConfigManager.MULTI_BLOOM_FILTER_NUMBER);
         bloomFilterLength = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_LENGTH);
         frequentPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.FREQUENT_PERCENT);
-        Log.log.info("[Multi-Bloom] bloomFilterNumber = " + bloomFilterNumber + ", " +
-                "bloomFilterLength = " + bloomFilterLength + ", " +
-                "frequent_percent = " + frequentPercentage);
+
+        Log.log.info("[Multi-Bloom] bloomFilterNumber = " + bloomFilterNumber
+                + ", bloomFilterLength = " + bloomFilterLength
+                + ", frequentPercent = " + frequentPercentage);
     }
 
     public int[] getHashIndex(String key) {

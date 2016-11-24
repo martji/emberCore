@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by magq on 16/1/12.
  */
-public interface BaseFrequentDetector {
+public interface FrequentDetectorInterface {
 
     ConcurrentHashMap<String, Integer> currentHotSpotCounters = new ConcurrentHashMap<String, Integer>();
 

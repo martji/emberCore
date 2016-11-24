@@ -57,7 +57,7 @@ public abstract class BaseHotSpotManager implements Runnable {
      */
     public void initConfig() {
         SLICE_TIME = (Integer) ConfigManager.propertiesMap.get(ConfigManager.SLICE_TIME);
-        Log.log.info("[HotSpot Manager] hot spot detection period = " + SLICE_TIME);
+        Log.log.info("[HotSpot Manager] hot spot detection sliceTime = " + SLICE_TIME);
     }
 
     /**

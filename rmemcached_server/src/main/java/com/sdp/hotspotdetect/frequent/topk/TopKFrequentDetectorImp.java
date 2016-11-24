@@ -5,16 +5,19 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
+import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
+import com.sdp.log.Log;
 
-public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetector {
+public class TopKFrequentDetectorImp implements FrequentDetectorInterface {
 
-	private static int counterNumber = 20;
-	private static double HOT_SPOT_INFLUENCE = 0.1;
-	private double hotSpotPercentage = 0.0001;
-	private static double HOT_SPOT_PERCENTAGE = 0.0001;
+	private int counterNumber;
+	private double hotSpotInfluence;
+	private double hotSpotPercentage;
+	private double INIT_HOT_SPOT_PERCENTAGE;
+
 	private ConcurrentHashMap<String, Integer> preValue = new ConcurrentHashMap<String, Integer>();
 	private ConcurrentHashMap<String, Integer> CounterMap = new ConcurrentHashMap<String, Integer>();
+
 	public int itemSum = 0;
 	private int preItemSum = 0;
 
@@ -23,15 +26,17 @@ public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetec
 	}
 
 	public void initConfig() {
-		// TODO Auto-generated method stub
 		counterNumber = (Integer) ConfigManager.propertiesMap.get(ConfigManager.COUNTER_NUMBER);
-		HOT_SPOT_PERCENTAGE = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
-		HOT_SPOT_INFLUENCE = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_INFLUENCE);
-		hotSpotPercentage = HOT_SPOT_PERCENTAGE;
+		hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
+		hotSpotInfluence = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_INFLUENCE);
+        INIT_HOT_SPOT_PERCENTAGE = hotSpotPercentage;
+
+        Log.log.info("[TopK] " + "counterNumber = " + counterNumber
+                + ", hotSpotPercentage = " + hotSpotPercentage
+                + ", hotSpotInfluence = " + hotSpotInfluence);
 	}
 
 	public boolean registerItem(String key, int preSum) {
-		// TODO Auto-generated method stub
 		itemSum++;
 		boolean result = false;
 		if (CounterMap.containsKey(key)) {
@@ -46,10 +51,10 @@ public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetec
 		} else {
 			int min = Integer.MAX_VALUE;
 			String strMin = null;
-			String str = null;
-			Iterator iter = CounterMap.keySet().iterator();
-			while (iter.hasNext()) {
-				str = (String) iter.next();
+			String str;
+			Iterator iterator = CounterMap.keySet().iterator();
+			while (iterator.hasNext()) {
+				str = (String) iterator.next();
 				if (CounterMap.get(str) < min) {
 					strMin = str;
 					min = CounterMap.get(strMin);
@@ -74,30 +79,23 @@ public class TopKFrequentDetectorImp extends Thread implements BaseFrequentDetec
 			totalCount += hotSpots.get(i);
 		}
 		double tmp = (double) totalCount / itemSum;
-		if (totalCount > 0 && tmp < HOT_SPOT_INFLUENCE) {
+		if (totalCount > 0 && tmp < hotSpotInfluence) {
 			hotSpotPercentage /= 2;
 		} else if (totalCount == 0) {
-			hotSpotPercentage = HOT_SPOT_PERCENTAGE;
+			hotSpotPercentage = INIT_HOT_SPOT_PERCENTAGE;
 		}
 
-		String result = "  |  [frequent counter]: " + totalCount + " / " + itemSum + " [hot_spot_percentage]: "
+		String result = "[TopK] frequent counter: " + totalCount + "/" + itemSum + " hot spot percentage: "
 				+ hotSpotPercentage;
 		return result;
 	}
 
-	public void refreshSWFPCounter() {
-
-	}
-
 	public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
-		// TODO Auto-generated method stub
 		return currentHotSpotCounters;
 	}
 
 	public void resetCounter() {
-		// TODO Auto-generated method stub
 		currentHotSpotCounters.clear();
-
 	}
 
 }

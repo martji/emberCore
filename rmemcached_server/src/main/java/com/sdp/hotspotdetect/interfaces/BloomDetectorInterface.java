@@ -5,7 +5,7 @@ import java.util.Vector;
 /**
  * Created by magq on 16/1/12.
  */
-public interface BaseBloomDetector {
+public interface BloomDetectorInterface {
 
     /**
      * read config

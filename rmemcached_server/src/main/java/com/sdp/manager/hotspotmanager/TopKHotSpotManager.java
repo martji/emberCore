@@ -3,6 +3,7 @@ package com.sdp.manager.hotspotmanager;
 import com.sdp.hotspotdetect.frequent.topk.TopKFrequentDetectorImp;
 import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
+import com.sdp.replicas.LocalSpots;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,7 +40,8 @@ public class TopKHotSpotManager extends BaseHotSpotManager implements DealHotSpo
     public void resetCounter() {
         String frequentCounterOut = frequentDetector.updateFrequentCounter();
         frequentDetector.resetCounter();
-        Log.log.info(frequentCounterOut + "\n");
+
+        Log.log.info("[TopKHotSpotManager] " + frequentCounterOut);
     }
 
     @Override
@@ -55,7 +57,9 @@ public class TopKHotSpotManager extends BaseHotSpotManager implements DealHotSpo
     @Override
     public void dealData() {
         dealHotData();
+        LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
         currentHotSpotSet.clear();
+        dealColdData();
     }
 
     public void dealHotData() {

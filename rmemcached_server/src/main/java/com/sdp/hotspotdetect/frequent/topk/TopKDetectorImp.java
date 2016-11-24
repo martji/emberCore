@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sdp.config.ConfigManager;
-import com.sdp.hotspotdetect.interfaces.BaseFrequentDetector;
+import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
 
-public class TopKDetectorImp extends Thread implements BaseFrequentDetector {
+public class TopKDetectorImp extends Thread implements FrequentDetectorInterface {
 	
 	private static int topItemsNumber = 10;
 	
