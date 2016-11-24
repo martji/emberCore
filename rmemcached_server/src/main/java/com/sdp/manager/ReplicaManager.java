@@ -33,10 +33,11 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     /**
      * The replica mode.
      */
-    private int replicaMode = EMBER_MODE;
-
-    private final int UPDATE_STATUS_TIME = 5*1000;
-    private final int BUFFER_SIZE = 1000;
+    private int replicaMode;
+    private int updateStatusTime;
+    private int bufferSize;
+    private int serverId;
+    private Map<Integer, EmberServerNode> serversMap;
 
     /**
      * Local reference, mServer connect with other ember servers and monitor.
@@ -48,8 +49,6 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     private DataClient mClient;
-    private int serverId;
-    private Map<Integer, EmberServerNode> serversMap;
 
     /**
      * Client channel, use to push replica info to clients.
@@ -88,6 +87,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     public void init() {
+        initConfig();
+
         this.replicasIdMap = new ConcurrentHashMap<String, Vector<Integer>>();
         this.dataClientMap = new ConcurrentHashMap<Integer, DataClient>();
         this.serverInfoList = new LinkedList<Map.Entry<Integer, Double>>();
@@ -98,6 +99,14 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.retireThread = Executors.newSingleThreadExecutor();
     }
 
+    public void initConfig() {
+        this.serverId = ConfigManager.id;
+        this.serversMap = ConfigManager.serversMap;
+        this.replicaMode = (Integer) ConfigManager.propertiesMap.get(ConfigManager.REPLICA_MODE);
+        this.updateStatusTime = (Integer) ConfigManager.propertiesMap.get(ConfigManager.UPDATE_STATUS_TIME);
+        this.bufferSize = (Integer) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_BUFFER_SIZE);
+    }
+
     public void setClientChannelMap(ConcurrentHashMap<Integer, Channel> clientChannelMap) {
         this.clientChannelMap = clientChannelMap;
     }
@@ -106,18 +115,14 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.mServer = server;
         this.replicasIdMap = replicasIdMap;
         this.dataClientMap = server.getDataClientMap();
-        this.mClient = dataClientMap.get(ConfigManager.id);
-
-        this.replicaMode = (Integer) ConfigManager.propertiesMap.get(ConfigManager.REPLICA_MODE);
-        this.serverId = ConfigManager.id;
-        this.serversMap = ConfigManager.serversMap;
+        this.mClient = dataClientMap.get(serverId);
     }
 
     public void run() {
         try {
             while (true) {
                 updateServersInfo();
-                Thread.sleep(UPDATE_STATUS_TIME);
+                Thread.sleep(updateStatusTime);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -153,13 +158,13 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     /**
      * Deal a single hot spot, the hot spot will not be dealt at once, and the hot spot will
-     * be inset to a buffer. If the buffer size reaches the predefined BUFFER_SIZE, @method dealHotData()
+     * be inset to a buffer. If the buffer size reaches the predefined bufferSize, @method dealHotData()
      * will be invoked.
      * @param key
      */
     public void dealHotData(String key) {
         bufferHotSpots.add(key);
-        if (bufferHotSpots.size() > BUFFER_SIZE) {
+        if (bufferHotSpots.size() > bufferSize) {
             dealHotData();
         }
     }
@@ -172,8 +177,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
             handledPercentage = 1;
             return;
         }
-        int id = (int) (Math.random() * BUFFER_SIZE);
-        Log.log.info(id + " [new hot spots number]: " + hotSpots.size());
+        int id = (int) (Math.random() * bufferSize);
+        Log.log.info(id + ": new hot spots number = " + hotSpots.size());
 
         Set<String> handledHotSpots = new HashSet<String>();
         Map<String, Integer> hotItems = new HashMap<String, Integer>();
@@ -205,9 +210,9 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         }
         handledPercentage = (double) handledHotSpots.size() / hotSpots.size();
 
-        Log.log.info(id + " [hot spots]: [handled number]: " + handledHotSpots.size() +
-                " [handled percentage]: " + handledPercentage +
-                "  |  [current distribution]: " + hotSpotsList.toString());
+        Log.log.info(id + " [hot spots]: handled number = " + handledHotSpots.size() +
+                ", handled percentage =  " + handledPercentage +
+                " | current distribution = " + hotSpotsList.toString());
         infoAllClient(hotItems);
     }
 
@@ -219,7 +224,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
             candidates = new HashSet<String>(LocalSpots.candidateColdSpots.keySet());
         }
         if (candidates != null && candidates.size() > 0) {
-            Log.log.info("++++++++ [cold spots number]: " + candidates.size());
+            Log.log.info("[cold spots] number = " + candidates.size());
             final int hotSpotNumber = LocalSpots.hotSpotNumber.get();
             final HashSet<String> finalCandidates = candidates;
             retireThread.execute(new Runnable() {
@@ -233,8 +238,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     public void dealColdData(HashSet<String> coldSpots, int hotSpotNumber) {
-        int id = (int) (Math.random() * BUFFER_SIZE);
-        Log.log.info(id + " ******** [start deal cold spots]: " + coldSpots.size());
+        int id = (int) (Math.random() * bufferSize);
+        Log.log.info(id + " [cold spots] start deal cold spots = " + coldSpots.size());
         Map<String, Integer> coldItems = new HashMap<String, Integer>();
 
         for (String key : coldSpots) {
@@ -252,9 +257,9 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
                 }
             }
         }
-        Log.log.info(id + " -------- [new cold spots]: " + coldSpots.size() + " / " + replicasIdMap.size() +
-                " [cold spots / hot spots]: " + (double) coldSpots.size() / hotSpotNumber +
-                "  |  [current distribution]: " + hotSpotsList.toString());
+        Log.log.info(id + " [cold spots] new cold spots = " + coldSpots.size() + "/" + replicasIdMap.size() +
+                ", cold spots/hot spots = " + (double) coldSpots.size() / hotSpotNumber +
+                " | current distribution = " + hotSpotsList.toString());
         infoAllClient(coldItems);
     }
 

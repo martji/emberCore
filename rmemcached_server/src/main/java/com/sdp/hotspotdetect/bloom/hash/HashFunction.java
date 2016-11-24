@@ -27,7 +27,7 @@ public class HashFunction {
     }
 
     public void initConfig() {
-    	HASH_FUNCTION_NUMBER = (Integer) ConfigManager.propertiesMap.get(ConfigManager.MULTI_BLOOM_FILTER_NUMBER);
+    	HASH_FUNCTION_NUMBER = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_NUMBER);
         BLOOM_FILTER_LENGTH = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_LENGTH);
     }
 

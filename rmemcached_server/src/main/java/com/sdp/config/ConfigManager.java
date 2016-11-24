@@ -37,18 +37,22 @@ public class ConfigManager {
             int replica_protocol = Integer.decode(properties.getProperty(REPLICA_PROTOCOL, "0"));
             String monitor_address = properties.getProperty(MONITOR_ADDRESS, "127.0.0.1").toString();
 
-            int hot_spot_detector_mode = Integer.decode(properties.getProperty(HOT_SPOT_DETECTOR_MODE, "0"));
+            int data_client_mode = Integer.decode(properties.getProperty(DATA_CLIENT_MODE, "0"));
+
             int replica_mode = Integer.decode(properties.getProperty(REPLICA_MODE, "0"));
+            int update_status_time = Integer.decode(properties.getProperty(UPDATE_STATUS_TIME, "5")) * 1000;
+            int hot_spot_buffer_size = Integer.decode(properties.getProperty(HOT_SPOT_BUFFER_SIZE, "1000"));
 
+            int hot_spot_manager_mode = Integer.decode(properties.getProperty(HOT_SPOT_MANAGER_MODE, "0"));
             int slice_time = Integer.decode(properties.getProperty(SLICE_TIME, "15")) * 1000;
-
-            int multi_bloom_filter_number = Integer.decode(properties.getProperty(MULTI_BLOOM_FILTER_NUMBER, "4"));
-            int bloom_filter_length = Integer.decode(properties.getProperty(BLOOM_FILTER_LENGTH, "100"));
-            double frequent_percent = Double.parseDouble(properties.getProperty(FREQUENT_PERCENT, "0.8"));
 
             int hot_spot_threshold = Integer.decode(properties.getProperty(HOT_SPOT_THRESHOLD, "100"));
             double hot_spot_percentage = Double.parseDouble(properties.getProperty(HOT_SPOT_PERCENTAGE, "0.0001"));
             double hot_spot_influence = Double.parseDouble(properties.getProperty(HOT_SPOT_INFLUENCE, "0.1"));
+
+            int bloom_filter_number = Integer.decode(properties.getProperty(BLOOM_FILTER_NUMBER, "4"));
+            int bloom_filter_length = Integer.decode(properties.getProperty(BLOOM_FILTER_LENGTH, "100"));
+            double frequent_percentage = Double.parseDouble(properties.getProperty(FREQUENT_PERCENTAGE, "0.8"));
 
             int frequent_item_number = Integer.decode(properties.getProperty(FREQUENT_ITEM_NUMBER, "10"));
             int counter_number = Integer.decode(properties.getProperty(COUNTER_NUMBER, "10"));
@@ -60,18 +64,22 @@ public class ConfigManager {
             propertiesMap.put(REPLICA_PROTOCOL, replica_protocol);
             propertiesMap.put(MONITOR_ADDRESS, monitor_address);
 
-            propertiesMap.put(HOT_SPOT_DETECTOR_MODE, hot_spot_detector_mode);
-            propertiesMap.put(REPLICA_MODE, replica_mode);
+            propertiesMap.put(DATA_CLIENT_MODE, data_client_mode);
 
+            propertiesMap.put(REPLICA_MODE, replica_mode);
+            propertiesMap.put(UPDATE_STATUS_TIME, update_status_time);
+            propertiesMap.put(HOT_SPOT_BUFFER_SIZE, hot_spot_buffer_size);
+
+            propertiesMap.put(HOT_SPOT_MANAGER_MODE, hot_spot_manager_mode);
             propertiesMap.put(SLICE_TIME, slice_time);
-            
-            propertiesMap.put(MULTI_BLOOM_FILTER_NUMBER, multi_bloom_filter_number);
-            propertiesMap.put(BLOOM_FILTER_LENGTH, bloom_filter_length);
-            propertiesMap.put(FREQUENT_PERCENT, frequent_percent);
 
             propertiesMap.put(HOT_SPOT_THRESHOLD, hot_spot_threshold);
             propertiesMap.put(HOT_SPOT_PERCENTAGE, hot_spot_percentage);
             propertiesMap.put(HOT_SPOT_INFLUENCE, hot_spot_influence);
+
+            propertiesMap.put(BLOOM_FILTER_NUMBER, bloom_filter_number);
+            propertiesMap.put(BLOOM_FILTER_LENGTH, bloom_filter_length);
+            propertiesMap.put(FREQUENT_PERCENTAGE, frequent_percentage);
 
             propertiesMap.put(FREQUENT_ITEM_NUMBER, frequent_item_number);
             propertiesMap.put(TOP_ITEM_NUMBER, frequent_item_number);
@@ -112,18 +120,24 @@ public class ConfigManager {
     public static final String REPLICA_PROTOCOL = "replica_protocol";
     public static final String MONITOR_ADDRESS = "monitor_address";
 
-    public static final String HOT_SPOT_DETECTOR_MODE = "hot_spot_detector_mode";
+    public static final String DATA_CLIENT_MODE = "data_client_mode";
+
     public static final String REPLICA_MODE = "replica_mode";
+    public static final String UPDATE_STATUS_TIME = "update_status_time";
+    public static final String HOT_SPOT_BUFFER_SIZE = "hot_spot_buffer_size";
 
+    public static final String HOT_SPOT_MANAGER_MODE = "hot_spot_manager_mode";
     public static final String SLICE_TIME = "slice_time";
-
-    public static final String MULTI_BLOOM_FILTER_NUMBER = "multi_bloom_filter_number";
-    public static final String BLOOM_FILTER_LENGTH = "bloom_filter_length";
-    public static final String FREQUENT_PERCENT = "frequent_percent";
 
     public static final String HOT_SPOT_THRESHOLD = "hot_spot_threshold";
     public static final String HOT_SPOT_PERCENTAGE = "hot_spot_percentage";
     public static final String HOT_SPOT_INFLUENCE = "hot_spot_influence";
+
+    public static final String BLOOM_FILTER_NUMBER = "bloom_filter_number";
+    public static final String BLOOM_FILTER_LENGTH = "bloom_filter_length";
+    public static final String FREQUENT_PERCENTAGE = "frequent_percentage";
+
+//    TODO
 
     public static final String FREQUENT_ITEM_NUMBER = "frequent_item_number";
     public static final String TOP_ITEM_NUMBER = "top_item_number";
@@ -131,6 +145,4 @@ public class ConfigManager {
     public static final String ERROR_RATE = "error_rate";
     public static final String THRESHOLD = "threshold";
     public static final String INTERVAL = "interval";
-
-    public static final int DATA_STREAM_MODE = 1;
 }

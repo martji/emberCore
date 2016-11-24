@@ -1,5 +1,6 @@
 package com.sdp.server.dataclient;
 
+import com.sdp.config.ConfigManager;
 import com.sdp.server.DataClient;
 
 /**
@@ -16,7 +17,8 @@ public class DataClientFactory {
     private static final int REDIS_MODE = 1;
 
     public static DataClient createDataClient(int id) {
-        return createDataClient(MC_MODE, id);
+        int type = (Integer) ConfigManager.propertiesMap.get(ConfigManager.DATA_CLIENT_MODE);
+        return createDataClient(type, id);
     }
 
     public static DataClient createDataClient(int clientType, int id) {

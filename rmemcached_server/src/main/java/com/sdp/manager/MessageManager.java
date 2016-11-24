@@ -8,7 +8,7 @@ package com.sdp.manager;
  * There are three different managers to handle different messages: hotSpotManager,
  * replicaManager and consistencyManager.
  *
- * The hotSpotManager{@link com.sdp.manager.hotspotmanager.StreamHotSpotManager} deals with the sampling messages and
+ * The hotSpotManager{@link com.sdp.manager.hotspotmanager.BaseHotSpotManager} deals with the sampling messages and
  * detects the hot spots by analyzing the request stream. The hot spots found by hotSpotManager
  * will dealt by the replicaManager.
  *
@@ -86,8 +86,8 @@ public class MessageManager implements MessageManagerInterface{
      * Call this method to start hot spot detection.
      */
     public void startHotSpotDetection() {
-        new Thread(replicaManager).start();
         new Thread(hotSpotManager).start();
+        new Thread(replicaManager).start();
     }
 
     public void handleMessage(MessageEvent messageEvent) {

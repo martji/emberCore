@@ -41,7 +41,7 @@ public class MultiBloomCounterDetectorImp implements FrequentDetectorInterface {
 	}
 
 	public void initConfig() {
-		bloomFilterNumber = (Integer) ConfigManager.propertiesMap.get(ConfigManager.MULTI_BLOOM_FILTER_NUMBER);
+		bloomFilterNumber = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_NUMBER);
 		bloomFilterLength = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_LENGTH);
 		frequentThreshold = (Integer) ConfigManager.propertiesMap.get(ConfigManager.THRESHOLD);
 		INTERVAL = (Integer) ConfigManager.propertiesMap.get(ConfigManager.INTERVAL);

@@ -51,9 +51,9 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
     }
 
     public void initConfig() {
-        bloomFilterNumber = (Integer) ConfigManager.propertiesMap.get(ConfigManager.MULTI_BLOOM_FILTER_NUMBER);
+        bloomFilterNumber = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_NUMBER);
         bloomFilterLength = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_LENGTH);
-        frequentPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.FREQUENT_PERCENT);
+        frequentPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.FREQUENT_PERCENTAGE);
 
         Log.log.info("[Multi-Bloom] bloomFilterNumber = " + bloomFilterNumber
                 + ", bloomFilterLength = " + bloomFilterLength

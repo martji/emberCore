@@ -16,13 +16,14 @@ import java.util.concurrent.Executors;
 /**
  * Created by magq on 16/1/18.
  * Detect the hot spots in requests stream, two managers have been implemented:
- * {@link CounterHotSpotManager} and {@link StreamHotSpotManager}.
+ * {@link CounterHotSpotManager} and {@link StreamHotSpotManager} and {@link TopKHotSpotManager} and
+ * {@link MultiBloomHotSpotManager} and {@link CounterBloomHotSpotManager} and {@link FrequentHotSpotManager}.
  *
  * The core processes are implement in the single thread: resetCounter -> sleep -> write2file -> dealData.
  */
 public abstract class BaseHotSpotManager implements Runnable {
 
-    private static int SLICE_TIME;
+    private int SLICE_TIME;
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
     private String hotSpotPath = String.format(System.getProperty("user.dir") +
@@ -39,11 +40,8 @@ public abstract class BaseHotSpotManager implements Runnable {
         while (true) {
             try {
                 resetCounter();
-
                 Thread.sleep(SLICE_TIME);
-
                 recordHotSpot();
-
                 dealData();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -114,11 +112,11 @@ public abstract class BaseHotSpotManager implements Runnable {
                 }
                 BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                bw.write(df.format(new Date()) + " [Current frequent items]:\n");
+                bw.write(df.format(new Date()) + " Current frequent items:\n");
                 for (HotSpotItem item : hotSpotItemList) {
-                    bw.write(item.getKey() + " = " + item.getCount() + "\n");
+                    bw.write(item.getKey() + "\t" + item.getCount() + "\n");
                 }
-                bw.write("\n\n\n");
+                bw.write("\n");
                 bw.close();
             } catch (Exception e) {
                 e.printStackTrace();
