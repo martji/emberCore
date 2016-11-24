@@ -2,6 +2,7 @@ package com.sdp.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentMap;
@@ -12,6 +13,9 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.sdp.common.EMSGID;
 import com.sdp.messageBody.CtsMsg.nr_connected_mem;
 import com.sdp.messageBody.CtsMsg.nr_read_res;
@@ -83,7 +87,15 @@ public class RMemcachedClientImplHandler extends SimpleChannelUpstreamHandler {
 			nr_replicas_res msgBody = msg.getMessageLite();
 			String key = msgBody.getKey();
 			String value = msgBody.getValue();
-			updateKeyReplicaMap(key, value);
+			if (key.length() != 0) {
+				System.out.println("[Netty] replication update: " + key + ", " + value);
+				updateKeyReplicaMap(key, value);
+			} else {
+				Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+				Map<String, Integer> replicasMap = gson.fromJson(value, 
+						new TypeToken<Map<String, Integer>>() {}.getType());
+				updateKeyReplicaMap(replicasMap);
+			}
 		}
 			break;
 		case nr_read_res: {
@@ -130,7 +142,29 @@ public class RMemcachedClientImplHandler extends SimpleChannelUpstreamHandler {
 	private void updateKeyReplicaMap(String key, String value) {
 		if (value != null && value.length() > 0) {
 			int replicaId = Integer.parseInt(value);
-			keyReplicaMap.put(key, decodeReplicasInfo(replicaId));
+			Vector<Integer> result = decodeReplicasInfo(replicaId);
+			if (result != null) {
+				if (keyReplicaMap.containsKey(key) && result.size() == 1) {
+					keyReplicaMap.remove(key);
+					return;
+				}
+				keyReplicaMap.put(key, result);
+			}
+		}
+	}
+	
+	private void updateKeyReplicaMap(Map<String, Integer> replicasMap) {
+		Set<String> keySet = replicasMap.keySet();
+		for (String key : keySet) {
+			int replicaId = replicasMap.get(key);
+			Vector<Integer> result = decodeReplicasInfo(replicaId);
+			if (result != null) {
+				if (keyReplicaMap.containsKey(key) && result.size() == 1) {
+					keyReplicaMap.remove(key);
+					return;
+				}
+				keyReplicaMap.put(key, result);
+			}
 		}
 	}
 

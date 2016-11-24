@@ -1,8 +1,0 @@
-[INFO ] 2015-02-04 17:09:44,295 method:com.sdp.example.MClientMain.start(MClientMain.java:44)
-logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
-[INFO ] 2015-02-04 18:46:37,079 method:com.sdp.example.MClientMain.start(MClientMain.java:44)
-logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
-[INFO ] 2015-02-04 20:01:13,176 method:com.sdp.example.MClientMain.start(MClientMain.java:44)
-logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
-[INFO ] 2015-02-04 20:02:25,402 method:com.sdp.example.MClientMain.start(MClientMain.java:44)
-logPath: E:\JavaEE\rmemcached_client/config/log4j.properties
