@@ -7,7 +7,7 @@ import com.sdp.common.EMSGID;
 import com.sdp.config.ConfigManager;
 import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
-import com.sdp.messagebody.CtsMsg;
+import com.sdp.message.CtsMsg;
 import com.sdp.netty.NetMsg;
 import com.sdp.replicas.LocalSpots;
 import com.sdp.server.DataClient;

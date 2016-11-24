@@ -3,24 +3,24 @@ package com.sdp.common;
 import java.lang.reflect.InvocationTargetException;
 
 import com.google.protobuf.GeneratedMessage;
-import com.sdp.messagebody.CtsMsg.nr_apply_replica;
-import com.sdp.messagebody.CtsMsg.nr_apply_replica_res;
-import com.sdp.messagebody.CtsMsg.nr_connected_mem;
-import com.sdp.messagebody.CtsMsg.nr_connected_mem_back;
-import com.sdp.messagebody.CtsMsg.nr_cpuStats;
-import com.sdp.messagebody.CtsMsg.nr_cpuStats_res;
-import com.sdp.messagebody.CtsMsg.nr_read;
-import com.sdp.messagebody.CtsMsg.nr_read_res;
-import com.sdp.messagebody.CtsMsg.nr_register;
-import com.sdp.messagebody.CtsMsg.nr_replicas_res;
-import com.sdp.messagebody.CtsMsg.nr_write;
-import com.sdp.messagebody.StsMsg.nm_connected;
-import com.sdp.messagebody.StsMsg.nm_connected_mem_back;
-import com.sdp.messagebody.StsMsg.nm_read;
-import com.sdp.messagebody.StsMsg.nm_read_recovery;
-import com.sdp.messagebody.StsMsg.nm_write_1;
-import com.sdp.messagebody.StsMsg.nm_write_1_res;
-import com.sdp.messagebody.StsMsg.nm_write_2;
+import com.sdp.message.CtsMsg.nr_apply_replica;
+import com.sdp.message.CtsMsg.nr_apply_replica_res;
+import com.sdp.message.CtsMsg.nr_connected_mem;
+import com.sdp.message.CtsMsg.nr_connected_mem_back;
+import com.sdp.message.CtsMsg.nr_cpuStats;
+import com.sdp.message.CtsMsg.nr_cpuStats_res;
+import com.sdp.message.CtsMsg.nr_read;
+import com.sdp.message.CtsMsg.nr_read_res;
+import com.sdp.message.CtsMsg.nr_register;
+import com.sdp.message.CtsMsg.nr_replicas_res;
+import com.sdp.message.CtsMsg.nr_write;
+import com.sdp.message.StsMsg.nm_connected;
+import com.sdp.message.StsMsg.nm_connected_mem_back;
+import com.sdp.message.StsMsg.nm_read;
+import com.sdp.message.StsMsg.nm_read_recovery;
+import com.sdp.message.StsMsg.nm_write_1;
+import com.sdp.message.StsMsg.nm_write_1_res;
+import com.sdp.message.StsMsg.nm_write_2;
 
 /**
  * 

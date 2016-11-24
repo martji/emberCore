@@ -2,8 +2,8 @@ package com.sdp.manager;
 
 import com.sdp.common.EMSGID;
 import com.sdp.config.ConfigManager;
-import com.sdp.messagebody.CtsMsg.nr_write;
-import com.sdp.messagebody.CtsMsg.nr_write_res;
+import com.sdp.message.CtsMsg.nr_write;
+import com.sdp.message.CtsMsg.nr_write_res;
 import com.sdp.netty.NetMsg;
 import com.sdp.replicas.MCThread;
 import com.sdp.server.DataClient;

@@ -2,11 +2,11 @@ package com.sdp.client;
 
 import com.sdp.common.EMSGID;
 import com.sdp.log.Log;
-import com.sdp.messagebody.CtsMsg.nr_apply_replica_res;
-import com.sdp.messagebody.CtsMsg.nr_cpuStats_res;
-import com.sdp.messagebody.StsMsg.nm_connected;
-import com.sdp.messagebody.StsMsg.nm_read;
-import com.sdp.messagebody.StsMsg.nm_read_recovery;
+import com.sdp.message.CtsMsg.nr_apply_replica_res;
+import com.sdp.message.CtsMsg.nr_cpuStats_res;
+import com.sdp.message.StsMsg.nm_connected;
+import com.sdp.message.StsMsg.nm_read;
+import com.sdp.message.StsMsg.nm_read_recovery;
 import com.sdp.monitor.LocalMonitor;
 import com.sdp.netty.NetMsg;
 import com.sdp.operation.BaseOperation;
