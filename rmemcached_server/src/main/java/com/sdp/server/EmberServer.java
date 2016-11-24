@@ -164,7 +164,7 @@ public class EmberServer {
 		rBootstrap.setOption("reuseAddress", true);
 		rBootstrap.bind(new InetSocketAddress(rPort));
 
-		Log.log.info("[Netty] server start.");
+		Log.log.info("[Netty] server start");
 	}
 
 	public String getAReplica() {

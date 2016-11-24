@@ -1,17 +1,7 @@
 package com.sdp.client;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-
 import com.sdp.common.EMSGID;
+import com.sdp.log.Log;
 import com.sdp.messagebody.CtsMsg.nr_apply_replica_res;
 import com.sdp.messagebody.CtsMsg.nr_cpuStats_res;
 import com.sdp.messagebody.StsMsg.nm_connected;
@@ -20,6 +10,10 @@ import com.sdp.messagebody.StsMsg.nm_read_recovery;
 import com.sdp.monitor.LocalMonitor;
 import com.sdp.netty.NetMsg;
 import com.sdp.operation.BaseOperation;
+import org.jboss.netty.channel.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -63,11 +57,10 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
 	}
 
 	private void handle(MessageEvent e) throws InterruptedException {
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		NetMsg msg = (NetMsg) e.getMessage();
 		switch (msg.getMsgID()) {
 		case nm_connected_mem_back: {
-			System.out.println(df.format(new Date()) + ": [Netty] Connect to monitor successed.");
+			Log.log.info("[Netty] Connect to monitor succeed");
 		}
 			break;
 		case nr_stats: {
@@ -94,14 +87,14 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
 			nm_read msgLite = msg.getMessageLite();
 			String key = msgLite.getKey();
 			String value = msgLite.getValue();
-			handleNmreadOp(key, value);
+			handleNmReadOp(key, value);
 		}
 			break;
 		case nm_read_recovery: {
 			nm_read_recovery msgLite = msg.getMessageLite();
 			String id = msgLite.getKey();
 			String value = msgLite.getValue();
-			handleNmrecvOp(id, value);
+			handleNmRecOp(id, value);
 		}
 			break;
 		default:
@@ -118,7 +111,7 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
 		}
 	}
 	
-	private void handleNmrecvOp(String key, String value) {
+	private void handleNmRecOp(String key, String value) {
 		if (opMap.containsKey(key)) {
 			@SuppressWarnings("unchecked")
 			BaseOperation<Boolean> op = (BaseOperation<Boolean>) opMap.get(key);
@@ -131,7 +124,7 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
 		}
 	}
 	
-	private void handleNmreadOp(String key, String value) {
+	private void handleNmReadOp(String key, String value) {
 		if (opMap.containsKey(key)) {
 			@SuppressWarnings("unchecked")
 			BaseOperation<String> op = (BaseOperation<String>) opMap.get(key);

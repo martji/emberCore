@@ -136,7 +136,7 @@ public class EmberClient {
 		msg.setMessageLite(builder);
 		msg.setMsgID(EMSGID.nr_apply_replica);
 		if (mChannel == null) {
-			Log.log.error("do not connect to monitor");
+			Log.log.error("[Netty] do not connect to monitor");
 			return null;
 		}
 		mChannel.write(msg);

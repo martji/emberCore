@@ -71,7 +71,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * a list of hot spots need replica.
      */
     private List<Map.Entry<Integer, Double>> serverInfoList;
-    private ConcurrentHashMap<Integer, Integer> hotSpotsList;
+    private ConcurrentHashMap<Integer, Integer> replicasDistribute;
     private ConcurrentLinkedQueue<String> bufferHotSpots;
 
     /**
@@ -92,8 +92,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.replicasIdMap = new ConcurrentHashMap<String, Vector<Integer>>();
         this.dataClientMap = new ConcurrentHashMap<Integer, DataClient>();
         this.serverInfoList = new LinkedList<Map.Entry<Integer, Double>>();
-        this.hotSpotsList = new ConcurrentHashMap<Integer, Integer>();
-        hotSpotsList.put(1, 0);
+        this.replicasDistribute = new ConcurrentHashMap<Integer, Integer>();
+        replicasDistribute.put(1, 0);
         this.bufferHotSpots = new ConcurrentLinkedQueue<String>();
         this.threadPool = Executors.newCachedThreadPool();
         this.retireThread = Executors.newSingleThreadExecutor();
@@ -178,7 +178,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
             return;
         }
         int id = (int) (Math.random() * bufferSize);
-        Log.log.info(id + ": new hot spots number = " + hotSpots.size());
+        Log.log.info(id + " [hot spot] new hot spots number = " + hotSpots.size());
 
         Set<String> handledHotSpots = new HashSet<String>();
         Map<String, Integer> hotItems = new HashMap<String, Integer>();
@@ -195,24 +195,22 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
                         vector.add(serverId);
                         vector.add(replicaId);
                         replicasIdMap.put(key, vector);
-                    } else {
-                        if (!replicasIdMap.get(key).contains(replicaId)) {
-                            replicasIdMap.get(key).add(replicaId);
-                            vector = replicasIdMap.get(key);
-                        }
+                    } else if (!replicasIdMap.get(key).contains(replicaId)) {
+                        replicasIdMap.get(key).add(replicaId);
+                        vector = replicasIdMap.get(key);
                     }
                     hotItems.put(key, encodeReplicasInfo(vector));
 
-                    int localCount = vector.size() - 1;
-                    updateReplicaDistribute(localCount);
+                    int replicasNum = vector.size() - 1;
+                    updateReplicaDistribute(replicasNum);
                 }
             }
         }
         handledPercentage = (double) handledHotSpots.size() / hotSpots.size();
 
-        Log.log.info(id + " [hot spots]: handled number = " + handledHotSpots.size() +
+        Log.log.info(id + " [hot spots] handled number = " + handledHotSpots.size() +
                 ", handled percentage =  " + handledPercentage +
-                " | current distribution = " + hotSpotsList.toString());
+                " | current distribution = " + replicasDistribute.toString());
         infoAllClient(hotItems);
     }
 
@@ -245,12 +243,12 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         for (String key : coldSpots) {
             if (replicasIdMap.containsKey(key)) {
                 int localCount = replicasIdMap.get(key).size() - 1;
-                hotSpotsList.put(localCount, hotSpotsList.get(localCount) - 1);
+                replicasDistribute.put(localCount, replicasDistribute.get(localCount) - 1);
                 if (localCount - 1 >= 1) {
-                    hotSpotsList.put(localCount - 1, hotSpotsList.get(localCount - 1) + 1);
+                    replicasDistribute.put(localCount - 1, replicasDistribute.get(localCount - 1) + 1);
                 }
-                int replicaId = replicasIdMap.get(key).size() - 1;
-                replicasIdMap.get(key).remove(replicaId);
+                int replicaIdIndex = replicasIdMap.get(key).size() - 1;
+                replicasIdMap.get(key).remove(replicaIdIndex);
                 coldItems.put(key, encodeReplicasInfo(replicasIdMap.get(key)));
                 if (replicasIdMap.get(key).size() == 1) {
                     replicasIdMap.remove(key);
@@ -259,7 +257,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         }
         Log.log.info(id + " [cold spots] new cold spots = " + coldSpots.size() + "/" + replicasIdMap.size() +
                 ", cold spots/hot spots = " + (double) coldSpots.size() / hotSpotNumber +
-                " | current distribution = " + hotSpotsList.toString());
+                " | current distribution = " + replicasDistribute.toString());
         infoAllClient(coldItems);
     }
 
@@ -300,17 +298,17 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     /**
      * Update replicas distribution.
-     * @param localCount
+     * @param replicasNum
      */
-    private void updateReplicaDistribute(int localCount) {
-        if (localCount <= 1) {
-            hotSpotsList.put(1, hotSpotsList.get(1) + 1);
-        } else if (hotSpotsList.containsKey(localCount - 1)) {
-            hotSpotsList.put(localCount - 1, hotSpotsList.get(localCount - 1) - 1);
-            if (!hotSpotsList.containsKey(localCount)) {
-                hotSpotsList.put(localCount, 0);
+    private void updateReplicaDistribute(int replicasNum) {
+        if (replicasNum <= 1) {
+            replicasDistribute.put(1, replicasDistribute.get(1) + 1);
+        } else if (replicasDistribute.containsKey(replicasNum - 1)) {
+            replicasDistribute.put(replicasNum - 1, replicasDistribute.get(replicasNum - 1) - 1);
+            if (!replicasDistribute.containsKey(replicasNum)) {
+                replicasDistribute.put(replicasNum, 0);
             }
-            hotSpotsList.put(localCount, hotSpotsList.get(localCount) + 1);
+            replicasDistribute.put(replicasNum, replicasDistribute.get(replicasNum) + 1);
         }
     }
 
@@ -347,7 +345,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         if (replicaMode == EMBER_MODE) {
             return getReplicaIdStrict(list, key);
         } else {
-            return getReplicaIdRandomly(list, key);
+            return getReplicaIdRandom(list, key);
         }
     }
 
@@ -383,7 +381,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         return replicaId;
     }
 
-    public int getReplicaIdRandomly(List<Map.Entry<Integer, Double>> list, String key) {
+    public int getReplicaIdRandom(List<Map.Entry<Integer, Double>> list, String key) {
         int replicaId = -1;
         HashSet<Integer> currentReplicas = new HashSet<Integer>();
         if (replicasIdMap.containsKey(key)) {
@@ -427,7 +425,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
         String value = mClient.get(key);
         if (value == null || value.length() == 0) {
-            System.out.println("[ERROR] no value fo this key: " + key);
+            Log.log.error("[ERROR] no value fo this key: " + key);
             return false;
         }
         return replicaClient.set(key, value);
