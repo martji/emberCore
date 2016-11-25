@@ -100,17 +100,20 @@ public class DBClient implements DataClient {
      * @return location of the request key
      */
     public int getDataLocation(String key) {
-        int clientNum = clientIdList.size();
-        if (clientNum == 1) {
-            return 0;
-        } else {
-            if (dataHashMode == SLICE_HASH_MODE) {
-                getSliceMem(key, clientNum);
-            } else if (dataHashMode == INDEX_HASH_MODE) {
-                getIndexMem(key, clientNum);
+        try {
+            int clientNum = clientIdList.size();
+            if (clientNum == 1) {
+                return clientIdList.get(0);
+            } else {
+                if (dataHashMode == SLICE_HASH_MODE) {
+                    getSliceMem(key, clientNum);
+                } else if (dataHashMode == INDEX_HASH_MODE) {
+                    getIndexMem(key, clientNum);
+                }
+                return getRandomMem(key, clientNum);
             }
-            return getRandomMem(key, clientNum);
-        }
+        } catch (Exception e) {}
+        return clientIdList.get(0);
     }
 
     public int getSliceMem(String key, int clientNum) {
