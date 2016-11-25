@@ -26,7 +26,13 @@ public class MultiBloomHotSpotManager extends BaseHotSpotManager implements Deal
 	}
 	@Override
 	public void handleRegister(String key) {
-		if (frequentDetector != null) {
+		if(frequentDetector != null){
+            if ((frequentDetector.registerItem(key, 0)) && (!currentHotSpotSet.contains(key))) {
+                currentHotSpotSet.add(key);
+                dealHotData(key);
+            }
+        }
+		/*if (frequentDetector != null) {
 			if (currentHotSpotSet.contains(key)) {
 				frequentDetector.registerItem(key, 0);
 			} else {
@@ -36,7 +42,7 @@ public class MultiBloomHotSpotManager extends BaseHotSpotManager implements Deal
 					dealHotData(key);
 				}
 			}
-		}
+		}*/
 	}
 
     @Override

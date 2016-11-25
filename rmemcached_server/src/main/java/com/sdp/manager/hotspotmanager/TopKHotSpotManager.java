@@ -10,6 +10,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+/**
+ *
+ */
+
 public class TopKHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
 
 	private TopKFrequentDetectorImp frequentDetector;

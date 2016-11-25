@@ -17,6 +17,17 @@ public class MultiBloomCounterDetectorImp implements FrequentDetectorInterface {
 	/**
 	 * The number of bloom filters and the length of single bloom filter.
 	 */
+	/**
+	 * 多重布隆过滤器
+	 1.	采用V个独立的布隆计数器
+	 2.	进行一次数据访问时，用K个哈希函数算出K个哈希值，并将选中的布隆计数器的相应位全设为1，当下一次访问时，通过轮叫调度选择一个布隆计数器记录。
+	 3.	更新操作：为了保证实时性，需要定期地选择布隆计数器进行擦除。
+	 4.	判断操作：需要寻找一共有几个布隆计数器记录了相应的值来反应其频数。
+	 5.	为了能够实现精确的频率统计，当选择记录数据信息的布隆计数器时，如果该计数器已经记录了相同的值，则寻找下一个与要记录的值不同的布隆计数器。
+     frequentThreshold:频数阈值
+     INTERVAL:当到来INTERVAL个数据，调度擦除一个布隆计数器
+
+	 */
 	private int bloomFilterNumber = 1;
 	private int bloomFilterLength = 10;
 	private int frequentThreshold = 50;
@@ -59,8 +70,15 @@ public class MultiBloomCounterDetectorImp implements FrequentDetectorInterface {
 			interval = 0;
 			bloomReset();
 		}
-		
-		if(preSum == 0) {
+        setBloom(key);
+        int bloomNumber = findBloomNumber(key);
+        if(bloomNumber >= frequentThreshold || bloomNumber == bloomFilterNumber) {
+            return true;
+        }
+        else{
+            return false;
+        }
+		/*if(preSum == 0) {
 			setBloom(key);
 			return true;
 		} else {
@@ -70,9 +88,14 @@ public class MultiBloomCounterDetectorImp implements FrequentDetectorInterface {
 				return true;
 			}
 			return false;
-		}
+		}*/
 	}
 
+    /**
+     * 寻找一个合适的布隆计数器记录新到来的key
+     * @param key
+     * @return
+     */
 	public boolean setBloom(String key) {
 		int[] indexArray = hashFunction.getHashIndex(key);
 
@@ -102,6 +125,11 @@ public class MultiBloomCounterDetectorImp implements FrequentDetectorInterface {
 		return false;
 	}
 
+    /**
+     * 找有多少个布隆计数器记录了该key
+     * @param key
+     * @return
+     */
 	public int findBloomNumber(String key) {
 		int number = 0;
 		int[] indexArray = hashFunction.getHashIndex(key);
@@ -118,7 +146,13 @@ public class MultiBloomCounterDetectorImp implements FrequentDetectorInterface {
 		return number;
 	}
 
+    /**
+     * 擦除布隆计数器信息
+     */
 	public void bloomReset() {
+        if(bloomDecay == bloomFilterNumber){
+            bloomDecay = 0;
+        }
 		for(int i = 0; i < bloomFilterLength; i++) {
 			bloomCounterList.get(bloomDecay)[i] = 0;
 		}

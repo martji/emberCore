@@ -36,6 +36,15 @@ public class TopKFrequentDetectorImp implements FrequentDetectorInterface {
                 + ", hotSpotInfluence = " + hotSpotInfluence);
 	}
 
+	/**
+	 * 这个和TopKDetectorImp的区别是：那篇论文里面有两种判定热点数据的方法。
+     TopKFrequentDetectorImp是根据频率来判断的，TopKDetectorImp是选前K’个数据.
+     这个java文件根据频率来判断热点数据，算法伪代码的图在整理文件里。这里和他的原算法有一点不一样，我是用(CounterMap.get(key) - preValue.get(key) >= hotSpotPercentage * itemSum)这个判断，原算法是CounterMap.get(key) >= hotSpotPercentage * itemSum
+	 原算法没有对itemSum的更新，所以我也没有更新。
+     * @param key
+	 * @param preSum
+	 * @return
+	 */
 	public boolean registerItem(String key, int preSum) {
 		itemSum++;
 		boolean result = false;
@@ -68,7 +77,11 @@ public class TopKFrequentDetectorImp implements FrequentDetectorInterface {
 		return result;
 	}
 
-	public String updateFrequentCounter() {
+    /**
+     * 这个函数是更新热点频率的，原来的算法中没有
+     * @return
+     */
+	/*public String updateFrequentCounter() {
 		itemSum -= preItemSum;
 		preItemSum = itemSum;
 
@@ -88,7 +101,7 @@ public class TopKFrequentDetectorImp implements FrequentDetectorInterface {
 		String result = "[TopK] frequent counter: " + totalCount + "/" + itemSum + " hot spot percentage: "
 				+ hotSpotPercentage;
 		return result;
-	}
+	}*/
 
 	public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
 		return currentHotSpotCounters;

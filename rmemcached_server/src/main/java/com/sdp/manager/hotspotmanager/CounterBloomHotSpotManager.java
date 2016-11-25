@@ -47,7 +47,7 @@ public class CounterBloomHotSpotManager extends BaseHotSpotManager implements De
     @Override
     public void dealData() {
 		dealHotData();
-        frequentDetector.updateThreshold(currentHotSpotSet.size());
+       /* frequentDetector.updateThreshold(currentHotSpotSet.size());*/
 		LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
 		currentHotSpotSet.clear();
 		dealColdData();

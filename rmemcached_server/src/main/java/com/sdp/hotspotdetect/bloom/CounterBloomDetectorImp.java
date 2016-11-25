@@ -41,6 +41,14 @@ public class CounterBloomDetectorImp implements FrequentDetectorInterface {
                 + ", hotSpotNum = " + hotSpotNum);
     }
 
+	/**
+	 * 只使用了一个布隆过滤器
+	 当一个地址被访问时，通过哈希函数将其映射到相应位，并将其值加一。
+	 当计数器相应位的值都大于一个阈值时才被判定为热点数据
+	 * @param key
+	 * @param preSum
+	 * @return
+	 */
 	public boolean registerItem(String key, int preSum) {
 		item++;
 		boolean isHotSpot = true;
@@ -55,6 +63,10 @@ public class CounterBloomDetectorImp implements FrequentDetectorInterface {
 		return isHotSpot;
 	}
 
+    /**
+     * 原算法中是按计数器移位方式来过滤之前的数据
+     * 我写的是是保留之前一段时间间隔的数据对热点数据判定的影响
+     */
 	public void updateCounter() {
 		for (int i = 0; i < bloomFilterLength; i++) {
 			bloomCounter[i] -= bloomPreCounter[i];
@@ -62,7 +74,11 @@ public class CounterBloomDetectorImp implements FrequentDetectorInterface {
 		}
 	}
 
-	public void updateThreshold(int number) {
+    /**
+     * 原算法中没有
+     * @return
+     */
+/*	public void updateThreshold(int number) {
 		double percent = (double) number / hotSpotNum;
 		if (item > 500) {
 			if (percent < 0.7) {
@@ -77,7 +93,7 @@ public class CounterBloomDetectorImp implements FrequentDetectorInterface {
 		}
 		item = 0;
 		Log.log.info("[Counter Bloom] update frequentThreshold = " + frequentThreshold);
-	}
+	}*/
 
 	public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
 		return currentHotSpotCounters;

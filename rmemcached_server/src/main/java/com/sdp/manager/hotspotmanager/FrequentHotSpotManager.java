@@ -38,8 +38,8 @@ public class FrequentHotSpotManager extends BaseHotSpotManager implements DealHo
 
     @Override
     public void resetCounter() {
-        String frequentCounterOut = frequentDetector.updateFrequent();
-        Log.log.info("[Frequent] " + frequentCounterOut);
+        /*String frequentCounterOut = frequentDetector.updateFrequent();
+        Log.log.info("[Frequent] " + frequentCounterOut);*/
     }
 
     @Override
