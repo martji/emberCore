@@ -28,6 +28,12 @@ public class EcDetectorImp extends Thread implements FrequentDetectorInterface {
 //    	counterNumber = (int) (1/errorRate);
 	}
 
+	/**
+	 * 算法伪代码在整理文件里
+	 * @param key
+	 * @param preSum
+	 * @return
+	 */
 	public boolean registerItem(String key, int preSum) {
 		itemSum ++;
 
