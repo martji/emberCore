@@ -1,4 +1,4 @@
-package com.sdp.client;
+package com.sdp.client.others;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.jboss.netty.util.internal.ConcurrentHashMap;
+import com.sdp.client.ember.EmberDataClient;
 
 import com.sdp.server.ServerNode;
 /**
@@ -20,12 +20,12 @@ import com.sdp.server.ServerNode;
 public class MClient {
 
 	int clientId;
-	Map<Integer, RMemcachedClientImpl> clientMap;
+	Map<Integer, EmberDataClient> clientMap;
 	Vector<Integer> clientIdVector;
 	/**
 	 * keyReplicaMap : save the replicated key and the replica
 	 */
-	ConcurrentMap<String, Vector<Integer>> keyReplicaMap;
+	ConcurrentHashMap<String, Vector<Integer>> keyReplicaMap;
 	
 	/**
 	 * 
@@ -39,7 +39,7 @@ public class MClient {
 	
 	public MClient(int clientId) {
 		this.clientId = clientId;
-		clientMap = new HashMap<Integer, RMemcachedClientImpl>();
+		clientMap = new HashMap<Integer, EmberDataClient>();
 		keyReplicaMap = new ConcurrentHashMap<String, Vector<Integer>>();
 		clientIdVector = new Vector<Integer>();
 	}
@@ -48,7 +48,7 @@ public class MClient {
 		Collection<ServerNode> serverList = serversMap.values();
 		for (ServerNode serverNode : serverList) {
 			int serverId = serverNode.getId();
-			RMemcachedClientImpl rmClient = new RMemcachedClientImpl(serverNode, keyReplicaMap);
+			EmberDataClient rmClient = new EmberDataClient(serverNode, keyReplicaMap);
 			clientMap.put(serverId, rmClient);
 			clientIdVector.add(serverId);
 		}
@@ -56,8 +56,8 @@ public class MClient {
 	}
 	
 	public void shutdown() {
-		Collection<RMemcachedClientImpl> clientList = clientMap.values();
-		for (RMemcachedClientImpl mClient : clientList) {
+		Collection<EmberDataClient> clientList = clientMap.values();
+		for (EmberDataClient mClient : clientList) {
 			mClient.shutdown();
 		}
 	}
@@ -85,7 +85,7 @@ public class MClient {
 	
 	public String get(String key) {
 		String value = null;
-		RMemcachedClientImpl rmClient;
+		EmberDataClient rmClient;
 		int masterId = gethashMem(key);
 		
 		if (keyReplicaMap.containsKey(key)) {
@@ -94,7 +94,7 @@ public class MClient {
 			value = rmClient.get(key, masterId == replicasId);
 			if (value == null | value.length() == 0) {
 				rmClient = clientMap.get(masterId);
-				value = rmClient.asynGet(key, replicasId);
+				value = rmClient.asyncGetFromEmber(key, replicasId);
 			}
 		} else {
 			rmClient = clientMap.get(masterId);
@@ -106,7 +106,7 @@ public class MClient {
 	public boolean set(String key, String value) {
 		boolean result = false;
 		int masterId = gethashMem(key);
-		RMemcachedClientImpl rmClient = clientMap.get(masterId);
+		EmberDataClient rmClient = clientMap.get(masterId);
 		result = rmClient.set(key, value);
 		return result;
 	}

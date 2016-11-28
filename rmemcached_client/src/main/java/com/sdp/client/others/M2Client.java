@@ -1,4 +1,4 @@
-package com.sdp.client;
+package com.sdp.client.others;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -34,7 +34,7 @@ public class M2Client {
 		for (ServerNode serverNode : serverList) {
 			int serverId = serverNode.getId();
 			String host = serverNode.getHost();
-			int memcachedPort = serverNode.getMemcached();
+			int memcachedPort = serverNode.getDataPort();
 			List<InetSocketAddress> addrs = new ArrayList<InetSocketAddress>();
 			addrs.add(new InetSocketAddress(host, memcachedPort));
 			try {

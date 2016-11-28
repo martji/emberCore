@@ -1,4 +1,4 @@
-package com.sdp.client;
+package com.sdp.client.ember;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,10 +17,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sdp.common.EMSGID;
-import com.sdp.messageBody.CtsMsg.nr_connected_mem;
-import com.sdp.messageBody.CtsMsg.nr_read_res;
-import com.sdp.messageBody.CtsMsg.nr_replicas_res;
-import com.sdp.messageBody.CtsMsg.nr_write_res;
+import com.sdp.message.CtsMsg.nr_connected_mem;
+import com.sdp.message.CtsMsg.nr_read_res;
+import com.sdp.message.CtsMsg.nr_replicas_res;
+import com.sdp.message.CtsMsg.nr_write_res;
 import com.sdp.netty.NetMsg;
 import com.sdp.operation.BaseOperation;
 
@@ -30,20 +30,19 @@ import com.sdp.operation.BaseOperation;
  * 
  */
 
-public class RMemcachedClientImplHandler extends SimpleChannelUpstreamHandler {
+public class EmberClientHandler extends SimpleChannelUpstreamHandler {
 
 	public Stack<String> queue;
 	public StringBuffer message;
-	public int clientNode;
-	public Object lock = new Object();
+	public int clientTag;
 	public Map<String, NetMsg> requestList;
 	ConcurrentMap<String, Vector<Integer>> keyReplicaMap;
 	
 	Map<String, BaseOperation<?>> opMap;
 
-	public RMemcachedClientImplHandler(int clientNode, StringBuffer message, 
-			ConcurrentMap<String, Vector<Integer>> keyReplicaMap) {
-		this.clientNode = clientNode;
+	public EmberClientHandler(int clientTag, StringBuffer message,
+                              ConcurrentMap<String, Vector<Integer>> keyReplicaMap) {
+		this.clientTag = clientTag;
 		this.message = message;
 		this.queue = new Stack<String>();
 		this.requestList = new HashMap<String, NetMsg>();
@@ -56,7 +55,7 @@ public class RMemcachedClientImplHandler extends SimpleChannelUpstreamHandler {
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) {
 		nr_connected_mem.Builder builder = nr_connected_mem.newBuilder();
 		NetMsg send = NetMsg.newMessage();
-		send.setNodeRoute(clientNode);
+		send.setNodeRoute(clientTag);
 		send.setMsgID(EMSGID.nr_connected_mem);
 		send.setMessageLite(builder);
 		e.getChannel().write(send);
@@ -119,7 +118,6 @@ public class RMemcachedClientImplHandler extends SimpleChannelUpstreamHandler {
 
 	private void handleReadOp(String key, String value) {
 		if (opMap.containsKey(key)) {
-			@SuppressWarnings("unchecked")
 			BaseOperation<String> op = (BaseOperation<String>) opMap.get(key);
 			op.getMcallback().gotdata(value);
 			opMap.remove(key);
@@ -128,7 +126,6 @@ public class RMemcachedClientImplHandler extends SimpleChannelUpstreamHandler {
 	
 	private void handleWriteOp(String key, String value) {
 		if (opMap.containsKey(key)) {
-			@SuppressWarnings("unchecked")
 			BaseOperation<Boolean> op = (BaseOperation<Boolean>) opMap.get(key);
 			if (value != null && value.length() > 0) {
 				op.getMcallback().gotdata(true);

@@ -1,4 +1,4 @@
-package com.sdp.client;
+package com.sdp.client.others;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.jboss.netty.util.internal.ConcurrentHashMap;
+import com.sdp.client.ember.EmberDataClient;
 
 import com.sdp.server.ServerNode;
 /**
@@ -25,12 +25,12 @@ public class RMClient {
 	int clientId;
 	int mode = 0;
 	int recordCount = 1;
-	Map<Integer, RMemcachedClientImpl> clientMap;
+	Map<Integer, EmberDataClient> clientMap;
 	Vector<Integer> clientIdVector;
 	/**
 	 * keyReplicaMap : save the replicated key and the replica
 	 */
-	ConcurrentMap<String, Vector<Integer>> keyReplicaMap;
+	ConcurrentHashMap<String, Vector<Integer>> keyReplicaMap;
 	ExecutorService pool = Executors.newCachedThreadPool();
 	
 	/**
@@ -52,7 +52,7 @@ public class RMClient {
 	
 	public RMClient(int clientId) {
 		this.clientId = clientId;
-		clientMap = new HashMap<Integer, RMemcachedClientImpl>();
+		clientMap = new HashMap<Integer, EmberDataClient>();
 		keyReplicaMap = new ConcurrentHashMap<String, Vector<Integer>>();
 		clientIdVector = new Vector<Integer>();
 	}
@@ -61,7 +61,7 @@ public class RMClient {
 		Collection<ServerNode> serverList = serversMap.values();
 		for (ServerNode serverNode : serverList) {
 			int serverId = serverNode.getId();
-			RMemcachedClientImpl rmClient = new RMemcachedClientImpl(clientId, serverNode, keyReplicaMap);
+			EmberDataClient rmClient = new EmberDataClient(serverNode, keyReplicaMap);
 			clientMap.put(serverId, rmClient);
 			clientIdVector.add(serverId);
 		}
@@ -69,8 +69,8 @@ public class RMClient {
 	}
 	
 	public void shutdown() {
-		Collection<RMemcachedClientImpl> clientList = clientMap.values();
-		for (RMemcachedClientImpl mClient : clientList) {
+		Collection<EmberDataClient> clientList = clientMap.values();
+		for (EmberDataClient mClient : clientList) {
 			mClient.shutdown();
 		}
 		pool.shutdown();
@@ -125,7 +125,7 @@ public class RMClient {
      */
 	public String get(String key) {
 		String value = null;
-		RMemcachedClientImpl rmClient;
+		EmberDataClient rmClient;
 		int masterId;
 		if (mode == 0) {
 			masterId = gethashMem(key);
@@ -140,7 +140,7 @@ public class RMClient {
 			if (value == null || value.length() == 0) {
 				removeOneReplica(key, replicasId);
 //				rmClient = clientMap.get(masterId);
-//				value = rmClient.asynGet(key, replicasId);
+//				value = rmClient.asyncGetFromEmber(key, replicasId);
 			}
 		} else {
 			rmClient = clientMap.get(masterId);
@@ -157,7 +157,7 @@ public class RMClient {
 		} else {
 			masterId = getSliceMem(key);
 		}
-		RMemcachedClientImpl rmClient = clientMap.get(masterId);
+		EmberDataClient rmClient = clientMap.get(masterId);
 		result = rmClient.set(key, value);
 		return result;
 	}
@@ -170,8 +170,8 @@ public class RMClient {
 		} else {
 			masterId = getSliceMem(key);
 		}
-		RMemcachedClientImpl rmClient = clientMap.get(masterId);
-		result = rmClient.set2M(key, value);
+		EmberDataClient rmClient = clientMap.get(masterId);
+		result = rmClient.set2DataServer(key, value);
 		return result;
 	}
 	
@@ -189,7 +189,7 @@ public class RMClient {
 					Vector<Integer> replications = keyReplicaMap.get(key);
 					for (int replicasId : replications) {
 						if (replicasId != masterId) {
-							RMemcachedClientImpl rmClient = clientMap.get(replicasId);
+							EmberDataClient rmClient = clientMap.get(replicasId);
 							MCThread thread = new MCThread(rmClient, key, value);
 							pool.submit(thread);
 						}
@@ -197,8 +197,8 @@ public class RMClient {
 				}
 			}).start();
 		}
-		RMemcachedClientImpl rmClient = clientMap.get(masterId);
-		result = rmClient.set2M(key, value);
+		EmberDataClient rmClient = clientMap.get(masterId);
+		result = rmClient.set2DataServer(key, value);
 		return result;
 	}
 	
@@ -211,21 +211,21 @@ public class RMClient {
 			masterId = getSliceMem(key);
 		}
 		if (!keyReplicaMap.containsKey(key)) {
-			RMemcachedClientImpl rmClient = clientMap.get(masterId);
-			result = rmClient.set2M(key, value);
+			EmberDataClient rmClient = clientMap.get(masterId);
+			result = rmClient.set2DataServer(key, value);
 		} else {
 			Vector<Integer> replications = keyReplicaMap.get(key);
 			Vector<Future<Boolean>> resultVector = new Vector<Future<Boolean>>();
 			for (int replicasId : replications) {
 				if (replicasId != masterId) {
-					RMemcachedClientImpl rmClient = clientMap.get(replicasId);
+					EmberDataClient rmClient = clientMap.get(replicasId);
 					MCThread thread = new MCThread(rmClient, key, value);
 					Future<Boolean> f = pool.submit(thread);
 					resultVector.add(f);
 				}
 			}
-			RMemcachedClientImpl rmClient = clientMap.get(masterId);
-			result = rmClient.set2M(key, value);
+			EmberDataClient rmClient = clientMap.get(masterId);
+			result = rmClient.set2DataServer(key, value);
 			for (Future<Boolean> f : resultVector) {
 				try {
 					if (!f.get()) {
@@ -245,11 +245,11 @@ public class RMClient {
 			masterId = getSliceMem(key);
 		}
 		if (!keyReplicaMap.containsKey(key)) {
-			RMemcachedClientImpl rmClient = clientMap.get(masterId);
-			result = rmClient.set2M(key, value);
+			EmberDataClient rmClient = clientMap.get(masterId);
+			result = rmClient.set2DataServer(key, value);
 		} else {
-			RMemcachedClientImpl rmClient = clientMap.get(masterId);
-			result = rmClient.rsmdSet(key, value, replicasNum);
+			EmberDataClient rmClient = clientMap.get(masterId);
+			result = rmClient.asyncSet2Ember(key, value, replicasNum);
 		}
 		return result;
 	}

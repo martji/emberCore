@@ -3,14 +3,14 @@ package com.sdp.common;
 import java.lang.reflect.InvocationTargetException;
 
 import com.google.protobuf.GeneratedMessage;
-import com.sdp.messageBody.CtsMsg.nr_connected_mem;
-import com.sdp.messageBody.CtsMsg.nr_connected_mem_back;
-import com.sdp.messageBody.CtsMsg.nr_read;
-import com.sdp.messageBody.CtsMsg.nr_read_res;
-import com.sdp.messageBody.CtsMsg.nr_register;
-import com.sdp.messageBody.CtsMsg.nr_replicas_res;
-import com.sdp.messageBody.CtsMsg.nr_write;
-import com.sdp.messageBody.CtsMsg.nr_write_res;
+import com.sdp.message.CtsMsg.nr_connected_mem;
+import com.sdp.message.CtsMsg.nr_connected_mem_back;
+import com.sdp.message.CtsMsg.nr_read;
+import com.sdp.message.CtsMsg.nr_read_res;
+import com.sdp.message.CtsMsg.nr_register;
+import com.sdp.message.CtsMsg.nr_replicas_res;
+import com.sdp.message.CtsMsg.nr_write;
+import com.sdp.message.CtsMsg.nr_write_res;
 
 /**
  * 

@@ -1,4 +1,4 @@
-package com.sdp.client;
+package com.sdp.client.others;
 
 import java.util.HashMap;
 import java.util.List;
