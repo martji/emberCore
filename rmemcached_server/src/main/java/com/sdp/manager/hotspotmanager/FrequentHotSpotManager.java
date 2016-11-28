@@ -1,7 +1,6 @@
 package com.sdp.manager.hotspotmanager;
 
 import com.sdp.hotspotdetect.frequent.FrequentDetectorImp;
-import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
 import com.sdp.replicas.LocalSpots;
 
@@ -9,6 +8,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+/**
+ * MultiBloomHotSpotManager implement {@link BaseHotSpotManager} and the inner hot spot detector is
+ * {@link FrequentDetectorImp}
+ */
 
 public class FrequentHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
 
@@ -29,7 +33,7 @@ public class FrequentHotSpotManager extends BaseHotSpotManager implements DealHo
 	@Override
 	public void handleRegister(String key) {
 		if (frequentDetector != null) {
-			if ((frequentDetector.registerItem(key, 0)) && (!currentHotSpotSet.contains(key))) {
+			if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
 				currentHotSpotSet.add(key);
 				dealHotData(key);
 			}
@@ -37,10 +41,7 @@ public class FrequentHotSpotManager extends BaseHotSpotManager implements DealHo
 	}
 
     @Override
-    public void resetCounter() {
-        /*String frequentCounterOut = frequentDetector.updateFrequent();
-        Log.log.info("[Frequent] " + frequentCounterOut);*/
-    }
+    public void resetCounter() {}
 
     @Override
 	public void recordHotSpot() {

@@ -8,9 +8,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * CounterBloomHotSpotManager implement {@link BaseHotSpotManager} and the inner hot spot detector is
+ * {@link CounterBloomDetectorImp}
+ */
+
 public class CounterBloomHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
 
 	private CounterBloomDetectorImp frequentDetector;
+
 	private Set<String> currentHotSpotSet =  Collections.synchronizedSet(new HashSet<String>());
 
 	public CounterBloomHotSpotManager() {
@@ -27,7 +33,7 @@ public class CounterBloomHotSpotManager extends BaseHotSpotManager implements De
 	@Override
 	public void handleRegister(String key) {
 		if (frequentDetector != null) {
-			if ((frequentDetector.registerItem(key, 0)) && (!currentHotSpotSet.contains(key))) {
+			if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
 				currentHotSpotSet.add(key);
 				dealHotData(key);
 			}
@@ -47,7 +53,6 @@ public class CounterBloomHotSpotManager extends BaseHotSpotManager implements De
     @Override
     public void dealData() {
 		dealHotData();
-       /* frequentDetector.updateThreshold(currentHotSpotSet.size());*/
 		LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
 		currentHotSpotSet.clear();
 		dealColdData();

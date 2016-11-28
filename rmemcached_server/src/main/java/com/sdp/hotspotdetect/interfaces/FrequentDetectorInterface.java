@@ -15,14 +15,14 @@ public interface FrequentDetectorInterface {
     void initConfig();
 
     /**
-     *
      * @param key
      * @return decide whether the key is an frequent item
      */
-    boolean registerItem(String key, int preSum);
+    boolean registerItem(String key);
 
     ConcurrentHashMap<String, Integer> getCurrentHotSpot();
-    
+
     void resetCounter();
-    String updateFrequentCounter();
+
+    String updateHotSpot();
 }

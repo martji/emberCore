@@ -12,7 +12,7 @@ import com.sdp.config.ConfigManager;
  */
 
 public class HashFunction {
-	private static int BLOOM_FILTER_LENGTH = 2<<28;
+    private static int BLOOM_FILTER_LENGTH = 2 << 28;
     public static int HASH_FUNCTION_NUMBER = 4;
     private List<String> methodList = new ArrayList<String>();
 
@@ -27,7 +27,7 @@ public class HashFunction {
     }
 
     public void initConfig() {
-    	HASH_FUNCTION_NUMBER = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_NUMBER);
+        HASH_FUNCTION_NUMBER = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_NUMBER);
         BLOOM_FILTER_LENGTH = (Integer) ConfigManager.propertiesMap.get(ConfigManager.BLOOM_FILTER_LENGTH);
     }
 
@@ -54,7 +54,7 @@ public class HashFunction {
         int b = 378551;
         int a = 63689;
         long hash = 0;
-        for(int i = 0; i < str.length(); i++) {
+        for (int i = 0; i < str.length(); i++) {
             hash = hash * a + str.charAt(i);
             a = a * b;
         }
@@ -63,7 +63,7 @@ public class HashFunction {
 
     public long JSHash(String str) {
         long hash = 1315423911;
-        for(int i = 0; i < str.length(); i++) {
+        for (int i = 0; i < str.length(); i++) {
             hash ^= ((hash << 5) + str.charAt(i) + (hash >> 2));
         }
         return hash;
@@ -72,7 +72,7 @@ public class HashFunction {
     public long BKDRHash(String str) {
         long seed = 131;
         long hash = 0;
-        for(int i = 0; i < str.length(); i++) {
+        for (int i = 0; i < str.length(); i++) {
             hash = (hash * seed) + str.charAt(i);
         }
         return hash;
@@ -80,7 +80,7 @@ public class HashFunction {
 
     public long SDBMHash(String str) {
         long hash = 0;
-        for(int i = 0; i < str.length(); i++) {
+        for (int i = 0; i < str.length(); i++) {
             hash = str.charAt(i) + (hash << 6) + (hash << 16) - hash;
         }
         return hash;
@@ -96,7 +96,7 @@ public class HashFunction {
 
     public long DEKHash(String str) {
         long hash = str.length();
-        for(int i = 0; i < str.length(); i++) {
+        for (int i = 0; i < str.length(); i++) {
             hash = ((hash << 5) ^ (hash >> 27)) ^ str.charAt(i);
         }
         return hash;

@@ -34,7 +34,7 @@ public interface BloomDetectorInterface {
     Vector<String> getHotSpots();
 
     String updateFilterThreshold();
+
     void resetCounter();
-    int getItemSum();
 
 }

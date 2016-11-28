@@ -2,6 +2,7 @@ package com.sdp.config;
 
 import com.sdp.log.Log;
 import com.sdp.server.EmberServerNode;
+import com.sun.crypto.provider.DESCipher;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -37,29 +38,31 @@ public class ConfigManager {
             int replica_protocol = Integer.decode(properties.getProperty(REPLICA_PROTOCOL, "0"));
             String monitor_address = properties.getProperty(MONITOR_ADDRESS, "127.0.0.1").toString();
 
-            int data_client_mode = Integer.decode(properties.getProperty(DATA_CLIENT_MODE, "0"));
+            int data_client_mode = Integer.decode(properties.getProperty(DATA_CLIENT_MODE, DefaultConfig.DATA_CLIENT_MODE));
 
-            int replica_mode = Integer.decode(properties.getProperty(REPLICA_MODE, "0"));
-            int update_status_time = Integer.decode(properties.getProperty(UPDATE_STATUS_TIME, "5")) * 1000;
-            int hot_spot_buffer_size = Integer.decode(properties.getProperty(HOT_SPOT_BUFFER_SIZE, "1000"));
+            int replica_mode = Integer.decode(properties.getProperty(REPLICA_MODE, DefaultConfig.REPLICA_MODE));
+            int update_status_time = Integer.decode(properties.getProperty(UPDATE_STATUS_TIME, DefaultConfig.UPDATE_STATUS_TIME)) * 1000;
+            int hot_spot_buffer_size = Integer.decode(properties.getProperty(HOT_SPOT_BUFFER_SIZE, DefaultConfig.HOT_SPOT_BUFFER_SIZE));
 
-            int hot_spot_manager_mode = Integer.decode(properties.getProperty(HOT_SPOT_MANAGER_MODE, "0"));
-            int slice_time = Integer.decode(properties.getProperty(SLICE_TIME, "15")) * 1000;
+            int hot_spot_manager_mode = Integer.decode(properties.getProperty(HOT_SPOT_MANAGER_MODE, DefaultConfig.HOT_SPOT_MANAGER_MODE));
+            int slice_time = Integer.decode(properties.getProperty(SLICE_TIME, DefaultConfig.SLICE_TIME)) * 1000;
 
-            int hot_spot_threshold = Integer.decode(properties.getProperty(HOT_SPOT_THRESHOLD, "100"));
-            double hot_spot_percentage = Double.parseDouble(properties.getProperty(HOT_SPOT_PERCENTAGE, "0.0001"));
-            double hot_spot_influence = Double.parseDouble(properties.getProperty(HOT_SPOT_INFLUENCE, "0.1"));
+            int hot_spot_threshold = Integer.decode(properties.getProperty(HOT_SPOT_THRESHOLD, DefaultConfig.HOT_SPOT_THRESHOLD));
+            double hot_spot_percentage = Double.parseDouble(properties.getProperty(HOT_SPOT_PERCENTAGE, DefaultConfig.HOT_SPOT_PERCENTAGE));
+            double hot_spot_influence = Double.parseDouble(properties.getProperty(HOT_SPOT_INFLUENCE, DefaultConfig.HOT_SPOT_INFLUENCE));
 
-            int bloom_filter_number = Integer.decode(properties.getProperty(BLOOM_FILTER_NUMBER, "4"));
-            int bloom_filter_length = Integer.decode(properties.getProperty(BLOOM_FILTER_LENGTH, "100"));
-            double frequent_percentage = Double.parseDouble(properties.getProperty(FREQUENT_PERCENTAGE, "0.8"));
+            int bloom_filter_number = Integer.decode(properties.getProperty(BLOOM_FILTER_NUMBER, DefaultConfig.BLOOM_FILTER_NUMBER));
+            int bloom_filter_length = Integer.decode(properties.getProperty(BLOOM_FILTER_LENGTH, DefaultConfig.BLOOM_FILTER_LENGTH));
+            double frequent_percentage = Double.parseDouble(properties.getProperty(FREQUENT_PERCENTAGE, DefaultConfig.FREQUENT_PERCENTAGE));
 
-            int frequent_item_number = Integer.decode(properties.getProperty(FREQUENT_ITEM_NUMBER, "10"));
-            int counter_number = Integer.decode(properties.getProperty(COUNTER_NUMBER, "10"));
-            double error_rate = Double.parseDouble(properties.getProperty(ERROR_RATE, "0.01"));
-            int threshold = Integer.decode(properties.getProperty(THRESHOLD, "10"));
-            int interval = Integer.decode(properties.getProperty(INTERVAL, "30"));
+            int counter_number = Integer.decode(properties.getProperty(COUNTER_NUMBER, DefaultConfig.COUNTER_NUMBER));
+            int top_item_number = Integer.decode(properties.getProperty(TOP_ITEM_NUMBER, DefaultConfig.TOP_ITEM_NUMBER));
 
+            int frequent_threshold = Integer.decode(properties.getProperty(FREQUENT_THRESHOLD, DefaultConfig.FREQUENT_THRESHOLD));
+
+            int interval = Integer.decode(properties.getProperty(INTERVAL, DefaultConfig.INTERVAL));
+
+            double error_rate = Double.parseDouble(properties.getProperty(ERROR_RATE, DefaultConfig.ERROR_RATE));
 
             propertiesMap.put(REPLICA_PROTOCOL, replica_protocol);
             propertiesMap.put(MONITOR_ADDRESS, monitor_address);
@@ -81,12 +84,14 @@ public class ConfigManager {
             propertiesMap.put(BLOOM_FILTER_LENGTH, bloom_filter_length);
             propertiesMap.put(FREQUENT_PERCENTAGE, frequent_percentage);
 
-            propertiesMap.put(FREQUENT_ITEM_NUMBER, frequent_item_number);
-            propertiesMap.put(TOP_ITEM_NUMBER, frequent_item_number);
             propertiesMap.put(COUNTER_NUMBER, counter_number);
-            propertiesMap.put(ERROR_RATE, error_rate);
-            propertiesMap.put(THRESHOLD, threshold);
+            propertiesMap.put(TOP_ITEM_NUMBER, top_item_number);
+
+            propertiesMap.put(FREQUENT_THRESHOLD, frequent_threshold);
+
             propertiesMap.put(INTERVAL, interval);
+
+            propertiesMap.put(ERROR_RATE, error_rate);
         } catch (Exception e) {
             Log.log.error("wrong config.properties", e);
         }
@@ -137,12 +142,12 @@ public class ConfigManager {
     public static final String BLOOM_FILTER_LENGTH = "bloom_filter_length";
     public static final String FREQUENT_PERCENTAGE = "frequent_percentage";
 
-//    TODO
-
-    public static final String FREQUENT_ITEM_NUMBER = "frequent_item_number";
-    public static final String TOP_ITEM_NUMBER = "top_item_number";
     public static final String COUNTER_NUMBER = "counter_number";
-    public static final String ERROR_RATE = "error_rate";
-    public static final String THRESHOLD = "threshold";
+    public static final String TOP_ITEM_NUMBER = "top_item_number";
+
+    public static final String FREQUENT_THRESHOLD = "frequent_threshold";
+
     public static final String INTERVAL = "interval";
+
+    public static final String ERROR_RATE = "error_rate";
 }

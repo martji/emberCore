@@ -29,12 +29,10 @@ import java.util.Map;
  */
 public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
 
-    private BloomDetectorInterface bloomDetector;
-    private FrequentDetectorInterface frequentDetector;
+    private MultiBloomDetectorImp bloomDetector;
+    private SWFPDetectorImp frequentDetector;
 
     private HashSet<String> currentHotSpotSet = new HashSet<String>();
-
-    private int bloomFilterSum = 0;
 
     public StreamHotSpotManager() {
         initConfig();
@@ -53,7 +51,7 @@ public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotS
         if (bloomDetector != null && frequentDetector != null) {
             LocalSpots.candidateColdSpots.remove(key);
             if (bloomDetector.registerItem(key)) {
-                if (frequentDetector.registerItem(key, bloomFilterSum)) {
+                if (frequentDetector.registerItem(key)) {
                     if (currentHotSpotSet.contains(key)) {
                         return;
                     }
@@ -69,7 +67,7 @@ public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotS
         String bloomFilterOut = bloomDetector.updateFilterThreshold();
         bloomDetector.resetCounter();
 
-        String frequentCounterOut = frequentDetector.updateFrequentCounter();
+        String frequentCounterOut = frequentDetector.updateHotSpot();
         frequentDetector.resetCounter();
 
         Log.log.info("[StreamHotSpotManager] " + bloomFilterOut + " | " +  frequentCounterOut);
@@ -87,7 +85,6 @@ public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotS
 
     @Override
     public void dealData() {
-        bloomFilterSum = bloomDetector.getItemSum();
         dealHotData();
         LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
         currentHotSpotSet.clear();

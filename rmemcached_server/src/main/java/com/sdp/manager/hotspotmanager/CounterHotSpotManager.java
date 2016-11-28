@@ -1,6 +1,7 @@
 package com.sdp.manager.hotspotmanager;
 
 import com.sdp.config.ConfigManager;
+import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
 import com.sdp.replicas.LocalSpots;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
@@ -38,6 +39,9 @@ public class CounterHotSpotManager extends BaseHotSpotManager implements DealHot
 
         hotSpotThreshold = (Integer) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_THRESHOLD);
         hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
+
+        Log.log.info("[TopK Frequent] " + "hotSpotThreshold = " + hotSpotThreshold
+                + ", hotSpotPercentage = " + hotSpotPercentage);
     }
 
 	@Override

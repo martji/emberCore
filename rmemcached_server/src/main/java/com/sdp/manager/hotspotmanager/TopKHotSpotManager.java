@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * TopKHotSpotManager implement {@link BaseHotSpotManager} and the inner hot spot detector is
+ * {@link com.sdp.hotspotdetect.frequent.topk.TopKDetectorImp} and {@link TopKFrequentDetectorImp}
  */
 
 public class TopKHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
@@ -33,7 +34,7 @@ public class TopKHotSpotManager extends BaseHotSpotManager implements DealHotSpo
 	@Override
 	public void handleRegister(String key) {
 		if (frequentDetector != null) {
-			if ((frequentDetector.registerItem(key, 0)) && (!currentHotSpotSet.contains(key))) {
+			if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
 				currentHotSpotSet.add(key);
 				dealHotData(key);
 			}
@@ -42,7 +43,7 @@ public class TopKHotSpotManager extends BaseHotSpotManager implements DealHotSpo
 
     @Override
     public void resetCounter() {
-        String frequentCounterOut = frequentDetector.updateFrequentCounter();
+        String frequentCounterOut = frequentDetector.updateHotSpot();
         frequentDetector.resetCounter();
 
         Log.log.info("[TopKHotSpotManager] " + frequentCounterOut);

@@ -9,6 +9,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * MultiBloomHotSpotManager implement {@link BaseHotSpotManager} and the inner hot spot detector is
+ * {@link MultiBloomCounterDetectorImp}
+ */
+
 public class MultiBloomHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
 
 	private MultiBloomCounterDetectorImp frequentDetector;
@@ -27,22 +32,11 @@ public class MultiBloomHotSpotManager extends BaseHotSpotManager implements Deal
 	@Override
 	public void handleRegister(String key) {
 		if(frequentDetector != null){
-            if ((frequentDetector.registerItem(key, 0)) && (!currentHotSpotSet.contains(key))) {
+            if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
                 currentHotSpotSet.add(key);
                 dealHotData(key);
             }
         }
-		/*if (frequentDetector != null) {
-			if (currentHotSpotSet.contains(key)) {
-				frequentDetector.registerItem(key, 0);
-			} else {
-				boolean hotOrNot = frequentDetector.registerItem(key, 1);
-				if (hotOrNot) {
-					currentHotSpotSet.add(key);
-					dealHotData(key);
-				}
-			}
-		}*/
 	}
 
     @Override

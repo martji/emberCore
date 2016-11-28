@@ -16,14 +16,12 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
 
     private final int LOW_FREQUENT_THRESHOLD = 2;
 
-    private HashFunction hashFunction;
-    private List<Integer[]> bloomCounterList;
-
     /**
      * The number of bloom filters and the length of single bloom filter.
      */
     private int bloomFilterNumber;
     private int bloomFilterLength;
+    private double frequentPercentage;
 
     /**
      * The hotSpotThreshold of frequent item, the default value is 2, which means if a item
@@ -32,16 +30,18 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
      */
     private int frequentThreshold = LOW_FREQUENT_THRESHOLD;
     private int preFrequentThreshold = LOW_FREQUENT_THRESHOLD;
-    private double frequentPercentage;
 
     public int itemSum = 0;
     public int itemPass = 0;
 
-    public MultiBloomDetectorImp(){
+    private HashFunction hashFunction;
+    private List<Integer[]> bloomCounterList;
+
+    public MultiBloomDetectorImp() {
         initConfig();
 
         hashFunction = new HashFunction();
-    	bloomCounterList = new ArrayList<Integer[]>();
+        bloomCounterList = new ArrayList<Integer[]>();
         for (int i = 0; i < bloomFilterNumber; i++) {
             bloomCounterList.add(new Integer[bloomFilterLength]);
             for (int j = 0; j < bloomFilterLength; j++) {
@@ -65,12 +65,11 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
     }
 
     /**
-     *
      * @param key
      * @return whether the item key can through bloom filter.
      */
     public boolean registerItem(String key) {
-        itemSum ++;
+        itemSum++;
 
         boolean isHotSpotCandidate = true;
         int[] indexArray = hashFunction.getHashIndex(key);
@@ -87,7 +86,8 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
         return isHotSpotCandidate;
     }
 
-    public void resetBloomCounters() {}
+    public void resetBloomCounters() {
+    }
 
     public Vector<String> getHotSpots() {
         return null;
@@ -116,7 +116,7 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
             frequentThreshold = LOW_FREQUENT_THRESHOLD;
         }
 
-        String result = "[Multi-Bloom Filter] bloom filter pass percentage = " + itemPass + "/"+ itemSum +
+        String result = "[Multi-Bloom Filter] bloom filter pass percentage = " + itemPass + "/" + itemSum +
                 " frequentThreshold = " + frequentThreshold;
 
         itemSum = 0;
@@ -136,7 +136,4 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
         }
     }
 
-    public int getItemSum() {
-        return itemSum;
-    }
 }

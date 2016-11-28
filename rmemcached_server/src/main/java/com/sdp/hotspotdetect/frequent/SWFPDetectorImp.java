@@ -15,18 +15,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SWFPDetectorImp implements FrequentDetectorInterface {
 
     /**
-     * The really counter to count the visit times of item.
-     */
-    private ConcurrentHashMap<String, SWFPCounter> counterMap;
-    private int counterNumber;
-    private HashSet<String> preHotSpotSet;
-
-    /**
      * The hotSpotThreshold of hot spot frequent percentage, which is p; and the influence of hot spots.
      */
     private double hotSpotPercentage;
     private double hotSpotInfluence;
     private int MIN_F = 2;
+
+    /**
+     * The really counter to count the visit times of item.
+     */
+    private ConcurrentHashMap<String, SWFPCounter> counterMap;
+    private int counterNumber;
+    private HashSet<String> preHotSpotSet;
 
     public int itemSum = 0;
     private int preItemSum = 0;
@@ -39,7 +39,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
     }
 
     public void initConfig() {
-    	hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
+        hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
         hotSpotInfluence = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_INFLUENCE);
         counterNumber = (int) (1 / hotSpotPercentage);
 
@@ -47,14 +47,8 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
                 ", hotSpotInfluence = " + hotSpotInfluence);
     }
 
-    /**
-     *
-     * @param key
-     * @param preSum
-     * @return whether the item key is hot spot.
-     */
-    public boolean registerItem(String key, int preSum) {
-        itemSum ++;
+    public boolean registerItem(String key) {
+        itemSum++;
 
         int count = 0;
         if (counterMap.containsKey(key)) {
@@ -67,7 +61,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
                 counterMap.put(key, new SWFPCounter(key));
             } else {
                 Set<String> keySet = counterMap.keySet();
-                for (String item: keySet) {
+                for (String item : keySet) {
                     counterMap.get(item).del();
                     if (counterMap.get(item).frequent <= 0) {
                         counterMap.remove(item);
@@ -90,7 +84,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
      * Adjust hotSpotPercentage, the workload influence of hot spot must larger
      * than hotSpotInfluence.
      */
-    public String updateFrequentCounter() {
+    public String updateHotSpot() {
         itemSum -= preItemSum;
         preItemSum = itemSum;
 
@@ -108,7 +102,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
             }
         }
 
-        String result =  "[SWFP] hot spot influence = " + totalCount + "/"+ itemSum +
+        String result = "[SWFP] hot spot influence = " + totalCount + "/" + itemSum +
                 " counterNumber = " + counterNumber;
         return result;
     }
@@ -120,7 +114,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
 
     public void refreshSWFPCounter() {
         Set<String> keySet = counterMap.keySet();
-        for (String item: keySet) {
+        for (String item : keySet) {
             counterMap.get(item).refresh();
         }
         preHotSpotSet = new HashSet<String>(keySet);
@@ -147,7 +141,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
             this.preFrequent = 0;
         }
 
-        public void add () {
+        public void add() {
             frequent += 1;
         }
 
@@ -158,7 +152,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
 
         public void refresh() {
             dFrequent = 0;
-            preFrequent = preFrequent /2 + frequent/2;
+            preFrequent = preFrequent / 2 + frequent / 2;
             frequent = 0;
         }
 
