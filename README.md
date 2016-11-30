@@ -4,3 +4,5 @@ Ember Project. Ember is a universal moddleware for distributed memory store to b
 - **rmemcached_server** is the core of project, which acts as an universal middleware;
 - **rmemcached_client** is the client for user;
 - **rmemcached_monitor** is a global node to monitor the cluster.
+
+## [Handbook](http://7xw7bj.com1.z0.glb.clouddn.com/Ember-Handbook.pdf)
