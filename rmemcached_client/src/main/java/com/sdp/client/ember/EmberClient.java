@@ -49,12 +49,6 @@ public class EmberClient {
         init(node.getHost(), node.getRPort(), node.getWPort());
     }
 
-    public EmberClient(ConcurrentMap<String, Vector<Integer>> replicaTable, int clientTag, String host, int readPort, int writePort) {
-        this.replicaTable = replicaTable;
-        this.clientTag = clientTag;
-        init(host, readPort, writePort);
-    }
-
     public void init(String host, int readPort, int writePort) {
         try {
             readBootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
@@ -63,7 +57,8 @@ public class EmberClient {
             readHandler = new EmberClientHandler(clientTag, message, this.replicaTable);
             readBootstrap.setPipelineFactory(new MClientPipelineFactory(readHandler));
             ChannelFuture readFuture = readBootstrap.connect(new InetSocketAddress(host, readPort)).sync();
-            while (!readFuture.isDone()) {}
+            while (!readFuture.isDone()) {
+            }
             readChannel = readFuture.getChannel();
 
             writeBootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
@@ -72,7 +67,8 @@ public class EmberClient {
             writeHandler = new EmberClientHandler(clientTag, message, this.replicaTable);
             writeBootstrap.setPipelineFactory(new MClientPipelineFactory(writeHandler));
             ChannelFuture writeFuture = writeBootstrap.connect(new InetSocketAddress(host, writePort)).sync();
-            while (!writeFuture.isDone()) {}
+            while (!writeFuture.isDone()) {
+            }
             writeChannel = writeFuture.getChannel();
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,7 +97,7 @@ public class EmberClient {
         readChannel.write(msg);
 
         try {
-            return future.get(TIMEOUT , TimeUnit.MILLISECONDS);
+            return future.get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }

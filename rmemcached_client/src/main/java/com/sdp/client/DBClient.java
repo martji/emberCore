@@ -16,11 +16,11 @@ public class DBClient implements DataClient {
     private int dataHashMode;
     private int dataSetMode;
 
-    private final int SLICE_HASH_MODE = 0;
-    private final int INDEX_HASH_MODE = 1;
+    public static final int SLICE_HASH_MODE = 0;
+    public static final int INDEX_HASH_MODE = 1;
 
-    private final int SYNC_SET_MODE = 0;
-    private final int ASYNC_SET_MODE = 0;
+    public static final int SYNC_SET_MODE = 0;
+    public static final int ASYNC_SET_MODE = 0;
 
     private int clientType;
     private Map<Integer, DataClient> clientMap;
@@ -39,9 +39,10 @@ public class DBClient implements DataClient {
         }
     }
 
-    public void initConfig(int recordCount, int dataHashMode) {
+    public void initConfig(int recordCount, int dataHashMode, int dataSetMode) {
         this.recordCount = recordCount;
         this.dataHashMode = dataHashMode;
+        this.dataSetMode = dataSetMode;
     }
 
     public void init() {
@@ -95,7 +96,6 @@ public class DBClient implements DataClient {
     }
 
     /**
-     *
      * @param key
      * @return location of the request key
      */
@@ -112,7 +112,8 @@ public class DBClient implements DataClient {
                 }
                 return getRandomMem(key, clientNum);
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return clientIdList.get(0);
     }
 
@@ -140,7 +141,6 @@ public class DBClient implements DataClient {
     }
 
     /**
-     *
      * @param key
      * @return the index of replicaId, not replicaId
      */

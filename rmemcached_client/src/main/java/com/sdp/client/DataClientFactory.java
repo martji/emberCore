@@ -25,7 +25,7 @@ public class DataClientFactory {
             case REDIS_MODE:
                 return new RedisDataClient(node);
             case EMBER_MODE:
-                return new EmberDataClient(node, replicaTable);
+                return new EmberDataClient(type, node, replicaTable);
         }
         return null;
     }

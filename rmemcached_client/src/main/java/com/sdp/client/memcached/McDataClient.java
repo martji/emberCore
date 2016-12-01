@@ -13,7 +13,7 @@ import java.net.InetSocketAddress;
  */
 public class McDataClient implements DataClient {
 
-    private int EXPIRE_TIME = 60*60*24*10;
+    private int EXPIRE_TIME = 60 * 60 * 24 * 10;
 
     private MemcachedClient mc;
 
