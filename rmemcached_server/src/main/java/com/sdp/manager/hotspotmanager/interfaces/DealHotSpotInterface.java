@@ -12,6 +12,7 @@ public interface DealHotSpotInterface {
 
     /**
      * deal single hot spot
+     *
      * @param key
      */
     void dealHotData(String key);

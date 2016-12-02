@@ -17,7 +17,7 @@ public class McDataClient implements DataClient {
 
     private MemcachedClient client;
 
-    private final int EXPIRE_TIME = 60*60*24*10;
+    private final int EXPIRE_TIME = 60 * 60 * 24 * 10;
 
     public McDataClient(MemcachedClient client) {
         this.client = client;
@@ -35,7 +35,8 @@ public class McDataClient implements DataClient {
             OperationFuture<Boolean> out = client.set(key, EXPIRE_TIME, value);
             try {
                 return out.get();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         return false;
     }
@@ -48,7 +49,8 @@ public class McDataClient implements DataClient {
             String host = serverNode.getHost();
             int port = serverNode.getDataPort();
             client = new MemcachedClient(new InetSocketAddress(host, port));
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return new McDataClient(client);
     }
 }

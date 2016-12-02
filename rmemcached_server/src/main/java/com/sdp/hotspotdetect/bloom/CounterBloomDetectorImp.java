@@ -1,11 +1,11 @@
 package com.sdp.hotspotdetect.bloom;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.sdp.config.ConfigManager;
 import com.sdp.hotspotdetect.bloom.hash.HashFunction;
 import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
 import com.sdp.log.Log;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CounterBloomDetectorImp implements FrequentDetectorInterface {
 

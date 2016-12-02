@@ -160,6 +160,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * Deal a single hot spot, the hot spot will not be dealt at once, and the hot spot will
      * be inset to a buffer. If the buffer size reaches the predefined bufferSize, @method dealHotData()
      * will be invoked.
+     *
      * @param key
      */
     public void dealHotData(String key) {
@@ -263,6 +264,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     /**
      * Handle read failed from other server.
+     *
      * @param channel
      * @param key
      * @param failedServerId
@@ -298,6 +300,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     /**
      * Update replicas distribution.
+     *
      * @param replicasNum
      */
     private void updateReplicaDistribute(int replicasNum) {
@@ -314,6 +317,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     /**
      * Transfer replicasInfo to list.
+     *
      * @param replicasInfo
      * @return list of server workload status.
      */
@@ -324,7 +328,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         }
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
         Map<Integer, Double> cpuCostMap = gson.fromJson(replicasInfo,
-                new TypeToken<Map<Integer, Double>>() {}.getType());
+                new TypeToken<Map<Integer, Double>>() {
+                }.getType());
         list = new ArrayList<Map.Entry<Integer, Double>>(cpuCostMap.entrySet());
         Collections.sort(list, new Comparator<Map.Entry<Integer, Double>>() {
             public int compare(Map.Entry<Integer, Double> mapping1,
@@ -336,7 +341,6 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     /**
-     *
      * @param list
      * @param key
      * @return the location serverId where can a replica be created on for key.
@@ -405,7 +409,6 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     /**
-     *
      * @param key
      * @param replicaId : the location serverId
      * @return whether the replica create succeed.
@@ -441,6 +444,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     /**
      * Push the replica information to clients.
+     *
      * @param hotItems
      */
     private void infoAllClient(Map<String, Integer> hotItems) {
@@ -450,8 +454,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         Collection<Channel> clients = clientChannelMap.values();
         Vector<Channel> tmp = new Vector<Channel>();
         tmp.addAll(clients);
-        for (Channel channel: tmp) {
-            if (! channel.isConnected()) {
+        for (Channel channel : tmp) {
+            if (!channel.isConnected()) {
                 clients.remove(channel);
             }
         }
@@ -464,7 +468,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         NetMsg msg = NetMsg.newMessage();
         msg.setMessageLite(builder);
         msg.setMsgID(EMSGID.nr_replicas_res);
-        for (Channel channel: clients) {
+        for (Channel channel : clients) {
             channel.write(msg);
         }
     }

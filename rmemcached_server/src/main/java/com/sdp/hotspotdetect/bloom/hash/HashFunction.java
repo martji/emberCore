@@ -1,10 +1,10 @@
 package com.sdp.hotspotdetect.bloom.hash;
 
+import com.sdp.config.ConfigManager;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.sdp.config.ConfigManager;
 
 /**
  * Created by magq on 16/1/13.

@@ -6,7 +6,7 @@ import com.sdp.config.ConfigManager;
  * Created by Guoqing on 2016/11/22.
  * The hotSpotManager factory, which create the hotSpotManager instance by the type:
  * COUNTER_MODE {@link CounterHotSpotManager} and STREAM_MODE {@link StreamHotSpotManager}.
- *
+ * <p>
  * The default mode is STREAM_MODE.
  */
 public class HotSpotManagerFactory {

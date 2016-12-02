@@ -6,9 +6,9 @@ import com.sdp.server.DataClient;
 /**
  * Created by Guoqing on 2016/11/21.
  * The Factory to create {@link DataClient}.
- *
+ * <p>
  * Mode MC_MODE is {@link McDataClient}, mode REDIS_MODE is {@link RedisDataClient}.
- *
+ * <p>
  * The default mode is MC_MODE.
  */
 public class DataClientFactory {

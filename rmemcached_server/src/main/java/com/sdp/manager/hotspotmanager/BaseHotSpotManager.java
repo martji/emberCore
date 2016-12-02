@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
  * Detect the hot spots in requests stream, two managers have been implemented:
  * {@link CounterHotSpotManager} and {@link StreamHotSpotManager} and {@link TopKHotSpotManager} and
  * {@link MultiBloomHotSpotManager} and {@link CounterBloomHotSpotManager} and {@link FrequentHotSpotManager}.
- *
+ * <p>
  * The core processes are implement in the single thread: resetCounter -> sleep -> write2file -> dealData.
  */
 public abstract class BaseHotSpotManager implements Runnable {
@@ -31,7 +31,8 @@ public abstract class BaseHotSpotManager implements Runnable {
 
     public OnFindHotSpot onFindHotSpot;
 
-    public BaseHotSpotManager() {}
+    public BaseHotSpotManager() {
+    }
 
     /**
      * Run period to update parameters.
@@ -51,7 +52,6 @@ public abstract class BaseHotSpotManager implements Runnable {
 
     /**
      * Read config, get hot spot detection period.
-     *
      */
     public void initConfig() {
         SLICE_TIME = (Integer) ConfigManager.propertiesMap.get(ConfigManager.SLICE_TIME);
@@ -60,16 +60,20 @@ public abstract class BaseHotSpotManager implements Runnable {
 
     /**
      * Handle register signal.
+     *
      * @param key
      */
-    public void handleRegister(String key) {}
+    public void handleRegister(String key) {
+    }
 
-    public void resetCounter() {}
+    public void resetCounter() {
+    }
 
     /**
      * Write the current hot spots to file.
      */
-    public void recordHotSpot() {}
+    public void recordHotSpot() {
+    }
 
     public void recordCurrentHotSpot(final List<HotSpotItem> list) {
         if (list != null && list.size() > 0) {
@@ -77,7 +81,8 @@ public abstract class BaseHotSpotManager implements Runnable {
         }
     }
 
-    public void dealData() {}
+    public void dealData() {
+    }
 
     public void setOnFindHotSpot(OnFindHotSpot onFindHotSpot) {
         this.onFindHotSpot = onFindHotSpot;
@@ -85,7 +90,9 @@ public abstract class BaseHotSpotManager implements Runnable {
 
     public interface OnFindHotSpot {
         void dealHotSpot();
+
         void dealHotSpot(String key);
+
         void dealColdSpot();
     }
 

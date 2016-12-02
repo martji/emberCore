@@ -83,17 +83,18 @@ public class ConsistencyManager {
         boolean setState = mClient.set(oriKey, value);
         if (!setState) {
             value = "";
-        } else if (threshold > 0){
+        } else if (threshold > 0) {
             int localCount = 0;
             for (Future<Boolean> f : resultVector) {
                 try {
                     if (f.get()) {
-                        localCount ++;
+                        localCount++;
                     }
                     if (localCount >= threshold) {
                         break;
                     }
-                } catch (Exception e2) {}
+                } catch (Exception e2) {
+                }
             }
             if (localCount < threshold) {
                 value = "";
@@ -105,7 +106,7 @@ public class ConsistencyManager {
 
     public Integer getThreshold(int count, int replicasNum) {
         if (replicasNum < 0) {
-            return count/replicasNum*-1;
+            return count / replicasNum * -1;
         } else {
             return replicasNum;
         }

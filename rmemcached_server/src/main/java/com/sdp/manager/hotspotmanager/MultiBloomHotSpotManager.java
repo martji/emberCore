@@ -16,49 +16,50 @@ import java.util.Map;
 
 public class MultiBloomHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
 
-	private MultiBloomCounterDetectorImp frequentDetector;
-	private HashSet<String> currentHotSpotSet = new HashSet<String>();
+    private MultiBloomCounterDetectorImp frequentDetector;
+    private HashSet<String> currentHotSpotSet = new HashSet<String>();
 
-	public MultiBloomHotSpotManager() {
-		initConfig();
+    public MultiBloomHotSpotManager() {
+        initConfig();
 
-		frequentDetector = new MultiBloomCounterDetectorImp();
-	}
+        frequentDetector = new MultiBloomCounterDetectorImp();
+    }
 
-	@Override
-	public void initConfig() {
-		super.initConfig();
-	}
-	@Override
-	public void handleRegister(String key) {
-		if(frequentDetector != null){
+    @Override
+    public void initConfig() {
+        super.initConfig();
+    }
+
+    @Override
+    public void handleRegister(String key) {
+        if (frequentDetector != null) {
             if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
                 currentHotSpotSet.add(key);
                 dealHotData(key);
             }
         }
-	}
+    }
 
     @Override
     public void resetCounter() {
         frequentDetector.resetCounter();
     }
 
-	@Override
-	public void recordHotSpot() {
-		ArrayList<String> li = new ArrayList<String>(currentHotSpotSet);
-		for(int i = 0;i < li.size();i++) {
-			String str = li.get(i);
-			int num = frequentDetector.findBloomNumber(str);
-			frequentDetector.currentHotSpotCounters.put(str, num);
-		}
+    @Override
+    public void recordHotSpot() {
+        ArrayList<String> li = new ArrayList<String>(currentHotSpotSet);
+        for (int i = 0; i < li.size(); i++) {
+            String str = li.get(i);
+            int num = frequentDetector.findBloomNumber(str);
+            frequentDetector.currentHotSpotCounters.put(str, num);
+        }
         final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
         Map<String, Integer> map = frequentDetector.getCurrentHotSpot();
         for (String key : map.keySet()) {
             list.add(new HotSpotItem(key, map.get(key)));
         }
         recordCurrentHotSpot(list);
-	}
+    }
 
     @Override
     public void dealData() {
@@ -69,15 +70,15 @@ public class MultiBloomHotSpotManager extends BaseHotSpotManager implements Deal
     }
 
     public void dealHotData() {
-		onFindHotSpot.dealHotSpot();
-	}
+        onFindHotSpot.dealHotSpot();
+    }
 
-	public void dealColdData() {
-		onFindHotSpot.dealColdSpot();
-	}
+    public void dealColdData() {
+        onFindHotSpot.dealColdSpot();
+    }
 
-	public void dealHotData(String key) {
-		onFindHotSpot.dealHotSpot(key);
-	}
+    public void dealHotData(String key) {
+        onFindHotSpot.dealHotSpot(key);
+    }
 
 }

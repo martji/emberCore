@@ -10,12 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author 2005-ICDT-Efficient Computation of Frequent and Top-k Elements in Data Streams
- * 这个和TopKDetectorImp的区别是：那篇论文里面有两种判定热点数据的方法。
- * TopKFrequentDetectorImp是根据频率来判断的，TopKDetectorImp是选前K’个数据.
- * 这个java文件根据频率来判断热点数据，算法伪代码的图在整理文件里。这里和他的原算法有一点不一样，
- * 我是用(counterMap.get(key) - preValue.get(key) >= hotSpotPercentage * itemSum)这个判断，
- * 原算法是CounterMap.get(key) >= hotSpotPercentage * itemSum
- * 原算法没有对itemSum的更新，所以我也没有更新。
+ *         这个和TopKDetectorImp的区别是：那篇论文里面有两种判定热点数据的方法。
+ *         TopKFrequentDetectorImp是根据频率来判断的，TopKDetectorImp是选前K’个数据.
+ *         这个java文件根据频率来判断热点数据，算法伪代码的图在整理文件里。这里和他的原算法有一点不一样，
+ *         我是用(counterMap.get(key) - preValue.get(key) >= hotSpotPercentage * itemSum)这个判断，
+ *         原算法是CounterMap.get(key) >= hotSpotPercentage * itemSum
+ *         原算法没有对itemSum的更新，所以我也没有更新。
  */
 
 public class TopKFrequentDetectorImp implements FrequentDetectorInterface {

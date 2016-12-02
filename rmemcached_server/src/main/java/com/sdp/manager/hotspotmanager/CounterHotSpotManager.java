@@ -6,15 +6,17 @@ import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
 import com.sdp.replicas.LocalSpots;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author magq
- * CounterHotSpotManager implement {@link BaseHotSpotManager} and detect the hot spots just by
- * counting the data items.
- *
- * Counter all the data. If the visit time of one item is bigger than the predefined hotSpotThreshold,
- * this item is considered as a hot spot.
+ *         CounterHotSpotManager implement {@link BaseHotSpotManager} and detect the hot spots just by
+ *         counting the data items.
+ *         <p>
+ *         Counter all the data. If the visit time of one item is bigger than the predefined hotSpotThreshold,
+ *         this item is considered as a hot spot.
  */
 
 public class CounterHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
@@ -27,13 +29,13 @@ public class CounterHotSpotManager extends BaseHotSpotManager implements DealHot
 
     private static final int LOW_HOT_SPOT_THRESHOLD = 2;
 
-	public CounterHotSpotManager() {
+    public CounterHotSpotManager() {
         initConfig();
 
         currentHotSpotSet = new HashSet<String>();
-	}
+    }
 
-	@Override
+    @Override
     public void initConfig() {
         super.initConfig();
 
@@ -44,19 +46,19 @@ public class CounterHotSpotManager extends BaseHotSpotManager implements DealHot
                 + ", hotSpotPercentage = " + hotSpotPercentage);
     }
 
-	@Override
-	public void handleRegister(String key) {
+    @Override
+    public void handleRegister(String key) {
         LocalSpots.candidateColdSpots.remove(key);
-		if (!countMap.containsKey(key)) {
-			countMap.put(key, 0);
-		}
-		int visits = countMap.get(key) + 1;
+        if (!countMap.containsKey(key)) {
+            countMap.put(key, 0);
+        }
+        int visits = countMap.get(key) + 1;
         countMap.put(key, visits);
-		if (visits >= hotSpotThreshold && !currentHotSpotSet.contains(key)) {
-			currentHotSpotSet.add(key);
+        if (visits >= hotSpotThreshold && !currentHotSpotSet.contains(key)) {
+            currentHotSpotSet.add(key);
             dealHotData(key);
-		}
-	}
+        }
+    }
 
     @Override
     public void resetCounter() {
@@ -66,7 +68,7 @@ public class CounterHotSpotManager extends BaseHotSpotManager implements DealHot
     @Override
     public void recordHotSpot() {
         final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
-        for(String key: currentHotSpotSet) {
+        for (String key : currentHotSpotSet) {
             if (countMap.containsKey(key)) {
                 list.add(new HotSpotItem(key, countMap.get(key)));
             }
@@ -91,7 +93,7 @@ public class CounterHotSpotManager extends BaseHotSpotManager implements DealHot
         onFindHotSpot.dealHotSpot(key);
     }
 
-	public void dealColdData() {
+    public void dealColdData() {
         onFindHotSpot.dealColdSpot();
-	}
+    }
 }

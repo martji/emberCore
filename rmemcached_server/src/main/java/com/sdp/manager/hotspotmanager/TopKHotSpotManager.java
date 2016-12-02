@@ -17,29 +17,29 @@ import java.util.Map;
 
 public class TopKHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
 
-	private TopKFrequentDetectorImp frequentDetector;
-	private HashSet<String> currentHotSpotSet = new HashSet<String>();
+    private TopKFrequentDetectorImp frequentDetector;
+    private HashSet<String> currentHotSpotSet = new HashSet<String>();
 
-	public TopKHotSpotManager() {
-		initConfig();
+    public TopKHotSpotManager() {
+        initConfig();
 
-		frequentDetector = new TopKFrequentDetectorImp();
-	}
+        frequentDetector = new TopKFrequentDetectorImp();
+    }
 
-	@Override
-	public void initConfig() {
-		super.initConfig();
-	}
+    @Override
+    public void initConfig() {
+        super.initConfig();
+    }
 
-	@Override
-	public void handleRegister(String key) {
-		if (frequentDetector != null) {
-			if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
-				currentHotSpotSet.add(key);
-				dealHotData(key);
-			}
-		}
-	}
+    @Override
+    public void handleRegister(String key) {
+        if (frequentDetector != null) {
+            if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
+                currentHotSpotSet.add(key);
+                dealHotData(key);
+            }
+        }
+    }
 
     @Override
     public void resetCounter() {
@@ -50,14 +50,14 @@ public class TopKHotSpotManager extends BaseHotSpotManager implements DealHotSpo
     }
 
     @Override
-	public void recordHotSpot() {
-		final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
-		Map<String, Integer> map = frequentDetector.getCurrentHotSpot();
-		for (String key : map.keySet()) {
-			list.add(new HotSpotItem(key, map.get(key)));
-		}
-		recordCurrentHotSpot(list);
-	}
+    public void recordHotSpot() {
+        final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
+        Map<String, Integer> map = frequentDetector.getCurrentHotSpot();
+        for (String key : map.keySet()) {
+            list.add(new HotSpotItem(key, map.get(key)));
+        }
+        recordCurrentHotSpot(list);
+    }
 
     @Override
     public void dealData() {
@@ -68,15 +68,15 @@ public class TopKHotSpotManager extends BaseHotSpotManager implements DealHotSpo
     }
 
     public void dealHotData() {
-		onFindHotSpot.dealHotSpot();
-	}
+        onFindHotSpot.dealHotSpot();
+    }
 
-	public void dealColdData() {
-		onFindHotSpot.dealColdSpot();
-	}
+    public void dealColdData() {
+        onFindHotSpot.dealColdSpot();
+    }
 
-	public void dealHotData(String key) {
-		onFindHotSpot.dealHotSpot(key);
-	}
+    public void dealHotData(String key) {
+        onFindHotSpot.dealHotSpot(key);
+    }
 
 }

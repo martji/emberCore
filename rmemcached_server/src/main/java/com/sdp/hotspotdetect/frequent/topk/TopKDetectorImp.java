@@ -9,13 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author 2005-ICDT-Efficient Computation of Frequent and Top-k Elements in Data Streams
- * 1.采用m个counter对m个item进行监管，相应的counter有一个ε值，对应于代码中的preValue。
- * 2.当计数器更换监管item时，用ε记录下新item到来前的counter的值。计数器当前监管的item的数据项个数肯定大于Counter-ε，充分性
- * 3.处理过程：
- * 如果新到来的item已经被监管，则相应计数器加一
- * 如果新到来的item没有被监管，暂且相信它为频繁访问的item，找出当前计数器中值最小的item进行替换。该counter的值赋予ε，counter++
- * 4.判定过程：寻找top-k，实际找到的item个数为k’
- * 5.topElementsList中存储了热点数据，topElementsList数组两秒更新一次
+ *         1.采用m个counter对m个item进行监管，相应的counter有一个ε值，对应于代码中的preValue。
+ *         2.当计数器更换监管item时，用ε记录下新item到来前的counter的值。计数器当前监管的item的数据项个数肯定大于Counter-ε，充分性
+ *         3.处理过程：
+ *         如果新到来的item已经被监管，则相应计数器加一
+ *         如果新到来的item没有被监管，暂且相信它为频繁访问的item，找出当前计数器中值最小的item进行替换。该counter的值赋予ε，counter++
+ *         4.判定过程：寻找top-k，实际找到的item个数为k’
+ *         5.topElementsList中存储了热点数据，topElementsList数组两秒更新一次
  */
 
 public class TopKDetectorImp implements FrequentDetectorInterface {

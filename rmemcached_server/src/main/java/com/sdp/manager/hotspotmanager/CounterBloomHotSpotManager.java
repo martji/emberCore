@@ -15,59 +15,59 @@ import java.util.Set;
 
 public class CounterBloomHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
 
-	private CounterBloomDetectorImp frequentDetector;
+    private CounterBloomDetectorImp frequentDetector;
 
-	private Set<String> currentHotSpotSet =  Collections.synchronizedSet(new HashSet<String>());
+    private Set<String> currentHotSpotSet = Collections.synchronizedSet(new HashSet<String>());
 
-	public CounterBloomHotSpotManager() {
-		initConfig();
+    public CounterBloomHotSpotManager() {
+        initConfig();
 
-		frequentDetector = new CounterBloomDetectorImp();
-	}
+        frequentDetector = new CounterBloomDetectorImp();
+    }
 
-	@Override
-	public void initConfig() {
-		super.initConfig();
-	}
+    @Override
+    public void initConfig() {
+        super.initConfig();
+    }
 
-	@Override
-	public void handleRegister(String key) {
-		if (frequentDetector != null) {
-			if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
-				currentHotSpotSet.add(key);
-				dealHotData(key);
-			}
-		}
-	}
+    @Override
+    public void handleRegister(String key) {
+        if (frequentDetector != null) {
+            if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
+                currentHotSpotSet.add(key);
+                dealHotData(key);
+            }
+        }
+    }
 
     @Override
     public void resetCounter() {
-         frequentDetector.resetCounter();
+        frequentDetector.resetCounter();
     }
 
     @Override
-	public void recordHotSpot() {
+    public void recordHotSpot() {
 
-	}
+    }
 
     @Override
     public void dealData() {
-		dealHotData();
-		LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
-		currentHotSpotSet.clear();
-		dealColdData();
+        dealHotData();
+        LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
+        currentHotSpotSet.clear();
+        dealColdData();
     }
 
     public void dealHotData() {
-		onFindHotSpot.dealHotSpot();
-	}
+        onFindHotSpot.dealHotSpot();
+    }
 
-	public void dealColdData() {
-		onFindHotSpot.dealColdSpot();
-	}
+    public void dealColdData() {
+        onFindHotSpot.dealColdSpot();
+    }
 
-	public void dealHotData(String key) {
-		onFindHotSpot.dealHotSpot(key);
-	}
+    public void dealHotData(String key) {
+        onFindHotSpot.dealHotSpot(key);
+    }
 
 }

@@ -2,7 +2,6 @@ package com.sdp.config;
 
 import com.sdp.log.Log;
 import com.sdp.server.EmberServerNode;
-import com.sun.crypto.provider.DESCipher;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -118,7 +117,7 @@ public class ConfigManager {
         }
     }
 
-    public static void setId (int id) {
+    public static void setId(int id) {
         ConfigManager.id = id;
     }
 

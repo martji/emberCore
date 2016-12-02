@@ -18,12 +18,12 @@ import java.util.Map;
  * StreamHotSpotManager implement {@link BaseHotSpotManager} and detects the hot spots by a
  * 3-steps stream mining algorithm. This algorithm contains three steps: data sampling, data filter
  * and data counter.
- *
+ * <p>
  * The data sampling is done by the ember client side and the sampling percentage can be configured.
- *
+ * <p>
  * The data filter{@link BloomDetectorInterface} is based on the 20/80 theory, and the hot spots must be in
  * the 20%.
- *
+ * <p>
  * The data counter{@link FrequentDetectorInterface} intends to find the hot spots by counting the data items,
  * but it does not calculate all the data items.
  */
@@ -70,7 +70,7 @@ public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotS
         String frequentCounterOut = frequentDetector.updateHotSpot();
         frequentDetector.resetCounter();
 
-        Log.log.info("[StreamHotSpotManager] " + bloomFilterOut + " | " +  frequentCounterOut);
+        Log.log.info("[StreamHotSpotManager] " + bloomFilterOut + " | " + frequentCounterOut);
     }
 
     @Override

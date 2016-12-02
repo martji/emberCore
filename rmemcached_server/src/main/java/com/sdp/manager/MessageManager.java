@@ -4,26 +4,26 @@ package com.sdp.manager;
  * @author magq
  * MessageManager implement {@link com.sdp.manager.MessageManagerInterface} and handles the messages
  * received by EmberServerHandler, and send the message to other managers according to the message type.
- *
+ * <p>
  * There are three different managers to handle different messages: hotSpotManager,
  * replicaManager and consistencyManager.
- *
+ * <p>
  * The hotSpotManager{@link com.sdp.manager.hotspotmanager.BaseHotSpotManager} deals with the sampling messages and
  * detects the hot spots by analyzing the request stream. The hot spots found by hotSpotManager
  * will dealt by the replicaManager.
- *
+ * <p>
  * The replicaManager{@link com.sdp.manager.ReplicaManager} deals with the replicas management of
  * hot spots, including create replicas for hot spots, retire the redundant replicas and recovery
  * the data.
- *
+ * <p>
  * The consistencyManager{@link com.sdp.manager.ConsistencyManager} mainly deals with the write
  * requests and guarantee the consistency among different replicas.
  */
 
 import com.sdp.common.EMSGID;
+import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.BaseHotSpotManager;
 import com.sdp.manager.hotspotmanager.HotSpotManagerFactory;
-import com.sdp.log.Log;
 import com.sdp.message.CtsMsg;
 import com.sdp.message.CtsMsg.nr_read;
 import com.sdp.message.CtsMsg.nr_register;
@@ -38,7 +38,7 @@ import java.util.Vector;
 /**
  * Created by magq on 16/7/6.
  */
-public class MessageManager implements MessageManagerInterface{
+public class MessageManager implements MessageManagerInterface {
 
     private BaseHotSpotManager hotSpotManager;
     private ReplicaManager replicaManager;
