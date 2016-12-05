@@ -2,13 +2,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.sdp.rmemcache</groupId>
-  <artifactId>rmemcached_monitor</artifactId>
-  <version>1.5.20</version>
+  <groupId>com.sdp.ember</groupId>
+  <artifactId>ember_monitor</artifactId>
+  <version>3.0.0</version>
   <packaging>jar</packaging>
 
-  <name>rmemcached_monitor</name>
-  <url>http://maven.apache.org</url>
+  <name>ember_monitor</name>
+  <url>https://github.com/martji/emberCore</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,7 +23,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -52,7 +52,9 @@
   <build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.0.0</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -63,6 +65,15 @@
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
