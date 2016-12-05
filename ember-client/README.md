@@ -1,5 +1,6 @@
-# RMemcached Client
-Ember client, which is a jar package for developer to use Ember.
+# Ember Client
+Ember client is a jar package for developer to use Ember.
 
 ## Update log
-- 20161201, V3.0: decouple the code with ycsb;
+- 20161205, reformat codes;
+- 20161201, create V3.0 and decouple the code with ycsb;
