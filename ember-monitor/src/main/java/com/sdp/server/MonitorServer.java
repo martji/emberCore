@@ -1,10 +1,9 @@
 package com.sdp.server;
 
 import com.sdp.common.RegisterHandler;
+import com.sdp.log.Log;
 import com.sdp.netty.MDecoder;
 import com.sdp.netty.MEncoder;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -24,7 +23,6 @@ public class MonitorServer {
     ServerBootstrap bootstrap;
     MonitorServerHandler mServerHandler;
 
-    Logger log;
     int port;
 
     public static void main(String args[]) {
@@ -33,8 +31,6 @@ public class MonitorServer {
     }
 
     public MonitorServer() {
-        PropertyConfigurator.configure(System.getProperty("user.dir") + "/config/log4j.properties");
-        log = Logger.getLogger(MonitorServer.class.getName());
         getConfig();
         mServerHandler = new MonitorServerHandler();
         init(port);
@@ -50,7 +46,7 @@ public class MonitorServer {
         bootstrap.setOption("child.keepAlive", true);
         bootstrap.setOption("reuseAddress", true);
         bootstrap.bind(new InetSocketAddress(port));
-        System.out.println("MonitorManager start service.");
+        Log.log.info("[Netty] MonitorManager start service");
     }
 
     public void getConfig() {
@@ -60,7 +56,7 @@ public class MonitorServer {
             properties.load(new FileInputStream(configPath));
             port = Integer.parseInt(properties.getProperty("port"));
         } catch (Exception e) {
-            log.error("wrong config.properties", e);
+            Log.log.error("wrong config.properties", e);
         }
     }
 

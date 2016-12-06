@@ -3,13 +3,13 @@ package com.sdp.manager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sdp.common.EMSGID;
+import com.sdp.log.Log;
 import com.sdp.messagebody.CtsMsg.nr_cpuStats;
 import com.sdp.netty.NetMsg;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -27,10 +27,9 @@ public class MonitorManager extends Thread {
     }
 
     public void run() {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while (true) {
             try {
-                System.out.println(df.format(new Date()) + ": [CPUCost] " + medianCpuCostMap.toString());
+                Log.log.info("[CPUCost] " + medianCpuCostMap.toString());
                 Thread.sleep(1000 * 5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -48,7 +47,7 @@ public class MonitorManager extends Thread {
                     channel.write(send);
                 } else {
                     int serverId = server.getKey();
-                    System.out.println(df.format(new Date()) + ": [Netty] Server " + serverId + " lose connect.");
+                    Log.log.info("[Netty] Server " + serverId + " lose connect");
                     serverChannelMap.remove(serverId);
                     medianCpuCostMap.remove(serverId);
                     cpuCostMap.remove(serverId);

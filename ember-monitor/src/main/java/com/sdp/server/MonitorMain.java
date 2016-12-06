@@ -1,6 +1,7 @@
 package com.sdp.server;
 
 import com.sdp.common.RegisterHandler;
+import com.sdp.log.Log;
 
 public class MonitorMain {
 
@@ -9,6 +10,7 @@ public class MonitorMain {
      */
     public static void main(String[] args) {
         RegisterHandler.initHandler();
+        Log.init();
         new MonitorServer();
     }
 }

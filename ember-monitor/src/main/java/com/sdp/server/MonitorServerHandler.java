@@ -1,6 +1,7 @@
 package com.sdp.server;
 
 import com.sdp.common.EMSGID;
+import com.sdp.log.Log;
 import com.sdp.messagebody.CtsMsg.nr_apply_replica;
 import com.sdp.messagebody.CtsMsg.nr_apply_replica_res;
 import com.sdp.messagebody.CtsMsg.nr_cpuStats_res;
@@ -47,7 +48,7 @@ public class MonitorServerHandler extends SimpleChannelUpstreamHandler {
         switch (msg.getMsgID()) {
             case nm_connected: {
                 int clientNode = msg.getNodeRoute();
-                System.out.println("Register info: instanceId: " + clientNode + " channel: " + e.getChannel());
+                Log.log.info("[Netty] register: instanceId = " + clientNode + " channel = " + e.getChannel());
                 monitor.addServer(clientNode, e.getChannel());
 
                 nm_connected_mem_back.Builder builder = nm_connected_mem_back.newBuilder();

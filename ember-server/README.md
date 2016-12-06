@@ -39,5 +39,4 @@ Run the *EmberServerMain* class and input the server id.
 - gson 2.3.1
 - protobuf-java 2.4.1
 - netty 3.5.7.Final
-- spymemcached 2.7.3
 
