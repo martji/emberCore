@@ -45,7 +45,7 @@ public class EmberServer {
     private EmberServerHandler rServerHandler;
     private EmberClient monitorClient;
 
-    public static final int SLEEP_TIME = 30 * 1000;
+    private static final int SLEEP_TIME = 30 * 1000;
 
     public EmberServer() {
         initDataClientMap();
@@ -106,38 +106,20 @@ public class EmberServer {
         LocalMonitor.getInstance().setPort(serverPort);
         Log.log.info("[Monitor] " + monitorAddress);
         String[] arr = monitorAddress.split(":");
-
         final String host = arr[0];
         final int port = Integer.parseInt(arr[1]);
-        monitorClient = new EmberClient(id, host, port);
-        while (monitorClient.getMChannel() == null) {
-            try {
-                Thread.sleep(SLEEP_TIME);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            monitorClient.connect(host, port);
-        }
-        LocalMonitor.getInstance().setMonitorChannel(monitorClient.getMChannel());
 
+        monitorClient = new EmberClient(id, host, port);
         new Thread(new Runnable() {
             public void run() {
                 while (true) {
                     try {
-                        Thread.sleep(SLEEP_TIME * 2);
+                        Thread.sleep(SLEEP_TIME);
+                        if (monitorClient.getMChannel() == null || !monitorClient.getMChannel().isConnected()) {
+                            monitorClient.connect();
+                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                    }
-                    if (!monitorClient.getMChannel().isConnected()) {
-                        while (!monitorClient.getMChannel().isConnected()) {
-                            monitorClient.connect(host, port);
-                            try {
-                                Thread.sleep(SLEEP_TIME);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        LocalMonitor.getInstance().setMonitorChannel(monitorClient.getMChannel());
                     }
                 }
             }
@@ -167,10 +149,15 @@ public class EmberServer {
     }
 
     public String getAReplica() {
-        if (monitorClient != null) {
+        if (monitorClient == null || monitorClient.getMChannel() == null) {
+            Log.log.warn("[Netty] connect to monitor failed");
+            if (monitorClient != null) {
+                monitorClient.connect();
+            }
+            return null;
+        } else {
             return monitorClient.asyncGetAReplica();
         }
-        return null;
     }
 
     private class MServerPipelineFactory implements ChannelPipelineFactory {

@@ -18,9 +18,11 @@ import java.util.Map.Entry;
  */
 public class MonitorManager extends Thread {
 
-    ConcurrentHashMap<Integer, Channel> serverChannelMap = new ConcurrentHashMap<Integer, Channel>();
-    Map<Integer, Queue<Double>> cpuCostMap = new HashMap<Integer, Queue<Double>>();
-    Map<Integer, Double> medianCpuCostMap = new HashMap<Integer, Double>();
+    private final int SLEEP_TIME = 5 * 1000;
+
+    private ConcurrentHashMap<Integer, Channel> serverChannelMap = new ConcurrentHashMap<Integer, Channel>();
+    private Map<Integer, Queue<Double>> cpuCostMap = new HashMap<Integer, Queue<Double>>();
+    private Map<Integer, Double> medianCpuCostMap = new HashMap<Integer, Double>();
 
     public MonitorManager() {
 
@@ -29,8 +31,10 @@ public class MonitorManager extends Thread {
     public void run() {
         while (true) {
             try {
-                Log.log.info("[CPU] " + medianCpuCostMap.toString());
-                Thread.sleep(1000 * 5);
+                Thread.sleep(SLEEP_TIME);
+                if (medianCpuCostMap.size() > 0) {
+                    Log.log.info("[CPU] " + medianCpuCostMap.toString());
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -47,7 +51,7 @@ public class MonitorManager extends Thread {
                     channel.write(send);
                 } else {
                     int serverId = server.getKey();
-                    Log.log.info("[Netty] Server " + serverId + " lose connect");
+                    Log.log.info("[Netty] server " + serverId + " lose connect");
                     serverChannelMap.remove(serverId);
                     medianCpuCostMap.remove(serverId);
                     cpuCostMap.remove(serverId);
@@ -74,9 +78,9 @@ public class MonitorManager extends Thread {
             }
             medianCpuCostMap.put(clientNode, getData((medianCpuCostMap.get(clientNode) + cost) / 2));
         } else {
-            Queue<Double> arryCpuCost = new LinkedList<Double>();
-            arryCpuCost.offer(cost);
-            cpuCostMap.put(clientNode, arryCpuCost);
+            Queue<Double> arrCpuCost = new LinkedList<Double>();
+            arrCpuCost.offer(cost);
+            cpuCostMap.put(clientNode, arrCpuCost);
             medianCpuCostMap.put(clientNode, getData(cost));
         }
     }

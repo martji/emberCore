@@ -37,16 +37,14 @@ public class MonitorServer {
     }
 
     public void init(int port) {
-        bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
-                Executors.newCachedThreadPool(),
+        bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool()));
-
         bootstrap.setPipelineFactory(new MServerPipelineFactory(mServerHandler));
         bootstrap.setOption("child.tcpNoDelay", true);
         bootstrap.setOption("child.keepAlive", true);
         bootstrap.setOption("reuseAddress", true);
         bootstrap.bind(new InetSocketAddress(port));
-        Log.log.info("[Netty] MonitorManager start service");
+        Log.log.info("[Netty] MonitorServer start");
     }
 
     public void getConfig() {
@@ -56,7 +54,7 @@ public class MonitorServer {
             properties.load(new FileInputStream(configPath));
             port = Integer.parseInt(properties.getProperty("port"));
         } catch (Exception e) {
-            Log.log.error("wrong config.properties", e);
+            e.printStackTrace();
         }
     }
 

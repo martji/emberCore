@@ -28,6 +28,7 @@ public class EmberClientMain {
      */
     private int replicasNum;
 
+    private final int MODE = DataClientFactory.EMBER_MODE;
     private final int RECORD_COUNT = 100;
 
     /**
@@ -44,7 +45,7 @@ public class EmberClientMain {
         getConfig();
         getServerList();
 
-        DBClient client = new DBClient(DataClientFactory.MC_MODE, serverNodes);
+        DBClient client = new DBClient(MODE, serverNodes);
         client.initConfig(RECORD_COUNT, DBClient.SLICE_HASH_MODE, DBClient.SYNC_SET_MODE);
         run(client);
         client.shutdown();

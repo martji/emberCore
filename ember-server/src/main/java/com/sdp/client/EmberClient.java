@@ -29,19 +29,21 @@ import java.util.concurrent.TimeUnit;
 
 public class EmberClient {
 
-    int serverId;
-    String host;
-    int port;
-    ClientBootstrap bootstrap;
-    Channel mChannel = null;
-    EmberClientHandler mClientHandler;
-    private static long timeout = 2500;
+    private int serverId;
+    private String host;
+    private int port;
+
+    private ClientBootstrap bootstrap;
+    private Channel mChannel;
+    private EmberClientHandler mClientHandler;
+
+    private static final long TIMEOUT = 2500;
 
     public EmberClient(int id, String host, int port) {
         this.serverId = id;
         this.host = host;
         this.port = port;
-        init(id, host, port);
+        init();
     }
 
     public EmberClient(EmberServerNode serverNode) {
@@ -52,7 +54,7 @@ public class EmberClient {
         this.serverId = serverId;
         this.host = host;
         this.port = port;
-        init(serverId, host, port);
+        init();
     }
 
     public EmberClient(int serverId, EmberServerNode serverNode) {
@@ -62,63 +64,37 @@ public class EmberClient {
         this.serverId = serverId;
         this.host = host;
         this.port = port;
-        init(serverId, host, port);
+        init();
     }
 
     public void init() {
-        init(0, "127.0.0.1", 8080);
-    }
-
-    public void shutdown() {
-        mChannel.close();
-    }
-
-    public void init(int id, String host, int port) {
         try {
-            bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
-                    Executors.newCachedThreadPool(),
+            bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
                     Executors.newCachedThreadPool()));
-
-            mClientHandler = new EmberClientHandler(id);
+            mClientHandler = new EmberClientHandler(serverId);
             bootstrap.setPipelineFactory(new MClientPipelineFactory(mClientHandler));
 
-            try {
-                ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port)).sync();
-                while (!future.isDone()) {
-                }
-                mChannel = future.getChannel();
-            } catch (ChannelException e) {
-            }
+            connect();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public void reconnect() {
+    public void shutdown() {
+        mChannel.close();
+        bootstrap.releaseExternalResources();
+    }
+
+    public void connect() {
         try {
             ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port)).sync();
             while (!future.isDone()) {
             }
             mChannel = future.getChannel();
         } catch (Exception e) {
+            Log.log.error("[Netty] can not connect to monitor");
         }
-    }
-
-    public void connect(String host, int port) {
-        try {
-            ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port)).sync();
-            while (!future.isDone()) {
-            }
-            mChannel = future.getChannel();
-        } catch (Exception e) {
-        }
-    }
-
-    public void connect(EmberServerNode serverNode) {
-        String host = serverNode.getHost();
-        int port = serverNode.getReadPort();
-        connect(host, port);
     }
 
     public String asyncGetAReplica() {
@@ -134,20 +110,26 @@ public class EmberClient {
         msg.setNodeRoute(serverId);
         msg.setMessageLite(builder);
         msg.setMsgID(EMSGID.nr_apply_replica);
-        if (mChannel == null) {
-            Log.log.error("[Netty] do not connect to monitor");
+        if (!mChannel.isConnected()) {
+            Log.log.warn("[Netty] lose connection with monitor");
+            connect();
             return null;
         }
         mChannel.write(msg);
 
         try {
-            return future.get(timeout, TimeUnit.MILLISECONDS);
+            return future.get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    /**
+     * @deprecated
+     * @param key
+     * @return
+     */
     public String readFromReplica(String key) {
         CountDownLatch latch = new CountDownLatch(1);
         BaseOperation<String> op = new BaseOperation<String>(new MCallback<String>(latch));
@@ -164,13 +146,20 @@ public class EmberClient {
         mChannel.write(msg);
 
         try {
-            return future.get(timeout, TimeUnit.MILLISECONDS);
+            return future.get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
+
+    /**
+     * @deprecated
+     * @param key
+     * @param value
+     * @return
+     */
     public boolean recoveryAReplica(String key, String value) {
         CountDownLatch latch = new CountDownLatch(1);
         BaseOperation<Boolean> op = new BaseOperation<Boolean>(new MCallback<Boolean>(latch));
@@ -188,7 +177,7 @@ public class EmberClient {
         mChannel.write(msg);
 
         try {
-            return future.get(timeout, TimeUnit.MILLISECONDS);
+            return future.get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }

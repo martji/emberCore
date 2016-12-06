@@ -40,7 +40,7 @@ public class EmberServerMain {
         ConfigManager.setId(id);
         Log.setInstanceId(id);
         Log.init();
-        Log.log.info("[Ember server] new ember instance start, instance id: " + id);
+        Log.log.info("[Ember server] new ember server instance start, serverId = " + id);
 
         RegisterHandler.initHandler();
         EmberServer mServer = new EmberServer();
@@ -51,7 +51,7 @@ public class EmberServerMain {
     }
 
     public int getServerNumber() {
-        System.out.print("Please input the server number:");
+        System.out.print("Please input the serverId:");
         Scanner scanner = new Scanner(System.in);
         return Integer.decode(scanner.next());
     }

@@ -18,6 +18,7 @@ public class DBClient implements DataClient {
 
     public static final int SLICE_HASH_MODE = 0;
     public static final int INDEX_HASH_MODE = 1;
+    public static final int RANDOM_HASH_MODE = 2;
 
     public static final int SYNC_SET_MODE = 0;
     public static final int ASYNC_SET_MODE = 0;
@@ -102,15 +103,14 @@ public class DBClient implements DataClient {
     public int getDataLocation(String key) {
         try {
             int clientNum = clientIdList.size();
-            if (clientNum == 1) {
-                return clientIdList.get(0);
-            } else {
+            if (clientNum != 1) {
                 if (dataHashMode == SLICE_HASH_MODE) {
-                    getSliceMem(key, clientNum);
+                    return getSliceMem(key, clientNum);
                 } else if (dataHashMode == INDEX_HASH_MODE) {
-                    getIndexMem(key, clientNum);
+                    return getIndexMem(key, clientNum);
+                } else if (dataHashMode == RANDOM_HASH_MODE) {
+                    return getRandomMem(key, clientNum);
                 }
-                return getRandomMem(key, clientNum);
             }
         } catch (Exception e) {
         }

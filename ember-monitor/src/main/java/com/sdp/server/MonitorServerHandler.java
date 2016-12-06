@@ -16,7 +16,7 @@ import org.jboss.netty.channel.*;
 
 public class MonitorServerHandler extends SimpleChannelUpstreamHandler {
 
-    MonitorManager monitor;
+    private MonitorManager monitor;
 
     public MonitorServerHandler() {
         monitor = new MonitorManager();
@@ -44,7 +44,7 @@ public class MonitorServerHandler extends SimpleChannelUpstreamHandler {
         switch (msg.getMsgID()) {
             case nm_connected: {
                 int clientNode = msg.getNodeRoute();
-                Log.log.info("[Netty] register: instanceId = " + clientNode + " channel = " + e.getChannel());
+                Log.log.info("[Netty] add serverId = " + clientNode + " channel = " + e.getChannel());
                 monitor.addServer(clientNode, e.getChannel());
 
                 nm_connected_mem_back.Builder builder = nm_connected_mem_back.newBuilder();

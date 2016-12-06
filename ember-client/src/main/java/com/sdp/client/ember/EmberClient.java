@@ -77,7 +77,9 @@ public class EmberClient {
 
     public void shutdown() {
         readChannel.close();
+        readBootstrap.releaseExternalResources();
         writeChannel.close();
+        writeBootstrap.releaseExternalResources();
     }
 
     public String get(String key, int failedId) {

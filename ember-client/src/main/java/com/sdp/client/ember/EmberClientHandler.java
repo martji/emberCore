@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sdp.common.EMSGID;
+import com.sdp.log.Log;
 import com.sdp.message.CtsMsg.nr_connected_mem;
 import com.sdp.message.CtsMsg.nr_read_res;
 import com.sdp.message.CtsMsg.nr_replicas_res;
@@ -68,7 +69,7 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
         NetMsg msg = (NetMsg) e.getMessage();
         switch (msg.getMsgID()) {
             case nr_connected_mem_back: {
-                System.out.println("[Netty] connect to server successed, channel: " + e.getChannel());
+                Log.log.info("[Netty] connect to server succeed, channel = " + e.getChannel());
             }
             break;
             case nr_replicas_res: {
@@ -76,7 +77,7 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
                 String key = msgBody.getKey();
                 String value = msgBody.getValue();
                 if (key.length() != 0) {
-                    System.out.println("[Netty] replication update: " + key + ", " + value);
+                    Log.log.info("[Netty] replicas update: " + key + ", " + value);
                     updateKeyReplicaMap(key, value);
                 } else {
                     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();

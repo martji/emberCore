@@ -6,13 +6,13 @@
 
 #Get the cpuCost of a process according to the port
 function GetPid {
-	number=`lsof -i:$1 -F p | head -n 1`
+	number=`lsof -a -i:$1 -c memcached -F p | head -n 1`
 	echo ${number:1}
 }
 function GetResult {
 	port=$1
 	pid=`GetPid $port`
-	result=`top -p $pid -n 1 -b | grep mem`
+	result=`top -p $pid -n 1 -b | grep memcached`
 	echo $result
 }
 

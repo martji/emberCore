@@ -2,6 +2,9 @@ package com.sdp.client.interfaces;
 
 /**
  * @author martji
+ *
+ * DataClient includes {@link com.sdp.client.memcached.McDataClient}, {@link com.sdp.client.redis.RedisDataClient} and
+ * {@link com.sdp.client.ember.EmberDataClient}
  */
 
 public interface DataClient {
