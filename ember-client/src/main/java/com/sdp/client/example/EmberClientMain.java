@@ -3,9 +3,8 @@ package com.sdp.client.example;
 import com.sdp.client.DBClient;
 import com.sdp.client.DataClientFactory;
 import com.sdp.common.RegisterHandler;
+import com.sdp.log.Log;
 import com.sdp.server.ServerNode;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -22,7 +21,6 @@ import java.util.Properties;
 
 public class EmberClientMain {
 
-    private Logger log;
     private List<ServerNode> serverNodes;
 
     /**
@@ -36,16 +34,12 @@ public class EmberClientMain {
      * @param args
      */
     public static void main(String[] args) {
+        Log.init();
         EmberClientMain launch = new EmberClientMain();
         launch.test();
     }
 
     public void test() {
-        String logPath = System.getProperty("user.dir") + "/config/log4j.properties";
-        PropertyConfigurator.configure(logPath);
-        log = Logger.getLogger(EmberClientMain.class.getName());
-        log.info("logPath: " + logPath);
-
         RegisterHandler.initHandler();
         getConfig();
         getServerList();
@@ -69,23 +63,23 @@ public class EmberClientMain {
         for (int i = 0; i < RECORD_COUNT; i++) {
             boolean result = client.set(key + i, value);
             if (!result) {
-                System.out.println(">>request: set " + key + i + ", error!");
+                Log.log.error("request: set " + key + i + ", error!");
             }
         }
         end = System.currentTimeMillis();
         time = end - begin;
-        System.out.println(RECORD_COUNT + " sets: " + time + "ms");
+        Log.log.info(RECORD_COUNT + " sets: " + time + "ms");
 
         begin = System.currentTimeMillis();
         for (int i = 0; i < RECORD_COUNT; i++) {
             String result = client.get(key + i);
             if (result == null || result.length() == 0) {
-                System.out.println(">>request: get " + key + i + ", error!");
+                Log.log.error("request: get " + key + i + ", error!");
             }
         }
         end = System.currentTimeMillis();
         time = end - begin;
-        System.out.println(RECORD_COUNT + " gets: " + time + "ms");
+        Log.log.info(RECORD_COUNT + " gets: " + time + "ms");
     }
 
     public void getServerList() {
@@ -106,7 +100,7 @@ public class EmberClientMain {
                 serverNodes.add(serverNode);
             }
         } catch (DocumentException e) {
-            log.error("wrong servers.xml", e);
+            Log.log.error("wrong servers.xml", e);
         }
     }
 
@@ -117,7 +111,7 @@ public class EmberClientMain {
             properties.load(new FileInputStream(configPath));
             replicasNum = Integer.parseInt(properties.getProperty("replicasNum"));
         } catch (Exception e) {
-            log.error("wrong config.properties", e);
+            Log.log.error("wrong config.properties", e);
         }
     }
 }

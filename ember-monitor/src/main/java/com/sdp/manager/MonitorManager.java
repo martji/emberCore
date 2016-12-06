@@ -29,7 +29,7 @@ public class MonitorManager extends Thread {
     public void run() {
         while (true) {
             try {
-                Log.log.info("[CPUCost] " + medianCpuCostMap.toString());
+                Log.log.info("[CPU] " + medianCpuCostMap.toString());
                 Thread.sleep(1000 * 5);
             } catch (InterruptedException e) {
                 e.printStackTrace();

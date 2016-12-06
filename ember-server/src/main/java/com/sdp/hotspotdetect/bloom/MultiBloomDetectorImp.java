@@ -116,7 +116,7 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
             frequentThreshold = LOW_FREQUENT_THRESHOLD;
         }
 
-        String result = "[Multi-Bloom Filter] bloom filter pass percentage = " + itemPass + "/" + itemSum +
+        String result = "bloomFilter pass = " + itemPass + "/" + itemSum +
                 " frequentThreshold = " + frequentThreshold;
 
         itemSum = 0;

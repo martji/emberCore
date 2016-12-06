@@ -102,7 +102,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
             }
         }
 
-        String result = "[SWFP] hot spot influence = " + totalCount + "/" + itemSum +
+        String result = " hotSpot influence = " + totalCount + "/" + itemSum +
                 " counterNumber = " + counterNumber;
         return result;
     }

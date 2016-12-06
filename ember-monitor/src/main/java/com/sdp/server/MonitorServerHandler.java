@@ -8,7 +8,6 @@ import com.sdp.messagebody.CtsMsg.nr_cpuStats_res;
 import com.sdp.messagebody.StsMsg.nm_connected_mem_back;
 import com.sdp.manager.MonitorManager;
 import com.sdp.netty.NetMsg;
-import org.apache.log4j.Logger;
 import org.jboss.netty.channel.*;
 
 /**
@@ -17,12 +16,9 @@ import org.jboss.netty.channel.*;
 
 public class MonitorServerHandler extends SimpleChannelUpstreamHandler {
 
-    Logger logger;
     MonitorManager monitor;
 
     public MonitorServerHandler() {
-        logger = Logger.getLogger(MonitorServerHandler.class);
-
         monitor = new MonitorManager();
         monitor.start();
     }

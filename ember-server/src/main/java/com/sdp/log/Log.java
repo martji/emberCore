@@ -1,7 +1,7 @@
 package com.sdp.log;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author martji
@@ -12,17 +12,17 @@ public class Log {
     public static int id = -1;
 
     public static void init(String path) {
-        PropertyConfigurator.configure(path);
-        log = Logger.getRootLogger();
+        System.setProperty("log4j.configurationFile", path);
+        log = LogManager.getRootLogger();
     }
 
     public static void init() {
-        String path = System.getProperty("user.dir") + "/config/log4j.properties";
+        String path = System.getProperty("user.dir") + "/config/log4j2.xml";
         init(path);
     }
 
     public static void setInstanceId(int id) {
         Log.id = id;
-        System.setProperty("config.id", id + "");
+        System.setProperty("server.id", id + "");
     }
 }
