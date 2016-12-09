@@ -2,6 +2,7 @@ package com.sdp.manager.hotspotmanager;
 
 import com.sdp.config.ConfigManager;
 import com.sdp.log.Log;
+import com.sdp.replicas.LocalSpots;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,6 +31,8 @@ public abstract class BaseHotSpotManager implements Runnable {
             "/logs/server_%d_hot_spot.data", ConfigManager.id);
 
     public OnFindHotSpot onFindHotSpot;
+
+    private int requestNum;
 
     public BaseHotSpotManager() {
     }
@@ -64,15 +67,19 @@ public abstract class BaseHotSpotManager implements Runnable {
      * @param key
      */
     public void handleRegister(String key) {
+        requestNum++;
+        LocalSpots.candidateColdSpots.remove(key);
     }
 
     public void resetCounter() {
+        requestNum = 0;
     }
 
     /**
      * Write the current hot spots to file.
      */
     public void recordHotSpot() {
+        Log.log.info("requestNum = " + requestNum);
     }
 
     public void recordCurrentHotSpot(final List<HotSpotItem> list) {

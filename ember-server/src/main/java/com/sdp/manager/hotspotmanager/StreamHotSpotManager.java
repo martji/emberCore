@@ -4,7 +4,6 @@ import com.sdp.hotspotdetect.bloom.MultiBloomDetectorImp;
 import com.sdp.hotspotdetect.frequent.SWFPDetectorImp;
 import com.sdp.hotspotdetect.interfaces.BloomDetectorInterface;
 import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
-import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
 import com.sdp.replicas.LocalSpots;
 
@@ -48,8 +47,9 @@ public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotS
 
     @Override
     public void handleRegister(String key) {
+        super.handleRegister(key);
+
         if (bloomDetector != null && frequentDetector != null) {
-            LocalSpots.candidateColdSpots.remove(key);
             if (bloomDetector.registerItem(key)) {
                 if (frequentDetector.registerItem(key)) {
                     if (currentHotSpotSet.contains(key)) {
@@ -64,17 +64,19 @@ public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotS
 
     @Override
     public void resetCounter() {
-        String bloomFilterOut = bloomDetector.updateFilterThreshold();
+        super.resetCounter();
+
+        bloomDetector.updateFilterThreshold();
         bloomDetector.resetCounter();
 
-        String frequentCounterOut = frequentDetector.updateHotSpot();
+        frequentDetector.updateThreshold();
         frequentDetector.resetCounter();
-
-        Log.log.info("[StreamHotSpotManager] " + bloomFilterOut + " | " + frequentCounterOut);
     }
 
     @Override
     public void recordHotSpot() {
+        super.recordHotSpot();
+
         final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
         Map<String, Integer> map = frequentDetector.getCurrentHotSpot();
         for (String key : map.keySet()) {

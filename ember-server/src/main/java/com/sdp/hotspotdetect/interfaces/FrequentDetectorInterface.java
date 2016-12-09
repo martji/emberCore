@@ -24,5 +24,5 @@ public interface FrequentDetectorInterface {
 
     void resetCounter();
 
-    String updateHotSpot();
+    void updateThreshold();
 }

@@ -32,6 +32,8 @@ public class CounterBloomHotSpotManager extends BaseHotSpotManager implements De
 
     @Override
     public void handleRegister(String key) {
+        super.handleRegister(key);
+
         if (frequentDetector != null) {
             if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
                 currentHotSpotSet.add(key);
@@ -42,12 +44,14 @@ public class CounterBloomHotSpotManager extends BaseHotSpotManager implements De
 
     @Override
     public void resetCounter() {
+        super.resetCounter();
+
         frequentDetector.resetCounter();
     }
 
     @Override
     public void recordHotSpot() {
-
+        super.recordHotSpot();
     }
 
     @Override

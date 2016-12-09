@@ -1,7 +1,5 @@
 package com.sdp.hotspotdetect.interfaces;
 
-import java.util.Vector;
-
 /**
  * Created by magq on 16/1/12.
  */
@@ -14,7 +12,7 @@ public interface BloomDetectorInterface {
 
     /**
      * @param key
-     * @return the indexs of the key
+     * @return the index array of the key
      */
     int[] getHashIndex(String key);
 
@@ -23,17 +21,7 @@ public interface BloomDetectorInterface {
      */
     boolean registerItem(String key);
 
-    /**
-     * reset the counter period
-     */
-    void resetBloomCounters();
-
-    /**
-     * @return hot spots
-     */
-    Vector<String> getHotSpots();
-
-    String updateFilterThreshold();
+    void updateFilterThreshold();
 
     void resetCounter();
 

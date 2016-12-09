@@ -166,8 +166,7 @@ public class MultiBloomCounterDetectorImp implements FrequentDetectorInterface {
         currentHotSpotCounters.clear();
     }
 
-    public String updateHotSpot() {
-        return null;
+    public void updateThreshold() {
     }
 
 }

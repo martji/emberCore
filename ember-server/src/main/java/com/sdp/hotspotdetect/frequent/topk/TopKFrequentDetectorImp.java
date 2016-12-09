@@ -79,10 +79,9 @@ public class TopKFrequentDetectorImp implements FrequentDetectorInterface {
         currentHotSpotCounters.clear();
     }
 
-    public String updateHotSpot() {
+    public void updateThreshold() {
         itemSum -= preItemSum;
         preItemSum = itemSum;
-        return null;
     }
 
 }

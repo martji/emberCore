@@ -32,6 +32,8 @@ public class FrequentHotSpotManager extends BaseHotSpotManager implements DealHo
 
     @Override
     public void handleRegister(String key) {
+        super.handleRegister(key);
+
         if (frequentDetector != null) {
             if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
                 currentHotSpotSet.add(key);
@@ -42,10 +44,13 @@ public class FrequentHotSpotManager extends BaseHotSpotManager implements DealHo
 
     @Override
     public void resetCounter() {
+        super.resetCounter();
     }
 
     @Override
     public void recordHotSpot() {
+        super.recordHotSpot();
+
         final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
         Map<String, Integer> map = frequentDetector.getCurrentHotSpot();
         for (String key : map.keySet()) {

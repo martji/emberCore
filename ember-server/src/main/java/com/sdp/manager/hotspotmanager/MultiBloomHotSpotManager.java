@@ -32,6 +32,8 @@ public class MultiBloomHotSpotManager extends BaseHotSpotManager implements Deal
 
     @Override
     public void handleRegister(String key) {
+        super.handleRegister(key);
+
         if (frequentDetector != null) {
             if ((frequentDetector.registerItem(key)) && (!currentHotSpotSet.contains(key))) {
                 currentHotSpotSet.add(key);
@@ -42,11 +44,15 @@ public class MultiBloomHotSpotManager extends BaseHotSpotManager implements Deal
 
     @Override
     public void resetCounter() {
+        super.resetCounter();
+
         frequentDetector.resetCounter();
     }
 
     @Override
     public void recordHotSpot() {
+        super.recordHotSpot();
+
         ArrayList<String> li = new ArrayList<String>(currentHotSpotSet);
         for (int i = 0; i < li.size(); i++) {
             String str = li.get(i);

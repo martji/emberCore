@@ -102,6 +102,7 @@ public class ConfigManager {
         try {
             Document doc = sr.read(serverListPath);
             Element root = doc.getRootElement();
+            @SuppressWarnings({ "rawtypes", "unchecked" })
             List<Element> childElements = root.elements();
             for (Element server : childElements) {
                 int id = Integer.parseInt(server.elementText("id"));

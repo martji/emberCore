@@ -109,9 +109,8 @@ public class CounterBloomDetectorImp implements FrequentDetectorInterface {
         currentHotSpotCounters.clear();
     }
 
-    public String updateHotSpot() {
+    public void updateThreshold() {
         updateCounter();
-        return null;
     }
 
 }

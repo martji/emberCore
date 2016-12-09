@@ -4,7 +4,8 @@ import com.sdp.config.ConfigManager;
 import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
 import com.sdp.log.Log;
 
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -50,39 +51,28 @@ public class EcDetectorImp extends Thread implements FrequentDetectorInterface {
             keyPreCounters.put(key, 0);
             keySumCounters.put(key, itemSum);
         } else {
-            while (!keyCounters.containsValue(0)) {
-                Iterator iterator = keyCounters.keySet().iterator();
-                String str;
-                while (iterator.hasNext()) {
-                    str = (String) iterator.next();
+            Set<String> set = new HashSet<>(keyCounters.keySet());
+            for (String str : set) {
+                if (keyCounters.get(str) <= 1) {
+                    keyCounters.remove(str);
+                    keyPreCounters.remove(str);
+                    keySumCounters.remove(str);
+                } else {
                     keyCounters.put(str, keyCounters.get(str) - 1);
                     keyPreCounters.put(str, keyPreCounters.get(str) + 1);
                 }
             }
-            Iterator iterator = keyCounters.keySet().iterator();
-            String str;
-            while (iterator.hasNext()) {
-                str = (String) iterator.next();
-                if (keyCounters.get(str) == 0) {
-                    keyCounters.remove(str);
-                    keyPreCounters.remove(str);
-                    keySumCounters.remove(str);
-                }
+            if (keyCounters.size() < counterNumber) {
+                keyCounters.put(key, 1);
+                keyPreCounters.put(key, 0);
+                keySumCounters.put(key, itemSum);
             }
-            keyCounters.put(key, 1);
-            keyPreCounters.put(key, 0);
-            keySumCounters.put(key, itemSum);
         }
-        //itemSum是一个变量
         if (keyCounters.get(key) + keyPreCounters.get(key) > (frequentPercentage - errorRate) * itemSum) {
             currentHotSpotCounters.put(key, keyCounters.get(key) + keyPreCounters.get(key));
             return true;
         }
         return false;
-    }
-
-    public void updateItemsum(int preSum) {
-        itemSum -= preSum;
     }
 
     public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
@@ -93,8 +83,7 @@ public class EcDetectorImp extends Thread implements FrequentDetectorInterface {
         currentHotSpotCounters.clear();
     }
 
-    public String updateHotSpot() {
-        return null;
+    public void updateThreshold() {
     }
 
 }

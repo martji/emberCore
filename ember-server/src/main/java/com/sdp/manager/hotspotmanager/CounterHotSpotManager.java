@@ -48,7 +48,8 @@ public class CounterHotSpotManager extends BaseHotSpotManager implements DealHot
 
     @Override
     public void handleRegister(String key) {
-        LocalSpots.candidateColdSpots.remove(key);
+        super.handleRegister(key);
+
         if (!countMap.containsKey(key)) {
             countMap.put(key, 0);
         }
@@ -62,11 +63,15 @@ public class CounterHotSpotManager extends BaseHotSpotManager implements DealHot
 
     @Override
     public void resetCounter() {
-        countMap = new ConcurrentHashMap<String, Integer>();
+        super.resetCounter();
+
+        countMap.clear();
     }
 
     @Override
     public void recordHotSpot() {
+        super.recordHotSpot();
+
         final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
         for (String key : currentHotSpotSet) {
             if (countMap.containsKey(key)) {

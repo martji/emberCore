@@ -66,8 +66,7 @@ public class FrequentDetectorImp implements FrequentDetectorInterface {
     public void resetCounter() {
     }
 
-    public String updateHotSpot() {
-        return null;
+    public void updateThreshold() {
     }
 
 }

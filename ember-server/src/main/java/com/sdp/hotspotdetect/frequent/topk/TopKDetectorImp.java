@@ -24,7 +24,7 @@ public class TopKDetectorImp implements FrequentDetectorInterface {
     private int counterNumber = 20;
 
     private ConcurrentHashMap<String, Integer> preValue = new ConcurrentHashMap<String, Integer>();
-    private ArrayList<String> topElementsList = new ArrayList();
+    private ArrayList<String> topElementsList = new ArrayList<>();
 
     public TopKDetectorImp() {
         initConfig();
@@ -39,7 +39,7 @@ public class TopKDetectorImp implements FrequentDetectorInterface {
     }
 
     public boolean registerItem(String key) {
-        if (currentHotSpotCounters.contains(key)) {
+        if (currentHotSpotCounters.containsKey(key)) {
             currentHotSpotCounters.put(key, currentHotSpotCounters.get(key) + 1);
         } else if (currentHotSpotCounters.size() < counterNumber) {
             currentHotSpotCounters.put(key, 1);
@@ -70,7 +70,7 @@ public class TopKDetectorImp implements FrequentDetectorInterface {
      * update the topElementsList
      */
     public void updateTopKList() {
-        ArrayList<String> list = new ArrayList();
+        ArrayList<String> list = new ArrayList<>();
         ArrayList<String> keys = new ArrayList<String>(currentHotSpotCounters.keySet());
         Collections.sort(keys, new Comparator<String>() {
             public int compare(String str1, String str2) {
@@ -117,9 +117,8 @@ public class TopKDetectorImp implements FrequentDetectorInterface {
         currentHotSpotCounters.clear();
     }
 
-    public String updateHotSpot() {
+    public void updateThreshold() {
         updateTopKList();
-        return null;
     }
 
 }

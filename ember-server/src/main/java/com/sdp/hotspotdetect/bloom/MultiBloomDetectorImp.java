@@ -7,7 +7,6 @@ import com.sdp.log.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Created by magq on 16/1/12.
@@ -72,7 +71,7 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
         itemSum++;
 
         boolean isHotSpotCandidate = true;
-        int[] indexArray = hashFunction.getHashIndex(key);
+        int[] indexArray = getHashIndex(key);
         for (int i = 0; i < bloomFilterNumber; i++) {
             int index = indexArray[i];
             bloomCounterList.get(i)[index] += 1;
@@ -86,18 +85,11 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
         return isHotSpotCandidate;
     }
 
-    public void resetBloomCounters() {
-    }
-
-    public Vector<String> getHotSpots() {
-        return null;
-    }
-
     /**
      * This method is callback each period, adjust the frequentThreshold to
      * ensure the frequent items through.
      */
-    public String updateFilterThreshold() {
+    public void updateFilterThreshold() {
         if (itemSum > 0) {
             double currentPercentage = (double) itemPass / itemSum;
             if (currentPercentage > frequentPercentage) {
@@ -112,17 +104,13 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
                 frequentThreshold = Math.max(frequentThreshold, LOW_FREQUENT_THRESHOLD);
                 preFrequentThreshold = LOW_FREQUENT_THRESHOLD;
             }
+            Log.log.info("itemPass = " + itemPass + "/" + itemSum + " frequentThreshold = " + frequentThreshold);
         } else {
             frequentThreshold = LOW_FREQUENT_THRESHOLD;
         }
 
-        String result = "bloomFilter pass = " + itemPass + "/" + itemSum +
-                " frequentThreshold = " + frequentThreshold;
-
         itemSum = 0;
         itemPass = 0;
-
-        return result;
     }
 
     /**

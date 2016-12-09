@@ -84,7 +84,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
      * Adjust hotSpotPercentage, the workload influence of hot spot must larger
      * than hotSpotInfluence.
      */
-    public String updateHotSpot() {
+    public void updateThreshold() {
         itemSum -= preItemSum;
         preItemSum = itemSum;
 
@@ -101,10 +101,9 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
                 counterNumber /= 2;
             }
         }
-
-        String result = " hotSpot influence = " + totalCount + "/" + itemSum +
-                " counterNumber = " + counterNumber;
-        return result;
+        if (itemSum > 0) {
+            Log.log.info("hotSpotInfluence = " + totalCount + "/" + itemSum + " counterNumber = " + counterNumber);
+        }
     }
 
     public void resetCounter() {
