@@ -179,7 +179,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
             return;
         }
         int id = (int) (Math.random() * bufferSize);
-        Log.log.info(id + " [hot spot] new hot spots number = " + hotSpots.size());
+        Log.log.info(String.format("[%d] start deal hotSpots, number = ", id) + hotSpots.size());
 
         Set<String> handledHotSpots = new HashSet<String>();
         Map<String, Integer> hotItems = new HashMap<String, Integer>();
@@ -209,8 +209,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         }
         handledPercentage = (double) handledHotSpots.size() / hotSpots.size();
 
-        Log.log.info(id + " [hot spots] handled number = " + handledHotSpots.size() +
-                ", handled percentage =  " + handledPercentage +
+        Log.log.info(String.format("[%d] dealt hotSpots = ", id) + handledHotSpots.size() +
+                ", dealt percentage = " + handledPercentage +
                 " | current distribution = " + replicasDistribute.toString());
         infoAllClient(hotItems);
     }
@@ -223,7 +223,6 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
             candidates = new HashSet<String>(LocalSpots.candidateColdSpots.keySet());
         }
         if (candidates != null && candidates.size() > 0) {
-            Log.log.info("[cold spots] number = " + candidates.size());
             final int hotSpotNumber = LocalSpots.hotSpotNumber.get();
             final HashSet<String> finalCandidates = candidates;
             retireThread.execute(new Runnable() {
@@ -238,7 +237,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     public void dealColdData(HashSet<String> coldSpots, int hotSpotNumber) {
         int id = (int) (Math.random() * bufferSize);
-        Log.log.info(id + " [cold spots] start deal cold spots = " + coldSpots.size());
+        Log.log.info(String.format("[%d] start deal coldSpots, number = ", id) + coldSpots.size());
         Map<String, Integer> coldItems = new HashMap<String, Integer>();
 
         for (String key : coldSpots) {
@@ -256,8 +255,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
                 }
             }
         }
-        Log.log.info(id + " [cold spots] new cold spots = " + coldSpots.size() + "/" + replicasIdMap.size() +
-                ", cold spots/hot spots = " + (double) coldSpots.size() / hotSpotNumber +
+        Log.log.info(String.format("[%d] dealt coldSpots = ", id) + coldSpots.size() + "/" + replicasIdMap.size() +
+                ", coldSpots/hotSpots = " + (double) coldSpots.size() / hotSpotNumber +
                 " | current distribution = " + replicasDistribute.toString());
         infoAllClient(coldItems);
     }
@@ -451,15 +450,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         if (hotItems == null || hotItems.size() == 0) {
             return;
         }
-        Collection<Channel> clients = clientChannelMap.values();
-        Vector<Channel> tmp = new Vector<Channel>();
-        tmp.addAll(clients);
-        for (Channel channel : tmp) {
-            if (!channel.isConnected()) {
-                clients.remove(channel);
-            }
-        }
-
+        Log.log.fatal("[Replica Table] " + hotItems);
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
         String replicasInfo = gson.toJson(hotItems);
         CtsMsg.nr_replicas_res.Builder builder = CtsMsg.nr_replicas_res.newBuilder();
@@ -468,8 +459,12 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         NetMsg msg = NetMsg.newMessage();
         msg.setMessageLite(builder);
         msg.setMsgID(EMSGID.nr_replicas_res);
+
+        Collection<Channel> clients = clientChannelMap.values();
         for (Channel channel : clients) {
-            channel.write(msg);
+            if (channel.isConnected()) {
+                channel.write(msg);
+            }
         }
     }
 }

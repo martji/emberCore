@@ -58,7 +58,7 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
         NetMsg msg = (NetMsg) e.getMessage();
         switch (msg.getMsgID()) {
             case nm_connected_mem_back: {
-                Log.log.info("[Netty] Connect to monitor succeed");
+                Log.log.info("[Netty] connect to monitor succeed " + e.getChannel());
             }
             break;
             case nr_stats: {

@@ -51,7 +51,7 @@ public class MonitorManager extends Thread {
                     channel.write(send);
                 } else {
                     int serverId = server.getKey();
-                    Log.log.info("[Netty] server " + serverId + " lose connect");
+                    Log.log.error("[Netty] server " + serverId + " lose connect");
                     serverChannelMap.remove(serverId);
                     medianCpuCostMap.remove(serverId);
                     cpuCostMap.remove(serverId);

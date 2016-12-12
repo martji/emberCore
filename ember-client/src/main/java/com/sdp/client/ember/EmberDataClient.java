@@ -6,6 +6,8 @@ import com.sdp.server.ServerNode;
 
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author martji
@@ -15,6 +17,8 @@ public class EmberDataClient implements DataClient {
 
     private DataClient dataClient;
     private EmberClient emberClient;
+
+    private ExecutorService threadPool = Executors.newFixedThreadPool(4);
 
     private int serverType;
 
@@ -61,10 +65,14 @@ public class EmberDataClient implements DataClient {
     /**
      * get value from data server directly, only the master server record the register
      */
-    public String get(String key, boolean needRegister) {
+    public String get(final String key, boolean needRegister) {
         String value = dataClient.get(key);
         if (needRegister) {
-            emberClient.register(key);
+            threadPool.submit(new Runnable() {
+                public void run() {
+                    emberClient.register(key);
+                }
+            });
         }
         return value;
     }

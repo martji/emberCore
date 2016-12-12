@@ -41,6 +41,10 @@ import java.util.concurrent.Executors;
 public class EmberServer {
 
     private ConcurrentHashMap<Integer, DataClient> dataClientMap;
+
+    private int readPort;
+    private int writePort;
+
     private EmberServerHandler wServerHandler;
     private EmberServerHandler rServerHandler;
     private EmberClient monitorClient;
@@ -63,11 +67,11 @@ public class EmberServer {
                      EmberServerHandler wServerHandler, EmberServerHandler rServerHandler) {
         this.wServerHandler = wServerHandler;
         this.rServerHandler = rServerHandler;
-        EmberServerNode serverNode = serversMap.get(id);
 
-        int rPort = serverNode.getReadPort();
-        int wPort = serverNode.getWritePort();
-        initEmberServer(rPort, wPort);
+        EmberServerNode serverNode = serversMap.get(id);
+        readPort = serverNode.getReadPort();
+        writePort = serverNode.getWritePort();
+        initEmberServer();
 
         registerMonitor();
     }
@@ -126,7 +130,7 @@ public class EmberServer {
         }).start();
     }
 
-    public void initEmberServer(int rPort, int wPort) {
+    public void initEmberServer() {
         ServerBootstrap wBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool()));
@@ -134,7 +138,7 @@ public class EmberServer {
         wBootstrap.setOption("child.tcpNoDelay", true);
         wBootstrap.setOption("child.keepAlive", true);
         wBootstrap.setOption("reuseAddress", true);
-        wBootstrap.bind(new InetSocketAddress(wPort));
+        wBootstrap.bind(new InetSocketAddress(writePort));
 
         ServerBootstrap rBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(),
@@ -143,9 +147,9 @@ public class EmberServer {
         rBootstrap.setOption("child.tcpNoDelay", true);
         rBootstrap.setOption("child.keepAlive", true);
         rBootstrap.setOption("reuseAddress", true);
-        rBootstrap.bind(new InetSocketAddress(rPort));
+        rBootstrap.bind(new InetSocketAddress(readPort));
 
-        Log.log.info("[Netty] server start");
+        Log.log.info("[Netty] ember server start");
     }
 
     public String getAReplica() {

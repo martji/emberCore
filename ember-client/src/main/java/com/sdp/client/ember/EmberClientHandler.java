@@ -22,20 +22,13 @@ import java.util.concurrent.ConcurrentMap;
 
 public class EmberClientHandler extends SimpleChannelUpstreamHandler {
 
-    public Stack<String> queue;
-    public StringBuffer message;
-    public int clientTag;
-    public Map<String, NetMsg> requestList;
-    ConcurrentMap<String, Vector<Integer>> keyReplicaMap;
+    private int clientTag;
+    private ConcurrentMap<String, Vector<Integer>> keyReplicaMap;
 
-    Map<String, BaseOperation<?>> opMap;
+    private Map<String, BaseOperation<?>> opMap;
 
-    public EmberClientHandler(int clientTag, StringBuffer message,
-                              ConcurrentMap<String, Vector<Integer>> keyReplicaMap) {
+    public EmberClientHandler(int clientTag, ConcurrentMap<String, Vector<Integer>> keyReplicaMap) {
         this.clientTag = clientTag;
-        this.message = message;
-        this.queue = new Stack<String>();
-        this.requestList = new HashMap<String, NetMsg>();
         this.keyReplicaMap = keyReplicaMap;
 
         opMap = new HashMap<String, BaseOperation<?>>();
@@ -77,13 +70,14 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
                 String key = msgBody.getKey();
                 String value = msgBody.getValue();
                 if (key.length() != 0) {
-                    Log.log.info("[Netty] replicas update: " + key + ", " + value);
+                    Log.log.info("[Netty] replication update: " + key + ", " + value);
                     updateKeyReplicaMap(key, value);
                 } else {
                     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
                     Map<String, Integer> replicasMap = gson.fromJson(value,
                             new TypeToken<Map<String, Integer>>() {
                             }.getType());
+                    Log.log.info("[Netty] replica table " + replicasMap);
                     updateKeyReplicaMap(replicasMap);
                 }
             }

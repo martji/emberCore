@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 public class EmberClient {
 
+    private static final long TIMEOUT = 2500;
+
     private int serverId;
     private String host;
     private int port;
@@ -36,8 +38,6 @@ public class EmberClient {
     private ClientBootstrap bootstrap;
     private Channel mChannel;
     private EmberClientHandler mClientHandler;
-
-    private static final long TIMEOUT = 2500;
 
     public EmberClient(int id, String host, int port) {
         this.serverId = id;
@@ -92,6 +92,7 @@ public class EmberClient {
             while (!future.isDone()) {
             }
             mChannel = future.getChannel();
+            Log.log.info("[Netty] monitor channel " + mChannel);
         } catch (Exception e) {
             Log.log.error("[Netty] can not connect to monitor");
         }

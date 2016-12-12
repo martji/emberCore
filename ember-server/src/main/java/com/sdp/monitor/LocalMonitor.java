@@ -36,7 +36,7 @@ public class LocalMonitor {
 
             br.close();
         } catch (Exception e) {
-            Log.log.error("[Shell] command execute failed");
+            Log.log.warn("[Shell] command execute failed");
         }
         Log.log.info("[CPU] port " + port + " cost = " + cpuCost);
         return cpuCost;

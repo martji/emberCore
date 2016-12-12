@@ -30,31 +30,36 @@ public class EmberClient {
     private final int SAMPLE_RATE = 3;
 
     private int clientTag;
+    private String host;
+    private int readPort;
+    private int writePort;
 
     private ClientBootstrap readBootstrap;
     private ClientBootstrap writeBootstrap;
 
-    private Channel readChannel = null;
-    private Channel writeChannel = null;
+    private Channel readChannel;
+    private Channel writeChannel;
 
     private EmberClientHandler readHandler;
     private EmberClientHandler writeHandler;
 
-    private StringBuffer message = new StringBuffer();
     private ConcurrentMap<String, Vector<Integer>> replicaTable;
 
     public EmberClient(ServerNode node, ConcurrentMap<String, Vector<Integer>> replicaTable) {
         this.replicaTable = replicaTable;
-        this.clientTag = (int) System.nanoTime();
-        init(node.getHost(), node.getRPort(), node.getWPort());
+        this.clientTag = (int) System.nanoTime() + new Random().nextInt(100);
+        this.host = node.getHost();
+        this.readPort = node.getRPort();
+        this.writePort = node.getWPort();
+        init();
     }
 
-    public void init(String host, int readPort, int writePort) {
+    public void init() {
         try {
             readBootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
                     Executors.newCachedThreadPool(),
                     Executors.newCachedThreadPool()));
-            readHandler = new EmberClientHandler(clientTag, message, this.replicaTable);
+            readHandler = new EmberClientHandler(clientTag, replicaTable);
             readBootstrap.setPipelineFactory(new MClientPipelineFactory(readHandler));
             ChannelFuture readFuture = readBootstrap.connect(new InetSocketAddress(host, readPort)).sync();
             while (!readFuture.isDone()) {
@@ -64,7 +69,7 @@ public class EmberClient {
             writeBootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
                     Executors.newCachedThreadPool(),
                     Executors.newCachedThreadPool()));
-            writeHandler = new EmberClientHandler(clientTag, message, this.replicaTable);
+            writeHandler = new EmberClientHandler(clientTag, replicaTable);
             writeBootstrap.setPipelineFactory(new MClientPipelineFactory(writeHandler));
             ChannelFuture writeFuture = writeBootstrap.connect(new InetSocketAddress(host, writePort)).sync();
             while (!writeFuture.isDone()) {
@@ -132,6 +137,9 @@ public class EmberClient {
     }
 
     public void register(String key) {
+        if (!readChannel.isConnected()) {
+            return;
+        }
         if (isRegister()) {
             CtsMsg.nr_register.Builder builder = CtsMsg.nr_register.newBuilder();
             builder.setKey(key);
@@ -145,8 +153,7 @@ public class EmberClient {
     }
 
     public boolean isRegister() {
-        Random random = new Random();
-        return random.nextInt(100) < SAMPLE_RATE;
+        return new Random().nextInt(100) < SAMPLE_RATE;
     }
 
     private class MClientPipelineFactory implements ChannelPipelineFactory {

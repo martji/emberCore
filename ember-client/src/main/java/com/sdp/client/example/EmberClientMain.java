@@ -14,7 +14,6 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
 /**
  * @author martji
  */
@@ -45,13 +44,19 @@ public class EmberClientMain {
         getConfig();
         getServerList();
 
-        DBClient client = new DBClient(MODE, serverNodes);
-        client.initConfig(RECORD_COUNT, DBClient.SLICE_HASH_MODE, DBClient.SYNC_SET_MODE);
-        run(client);
-        client.shutdown();
+        for (int i = 0; i < 4; i++) {
+            new Thread(new Runnable() {
+                public void run() {
+                    DBClient client = new DBClient(MODE, serverNodes);
+                    client.initConfig(RECORD_COUNT, DBClient.SLICE_HASH_MODE, DBClient.SYNC_SET_MODE);
+                    runTest(client);
+                    client.shutdown();
+                }
+            }).start();
+        }
     }
 
-    public void run(DBClient client) {
+    public void runTest(DBClient client) {
         String key = "user";
         String value = "This is a test of an object blah blah es.";
         for (int i = 0; i < 1090; i++) {

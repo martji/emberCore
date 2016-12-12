@@ -33,10 +33,10 @@ public class MonitorServer {
     public MonitorServer() {
         getConfig();
         mServerHandler = new MonitorServerHandler();
-        init(port);
+        init();
     }
 
-    public void init(int port) {
+    public void init() {
         bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool()));
         bootstrap.setPipelineFactory(new MServerPipelineFactory(mServerHandler));
@@ -44,7 +44,7 @@ public class MonitorServer {
         bootstrap.setOption("child.keepAlive", true);
         bootstrap.setOption("reuseAddress", true);
         bootstrap.bind(new InetSocketAddress(port));
-        Log.log.info("[Netty] MonitorServer start");
+        Log.log.info("[Netty] monitor server start");
     }
 
     public void getConfig() {

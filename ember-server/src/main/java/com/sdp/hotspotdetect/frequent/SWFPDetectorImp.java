@@ -57,19 +57,25 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
                 count = counterMap.get(key).getReallyCount();
             }
         } else {
-            if (counterMap.size() < counterNumber) {
-                counterMap.put(key, new SWFPCounter(key));
-            } else {
-                Set<String> keySet = counterMap.keySet();
+            if (counterMap.size() >= counterNumber) {
+                Set<String> keySet = new HashSet<>(counterMap.keySet());
                 for (String item : keySet) {
-                    counterMap.get(item).del();
-                    if (counterMap.get(item).frequent <= 0) {
-                        counterMap.remove(item);
+                    if (counterMap.containsKey(item)) {
+                        SWFPCounter counter = counterMap.get(item);
+                        if (counter != null) {
+                            counter.del();
+                            if (counter.frequent <= 0) {
+                                counterMap.remove(item);
+                            }
+                        } else {
+                            counterMap.remove(item);
+                        }
                     }
                 }
-                if (counterMap.size() < counterNumber) {
-                    counterMap.put(key, new SWFPCounter(key));
-                }
+            }
+            if (counterMap.size() < counterNumber) {
+                counterMap.put(key, new SWFPCounter(key));
+                count = 1;
             }
         }
 

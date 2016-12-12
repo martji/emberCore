@@ -47,27 +47,9 @@ public class MessageManager implements MessageManagerInterface {
     private EmberServer mServer;
     private ConcurrentHashMap<Integer, Channel> clientChannelMap;
 
-    public MessageManager(boolean isDetect) {
+    public MessageManager() {
         replicaManager = new ReplicaManager();
         consistencyManager = new ConsistencyManager();
-
-        if (isDetect) {
-            hotSpotManager = HotSpotManagerFactory.createInstance();
-            hotSpotManager.setOnFindHotSpot(new BaseHotSpotManager.OnFindHotSpot() {
-                public void dealHotSpot() {
-                    replicaManager.dealHotData();
-                }
-
-                public void dealColdSpot() {
-                    replicaManager.dealColdData();
-                }
-
-                public void dealHotSpot(String key) {
-                    replicaManager.dealHotData(key);
-                }
-            });
-        }
-
         init();
     }
 
@@ -86,23 +68,36 @@ public class MessageManager implements MessageManagerInterface {
      * Call this method to start hot spot detection.
      */
     public void startHotSpotDetection() {
+        hotSpotManager = HotSpotManagerFactory.createInstance();
+        hotSpotManager.setOnFindHotSpot(new BaseHotSpotManager.OnFindHotSpot() {
+            public void dealHotSpot() {
+                replicaManager.dealHotData();
+            }
+
+            public void dealColdSpot() {
+                replicaManager.dealColdData();
+            }
+
+            public void dealHotSpot(String key) {
+                replicaManager.dealHotData(key);
+            }
+        });
         new Thread(hotSpotManager).start();
         new Thread(replicaManager).start();
     }
 
-    public void handleMessage(MessageEvent messageEvent) {
-        NetMsg msg = (NetMsg) messageEvent.getMessage();
+    public void handleMessage(MessageEvent e) {
+        NetMsg msg = (NetMsg) e.getMessage();
         switch (msg.getMsgID()) {
             // connect signal from client
             case nr_connected_mem: {
-                handleConnectFromClient(messageEvent);
+                handleConnectFromClient(e);
             }
             break;
 
             // connect signal from server
             case nm_connected: {
-                Log.log.info("[Netty] server hear channelConnected from other server: " +
-                        messageEvent.getChannel());
+                Log.log.info("[Netty] server hear channelConnected from other server: " + e.getChannel());
             }
             break;
 
@@ -114,13 +109,13 @@ public class MessageManager implements MessageManagerInterface {
 
             // read signal from other manager
             case nr_read: {
-                handleRead(messageEvent);
+                handleRead(e);
             }
             break;
 
             // write signal from client
             case nr_write: {
-                handleWrite(messageEvent);
+                handleWrite(e);
             }
             break;
 
@@ -129,16 +124,16 @@ public class MessageManager implements MessageManagerInterface {
         }
     }
 
-    public void handleConnectFromClient(MessageEvent messageEvent) {
-        NetMsg msg = (NetMsg) messageEvent.getMessage();
-        int clientId = msg.getNodeRoute();
-        clientChannelMap.put(clientId, messageEvent.getChannel());
-        Log.log.info("[Netty] server hear channelConnected from client: " + messageEvent.getChannel());
+    public void handleConnectFromClient(MessageEvent e) {
+        NetMsg msg = (NetMsg) e.getMessage();
+        int clientTag = msg.getNodeRoute();
+        clientChannelMap.put(clientTag, e.getChannel());
+        Log.log.fatal("[Netty] server hear channelConnected from client: " + e.getChannel());
         CtsMsg.nr_connected_mem_back.Builder builder = CtsMsg.nr_connected_mem_back.newBuilder();
         NetMsg send = NetMsg.newMessage();
         send.setMessageLite(builder);
         send.setMsgID(EMSGID.nr_connected_mem_back);
-        messageEvent.getChannel().write(send);
+        e.getChannel().write(send);
     }
 
     public void handleRegister(NetMsg msg) {
@@ -147,16 +142,16 @@ public class MessageManager implements MessageManagerInterface {
         hotSpotManager.handleRegister(key);
     }
 
-    public void handleRead(MessageEvent messageEvent) {
-        NetMsg msg = (NetMsg) messageEvent.getMessage();
+    public void handleRead(MessageEvent e) {
+        NetMsg msg = (NetMsg) e.getMessage();
         nr_read msgLite = msg.getMessageLite();
         String key = msgLite.getKey();
         int failedId = msg.getNodeRoute();
-        replicaManager.handleReadFailed(messageEvent.getChannel(), key, failedId);
+        replicaManager.handleReadFailed(e.getChannel(), key, failedId);
     }
 
-    public void handleWrite(MessageEvent messageEvent) {
-        consistencyManager.handleWrite(messageEvent);
+    public void handleWrite(MessageEvent e) {
+        consistencyManager.handleWrite(e);
     }
 
     public static String getOriKey(String key) {

@@ -1,5 +1,6 @@
 package com.sdp.server;
 
+import com.sdp.log.Log;
 import com.sdp.manager.MessageManager;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
@@ -20,7 +21,7 @@ public class EmberServerHandler extends SimpleChannelUpstreamHandler {
     private MessageManager messageManager;
 
     public EmberServerHandler(boolean isDetect) {
-        messageManager = new MessageManager(isDetect);
+        messageManager = new MessageManager();
         if (isDetect) {
             messageManager.startHotSpotDetection();
         }
@@ -43,6 +44,7 @@ public class EmberServerHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
+        Log.log.error(e);
         Channel channel = e.getChannel();
         channel.close();
     }
