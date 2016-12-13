@@ -21,21 +21,26 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
     private double hotSpotInfluence;
     private int MIN_F = 2;
 
+    private int hotSpotThreshold = MIN_F;
+
     /**
      * The really counter to count the visit times of item.
      */
     private ConcurrentHashMap<String, SWFPCounter> counterMap;
     private int counterNumber;
-    private HashSet<String> preHotSpotSet;
 
-    public int itemSum = 0;
+    private int itemSum = 0;
     private int preItemSum = 0;
+    private int requestNum = 0;
+
+    public void setRequestNum(int requestNum) {
+        this.requestNum = requestNum;
+    }
 
     public SWFPDetectorImp() {
         initConfig();
 
         counterMap = new ConcurrentHashMap<String, SWFPCounter>();
-        preHotSpotSet = new HashSet<String>();
     }
 
     public void initConfig() {
@@ -79,7 +84,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
             }
         }
 
-        if (preHotSpotSet.contains(key)) {
+        if (count > hotSpotThreshold) {
             currentHotSpotCounters.put(key, count);
             return true;
         }
@@ -99,16 +104,18 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
         for (int i = 0; i < hotSpots.size(); i++) {
             totalCount += hotSpots.get(i);
         }
-        double tmp = (double) totalCount / itemSum;
+        double tmp = (double) totalCount / requestNum;
         if (totalCount > 0) {
             if (tmp < hotSpotInfluence) {
-                counterNumber *= 2;
-            } else if (tmp > 2 * hotSpotInfluence) {
-                counterNumber /= 2;
+                hotSpotThreshold *= tmp / hotSpotInfluence;
+            } else if (tmp > hotSpotInfluence * 3 / 2) {
+                hotSpotThreshold *=  hotSpotInfluence / tmp;
             }
+            hotSpotThreshold = Math.max(hotSpotThreshold, MIN_F);
         }
         if (itemSum > 0) {
-            Log.log.info("hotSpotInfluence = " + totalCount + "/" + itemSum + " counterNumber = " + counterNumber);
+            Log.log.debug("[Threshold] hotSpotInfluence = " + totalCount + "/" + requestNum +
+                    ", hotSpotThreshold = " + hotSpotThreshold);
         }
     }
 
@@ -122,7 +129,6 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
         for (String item : keySet) {
             counterMap.get(item).refresh();
         }
-        preHotSpotSet = new HashSet<String>(keySet);
     }
 
     public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {

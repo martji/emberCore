@@ -2,11 +2,6 @@ package com.sdp.manager.hotspotmanager;
 
 import com.sdp.hotspotdetect.bloom.CounterBloomDetectorImp;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
-import com.sdp.replicas.LocalSpots;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * CounterBloomHotSpotManager implement {@link BaseHotSpotManager} and the inner hot spot detector is
@@ -16,8 +11,6 @@ import java.util.Set;
 public class CounterBloomHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
 
     private CounterBloomDetectorImp frequentDetector;
-
-    private Set<String> currentHotSpotSet = Collections.synchronizedSet(new HashSet<String>());
 
     public CounterBloomHotSpotManager() {
         initConfig();
@@ -56,10 +49,7 @@ public class CounterBloomHotSpotManager extends BaseHotSpotManager implements De
 
     @Override
     public void dealData() {
-        dealHotData();
-        LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
-        currentHotSpotSet.clear();
-        dealColdData();
+        super.dealData();
     }
 
     public void dealHotData() {

@@ -24,17 +24,19 @@ public class DBClient implements DataClient {
     public static final int ASYNC_SET_MODE = 0;
 
     private int clientType;
+    private int replicaMode;
     private Map<Integer, DataClient> clientMap;
     private List<Integer> clientIdList;
     private ConcurrentHashMap<String, Vector<Integer>> replicaTable;
 
-    public DBClient(int clientType, List<ServerNode> nodes) {
+    public DBClient(int clientType, int replicaMode, List<ServerNode> nodes) {
         this.clientType = clientType;
+        this.replicaMode = replicaMode;
         this.clientMap = new HashMap<Integer, DataClient>();
         this.clientIdList = new ArrayList<Integer>();
         this.replicaTable = new ConcurrentHashMap<String, Vector<Integer>>();
         for (ServerNode node : nodes) {
-            DataClient client = DataClientFactory.createInstance(clientType, node, replicaTable);
+            DataClient client = DataClientFactory.createInstance(clientType, replicaMode, node, replicaTable);
             clientMap.put(node.getId(), client);
             clientIdList.add(node.getId());
         }
@@ -68,7 +70,7 @@ public class DBClient implements DataClient {
                 value = client.get(key, masterId == replicaId);
                 if (value == null) {
                     removeOneReplica(key, replicaIndex);
-//                client.asyncGetFromEmber(key, replicaId);
+                    value = clientMap.get(masterId).get(key);
                 }
             } else {
                 EmberDataClient client = (EmberDataClient) clientMap.get(masterId);
@@ -154,6 +156,8 @@ public class DBClient implements DataClient {
         Vector<Integer> vector = replicaTable.get(key);
         if (vector.size() > 1) {
             vector.remove(replicasId);
+        } else {
+            replicaTable.remove(key);
         }
     }
 }

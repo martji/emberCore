@@ -3,9 +3,9 @@ package com.sdp.server;
 import com.sdp.log.Log;
 import com.sdp.manager.MessageManager;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author martji

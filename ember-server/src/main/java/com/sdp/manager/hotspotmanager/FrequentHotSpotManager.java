@@ -1,11 +1,8 @@
 package com.sdp.manager.hotspotmanager;
 
 import com.sdp.hotspotdetect.frequent.FrequentDetectorImp;
-import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
-import com.sdp.replicas.LocalSpots;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -14,10 +11,9 @@ import java.util.Map;
  * {@link FrequentDetectorImp}
  */
 
-public class FrequentHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
+public class FrequentHotSpotManager extends BaseHotSpotManager {
 
     private FrequentDetectorImp frequentDetector;
-    private HashSet<String> currentHotSpotSet = new HashSet<String>();
 
     public FrequentHotSpotManager() {
         initConfig();
@@ -61,10 +57,7 @@ public class FrequentHotSpotManager extends BaseHotSpotManager implements DealHo
 
     @Override
     public void dealData() {
-        dealHotData();
-        LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
-        currentHotSpotSet.clear();
-        dealColdData();
+        super.dealData();
     }
 
     public void dealHotData() {

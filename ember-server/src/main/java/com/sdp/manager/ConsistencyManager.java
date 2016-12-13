@@ -8,9 +8,9 @@ import com.sdp.netty.NetMsg;
 import com.sdp.replicas.MCThread;
 import com.sdp.server.DataClient;
 import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;

@@ -94,17 +94,18 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
             double currentPercentage = (double) itemPass / itemSum;
             if (currentPercentage > frequentPercentage) {
                 if (preFrequentThreshold != LOW_FREQUENT_THRESHOLD) {
-                    frequentThreshold *= 2;
+                    frequentThreshold *= Math.max(2, currentPercentage / frequentPercentage);
                 } else {
                     frequentThreshold += 2;
                 }
                 preFrequentThreshold = frequentThreshold;
-            } else if (currentPercentage < (frequentPercentage / 2)) {
+            } else if (currentPercentage < (frequentPercentage * 3 / 4)) {
                 frequentThreshold = (frequentThreshold + preFrequentThreshold) / 2;
                 frequentThreshold = Math.max(frequentThreshold, LOW_FREQUENT_THRESHOLD);
                 preFrequentThreshold = LOW_FREQUENT_THRESHOLD;
             }
-            Log.log.info("itemPass = " + itemPass + "/" + itemSum + " frequentThreshold = " + frequentThreshold);
+            Log.log.debug("[Threshold] itemPass = " + itemPass + "/" + itemSum +
+                    ", frequentThreshold = " + frequentThreshold);
         } else {
             frequentThreshold = LOW_FREQUENT_THRESHOLD;
         }

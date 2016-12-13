@@ -33,12 +33,12 @@ public class LocalMonitor {
             }
             String[] paras = result.split("\\s+");
             cpuCost = Double.parseDouble(paras[8]);
+            Log.log.info("[CPU] port " + port + " cost = " + cpuCost);
 
             br.close();
         } catch (Exception e) {
             Log.log.warn("[Shell] command execute failed");
         }
-        Log.log.info("[CPU] port " + port + " cost = " + cpuCost);
         return cpuCost;
     }
 

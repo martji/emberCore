@@ -2,15 +2,15 @@ package com.sdp.manager.hotspotmanager;
 
 import com.sdp.config.ConfigManager;
 import com.sdp.log.Log;
-import com.sdp.replicas.LocalSpots;
+import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
+import com.sdp.utils.DataUtil;
+import com.sdp.utils.SpotUtil;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
  * <p>
  * The core processes are implement in the single thread: resetCounter -> sleep -> write2file -> dealData.
  */
-public abstract class BaseHotSpotManager implements Runnable {
+public abstract class BaseHotSpotManager implements Runnable, DealHotSpotInterface {
 
     private int SLICE_TIME;
 
@@ -30,9 +30,9 @@ public abstract class BaseHotSpotManager implements Runnable {
     private String hotSpotPath = String.format(System.getProperty("user.dir") +
             "/logs/server_%d_hot_spot.data", ConfigManager.id);
 
+    public int requestNum;
     public OnFindHotSpot onFindHotSpot;
-
-    private int requestNum;
+    public Set<String> currentHotSpotSet = Collections.synchronizedSet(new HashSet<String>());
 
     public BaseHotSpotManager() {
     }
@@ -45,7 +45,6 @@ public abstract class BaseHotSpotManager implements Runnable {
             try {
                 resetCounter();
                 Thread.sleep(SLICE_TIME);
-                recordHotSpot();
                 dealData();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -58,7 +57,7 @@ public abstract class BaseHotSpotManager implements Runnable {
      */
     public void initConfig() {
         SLICE_TIME = (Integer) ConfigManager.propertiesMap.get(ConfigManager.SLICE_TIME);
-        Log.log.info("[HotSpot Manager] hot spot detection sliceTime = " + SLICE_TIME);
+        Log.log.info("[HotSpotManager] hot spot detection sliceTime = " + SLICE_TIME);
     }
 
     /**
@@ -68,27 +67,31 @@ public abstract class BaseHotSpotManager implements Runnable {
      */
     public void handleRegister(String key) {
         requestNum++;
-        LocalSpots.candidateColdSpots.remove(key);
+        SpotUtil.candidateColdSpots.remove(key);
     }
 
     public void resetCounter() {
         requestNum = 0;
     }
 
+    public void dealData() {
+        dealColdData();
+        currentHotSpotSet.clear();
+        recordHotSpot();
+    }
+
     /**
      * Write the current hot spots to file.
      */
     public void recordHotSpot() {
-        Log.log.info("requestNum = " + requestNum);
+        Log.log.info("[HotSpotManager] requestNum = " + requestNum +
+                ", retireRatio = " + DataUtil.doubleFormat(SpotUtil.retireRatio));
     }
 
     public void recordCurrentHotSpot(final List<HotSpotItem> list) {
         if (list != null && list.size() > 0) {
             threadPool.execute(new RecordHotSpotThread(list));
         }
-    }
-
-    public void dealData() {
     }
 
     public void setOnFindHotSpot(OnFindHotSpot onFindHotSpot) {

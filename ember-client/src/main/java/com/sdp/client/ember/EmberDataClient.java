@@ -21,19 +21,21 @@ public class EmberDataClient implements DataClient {
     private ExecutorService threadPool = Executors.newFixedThreadPool(4);
 
     private int serverType;
+    private int replicaMode;
 
     private ConcurrentHashMap<String, Vector<Integer>> replicaTable;
 
-    public EmberDataClient(int serverType, ServerNode serverNode,
+    public EmberDataClient(int serverType, int replicaMode, ServerNode serverNode,
                            ConcurrentHashMap<String, Vector<Integer>> replicaTable) {
         this.serverType = serverType;
+        this.replicaMode = replicaMode;
         this.replicaTable = replicaTable;
         init(serverNode);
     }
 
     public void init(ServerNode serverNode) {
         dataClient = DataClientFactory.createInstance(serverType, serverNode, replicaTable);
-        emberClient = new EmberClient(serverNode, replicaTable);
+        emberClient = new EmberClient(replicaMode, serverNode, replicaTable);
     }
 
     public void init() {

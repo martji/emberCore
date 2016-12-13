@@ -1,10 +1,11 @@
-package com.sdp.replicas;
+package com.sdp.utils;
 
-import org.jboss.netty.util.internal.ConcurrentHashMap;
-
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class LocalSpots {
+public class SpotUtil {
 
     /**
      * @deprecated
@@ -55,6 +56,21 @@ public class LocalSpots {
     /**
      * Record hot spots and cold spots in current period.
      */
-    public static ConcurrentHashMap<String, Object> candidateColdSpots = new ConcurrentHashMap<String, Object>();
+    public static ConcurrentLinkedQueue<String> candidateColdSpots = new ConcurrentLinkedQueue<>();
+    public static AtomicInteger coldSpotNumber = new AtomicInteger(0);
     public static AtomicInteger hotSpotNumber = new AtomicInteger(0);
+
+    public static double retireRatio;
+
+    public static void reset(ConcurrentHashMap<String, Vector<Integer>> map) {
+        retireRatio = 0;
+        if (hotSpotNumber.get() != 0) {
+            retireRatio = (double) coldSpotNumber.get() / hotSpotNumber.get();
+        }
+
+        candidateColdSpots.clear();
+        candidateColdSpots.addAll(map.keySet());
+        coldSpotNumber.set(0);
+        hotSpotNumber.set(0);
+    }
 }

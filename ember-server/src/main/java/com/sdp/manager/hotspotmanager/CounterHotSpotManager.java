@@ -2,8 +2,6 @@ package com.sdp.manager.hotspotmanager;
 
 import com.sdp.config.ConfigManager;
 import com.sdp.log.Log;
-import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
-import com.sdp.replicas.LocalSpots;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.util.ArrayList;
@@ -19,10 +17,9 @@ import java.util.List;
  *         this item is considered as a hot spot.
  */
 
-public class CounterHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
+public class CounterHotSpotManager extends BaseHotSpotManager {
 
     private ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();
-    private HashSet<String> currentHotSpotSet;
 
     public int hotSpotThreshold;
     private double hotSpotPercentage;
@@ -83,9 +80,7 @@ public class CounterHotSpotManager extends BaseHotSpotManager implements DealHot
 
     @Override
     public void dealData() {
-        dealHotData();
-        LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
-        dealColdData();
+        super.dealData();
     }
 
     public void dealHotData() {

@@ -9,15 +9,16 @@ import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
 import com.sdp.message.CtsMsg;
 import com.sdp.netty.NetMsg;
-import com.sdp.replicas.LocalSpots;
+import com.sdp.utils.DataUtil;
+import com.sdp.utils.SpotUtil;
 import com.sdp.server.DataClient;
 import com.sdp.server.EmberServer;
 import com.sdp.server.EmberServerNode;
 import com.sdp.server.dataclient.DataClientFactory;
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,8 +28,8 @@ import java.util.concurrent.Executors;
  */
 public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
-    private final int SPORE_MODE = 1;
-    private final int EMBER_MODE = 0;
+    private final int REPLICA_SPORE = 1;
+    private final int REPLICA_EMBER = 0;
 
     /**
      * The replica mode.
@@ -58,7 +59,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     /**
      * Map of the replica location of all hot spots, this will bring some memory overhead.
      */
-    private ConcurrentHashMap<String, Vector<Integer>> replicasIdMap;
+    private ConcurrentHashMap<String, Vector<Integer>> replicaTable;
+    private ConcurrentHashMap<String, Integer> replicaBuffer;
 
     /**
      * The map of connection to other data servers.
@@ -72,15 +74,9 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      */
     private List<Map.Entry<Integer, Double>> serverInfoList;
     private ConcurrentHashMap<Integer, Integer> replicasDistribute;
-    private ConcurrentLinkedQueue<String> bufferHotSpots;
-
-    /**
-     * The percentage of handled hot spots.
-     */
-    private double handledPercentage;
+    private ConcurrentLinkedQueue<String> hotSpotBuffer;
 
     private ExecutorService threadPool;
-    private ExecutorService retireThread;
 
     public ReplicaManager() {
         init();
@@ -89,14 +85,14 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     public void init() {
         initConfig();
 
-        this.replicasIdMap = new ConcurrentHashMap<String, Vector<Integer>>();
+        this.replicaTable = new ConcurrentHashMap<String, Vector<Integer>>();
+        this.replicaBuffer = new ConcurrentHashMap<String, Integer>();
         this.dataClientMap = new ConcurrentHashMap<Integer, DataClient>();
         this.serverInfoList = new LinkedList<Map.Entry<Integer, Double>>();
         this.replicasDistribute = new ConcurrentHashMap<Integer, Integer>();
-        replicasDistribute.put(1, 0);
-        this.bufferHotSpots = new ConcurrentLinkedQueue<String>();
+        this.replicasDistribute.put(1, 0);
+        this.hotSpotBuffer = new ConcurrentLinkedQueue<String>();
         this.threadPool = Executors.newCachedThreadPool();
-        this.retireThread = Executors.newSingleThreadExecutor();
     }
 
     public void initConfig() {
@@ -105,6 +101,9 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.replicaMode = (Integer) ConfigManager.propertiesMap.get(ConfigManager.REPLICA_MODE);
         this.updateStatusTime = (Integer) ConfigManager.propertiesMap.get(ConfigManager.UPDATE_STATUS_TIME);
         this.bufferSize = (Integer) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_BUFFER_SIZE);
+
+        Log.log.info("[ReplicaManager] replicaMode = " + (replicaMode == REPLICA_SPORE ? "Spore" : "Ember") +
+                ", bufferSize = " + bufferSize);
     }
 
     public void setClientChannelMap(ConcurrentHashMap<Integer, Channel> clientChannelMap) {
@@ -113,7 +112,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     public void initLocalReference(EmberServer server, ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
         this.mServer = server;
-        this.replicasIdMap = replicasIdMap;
+        this.replicaTable = replicasIdMap;
         this.dataClientMap = server.getDataClientMap();
         this.mClient = dataClientMap.get(serverId);
     }
@@ -143,122 +142,128 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     public void dealHotData() {
-        if (bufferHotSpots.size() == 0) {
-            return;
+        if (hotSpotBuffer.size() > 0) {
+            final LinkedList<String> hotSpots = new LinkedList<String>(hotSpotBuffer);
+            threadPool.execute(new Runnable() {
+                public void run() {
+                    dealHotData(hotSpots);
+                    syncReplicaTable();
+                }
+            });
+            hotSpotBuffer.clear();
         }
+    }
 
-        final LinkedList<String> hotSpots = new LinkedList<String>(bufferHotSpots);
-        bufferHotSpots.clear();
+    public void dealColdData() {
+        HashSet<String> candidates;
+        if (replicaMode == REPLICA_SPORE) {
+            candidates = new HashSet<String>(replicaTable.keySet());
+        } else {
+            candidates = new HashSet<String>(SpotUtil.candidateColdSpots);
+        }
+        SpotUtil.hotSpotNumber.set(replicaTable.size());
+        SpotUtil.coldSpotNumber.set(candidates.size());
+        final HashSet<String> coldSpots = candidates;
         threadPool.execute(new Runnable() {
             public void run() {
-                dealHotData(hotSpots);
+                if (coldSpots.size() > 0) {
+                    dealColdData(coldSpots);
+                }
+                if (hotSpotBuffer.size() > 0) {
+                    List<String> hotSpots = new LinkedList<String>(hotSpotBuffer);
+                    dealHotData(hotSpots);
+                    hotSpotBuffer.clear();
+                }
+                syncReplicaTable();
             }
         });
+        SpotUtil.reset(replicaTable);
     }
 
     /**
      * Deal a single hot spot, the hot spot will not be dealt at once, and the hot spot will
-     * be inset to a buffer. If the buffer size reaches the predefined bufferSize, @method dealHotData()
+     * be inset to a buffer. If the buffer size reaches the predefined bufferSize, dealHotSpot()
      * will be invoked.
      *
      * @param key
      */
     public void dealHotData(String key) {
-        bufferHotSpots.add(key);
-        if (bufferHotSpots.size() > bufferSize) {
+        hotSpotBuffer.add(key);
+        if (hotSpotBuffer.size() > bufferSize) {
             dealHotData();
         }
+    }
+
+    public void syncReplicaTable() {
+        infoAllClient();
     }
 
     /**
      * Deal the hot spot in buffer and create replicas.
      */
-    public void dealHotData(LinkedList<String> hotSpots) {
-        if (hotSpots.size() == 0) {
-            handledPercentage = 1;
-            return;
-        }
+    public void dealHotData(List<String> hotSpots) {
         int id = (int) (Math.random() * bufferSize);
         Log.log.info(String.format("[%d] start deal hotSpots, number = ", id) + hotSpots.size());
 
         Set<String> handledHotSpots = new HashSet<String>();
-        Map<String, Integer> hotItems = new HashMap<String, Integer>();
-
         for (String key : hotSpots) {
             int replicaId = getReplicaId(serverInfoList, key);
             if (replicaId != -1) {
                 boolean result = createReplica(key, replicaId);
                 if (result) {
                     handledHotSpots.add(key);
-                    Vector<Integer> vector = null;
-                    if (!replicasIdMap.containsKey(key)) {
+                    Vector<Integer> vector;
+                    if (!replicaTable.containsKey(key)) {
                         vector = new Vector<Integer>();
                         vector.add(serverId);
                         vector.add(replicaId);
-                        replicasIdMap.put(key, vector);
-                    } else if (!replicasIdMap.get(key).contains(replicaId)) {
-                        replicasIdMap.get(key).add(replicaId);
-                        vector = replicasIdMap.get(key);
+                        replicaTable.put(key, vector);
+                    } else {
+                        if (!replicaTable.get(key).contains(replicaId)) {
+                            replicaTable.get(key).add(replicaId);
+                        }
+                        vector = replicaTable.get(key);
                     }
-                    hotItems.put(key, encodeReplicasInfo(vector));
-
+                    replicaBuffer.put(key, encodeReplicasInfo(vector));
                     int replicasNum = vector.size() - 1;
                     updateReplicaDistribute(replicasNum);
                 }
             }
         }
-        handledPercentage = (double) handledHotSpots.size() / hotSpots.size();
 
-        Log.log.info(String.format("[%d] dealt hotSpots = ", id) + handledHotSpots.size() +
-                ", dealt percentage = " + handledPercentage +
+        Log.log.info(String.format("[%d] dealt hotSpots = ", id) + handledHotSpots.size() + "/" + hotSpots.size() +
+                ", dealt percentage = " + DataUtil.doubleFormat((double) handledHotSpots.size() / hotSpots.size()) +
                 " | current distribution = " + replicasDistribute.toString());
-        infoAllClient(hotItems);
     }
 
-    public void dealColdData() {
-        HashSet<String> candidates = null;
-        if (replicaMode == SPORE_MODE) {
-            candidates = new HashSet<String>(replicasIdMap.keySet());
-        } else if (LocalSpots.candidateColdSpots.size() > 0) {
-            candidates = new HashSet<String>(LocalSpots.candidateColdSpots.keySet());
-        }
-        if (candidates != null && candidates.size() > 0) {
-            final int hotSpotNumber = LocalSpots.hotSpotNumber.get();
-            final HashSet<String> finalCandidates = candidates;
-            retireThread.execute(new Runnable() {
-                public void run() {
-                    dealColdData(finalCandidates, hotSpotNumber);
-                }
-            });
-        }
-        LocalSpots.candidateColdSpots = new ConcurrentHashMap<String, Object>(replicasIdMap);
-        LocalSpots.hotSpotNumber.set(0);
-    }
-
-    public void dealColdData(HashSet<String> coldSpots, int hotSpotNumber) {
+    /**
+     * Deal the cold spots
+     * @param coldSpots
+     */
+    public void dealColdData(HashSet<String> coldSpots) {
         int id = (int) (Math.random() * bufferSize);
         Log.log.info(String.format("[%d] start deal coldSpots, number = ", id) + coldSpots.size());
-        Map<String, Integer> coldItems = new HashMap<String, Integer>();
 
+        int handledColdSpotNum = 0;
         for (String key : coldSpots) {
-            if (replicasIdMap.containsKey(key)) {
-                int localCount = replicasIdMap.get(key).size() - 1;
+            if (replicaTable.containsKey(key)) {
+                handledColdSpotNum ++;
+                int localCount = replicaTable.get(key).size() - 1;
                 replicasDistribute.put(localCount, replicasDistribute.get(localCount) - 1);
                 if (localCount - 1 >= 1) {
                     replicasDistribute.put(localCount - 1, replicasDistribute.get(localCount - 1) + 1);
                 }
-                int replicaIdIndex = replicasIdMap.get(key).size() - 1;
-                replicasIdMap.get(key).remove(replicaIdIndex);
-                coldItems.put(key, encodeReplicasInfo(replicasIdMap.get(key)));
-                if (replicasIdMap.get(key).size() == 1) {
-                    replicasIdMap.remove(key);
+                int replicaIdIndex = replicaTable.get(key).size() - 1;
+                replicaTable.get(key).remove(replicaIdIndex);
+                replicaBuffer.put(key, encodeReplicasInfo(replicaTable.get(key)));
+                if (replicaTable.get(key).size() == 1) {
+                    replicaTable.remove(key);
                 }
             }
         }
-        Log.log.info(String.format("[%d] dealt coldSpots = ", id) + coldSpots.size() + "/" + replicasIdMap.size() +
-                ", coldSpots/hotSpots = " + (double) coldSpots.size() / hotSpotNumber +
+
+        Log.log.info(String.format("[%d] dealt coldSpots = ", id) + handledColdSpotNum + "/" + coldSpots.size() +
                 " | current distribution = " + replicasDistribute.toString());
-        infoAllClient(coldItems);
     }
 
     /**
@@ -270,10 +275,10 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      */
     public void handleReadFailed(Channel channel, String key, int failedServerId) {
         String oriKey = MessageManager.getOriKey(key);
-        if (replicasIdMap.containsKey(oriKey)) {
+        if (replicaTable.containsKey(oriKey)) {
             String value;
             if (failedServerId == serverId) {
-                Vector<Integer> vector = replicasIdMap.get(oriKey);
+                Vector<Integer> vector = replicaTable.get(oriKey);
                 DataClient mClient = dataClientMap.get(vector.get(0));
                 value = mClient.get(oriKey);
                 if (value != null && value.length() > 0) {
@@ -345,7 +350,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * @return the location serverId where can a replica be created on for key.
      */
     private int getReplicaId(List<Map.Entry<Integer, Double>> list, String key) {
-        if (replicaMode == EMBER_MODE) {
+        if (replicaMode == REPLICA_EMBER) {
             return getReplicaIdStrict(list, key);
         } else {
             return getReplicaIdRandom(list, key);
@@ -356,8 +361,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         int replicaId = -1;
         HashSet<String> hosts = new HashSet<String>();
         HashSet<Integer> currentReplicas = new HashSet<Integer>();
-        if (replicasIdMap.containsKey(key)) {
-            currentReplicas = new HashSet<Integer>(replicasIdMap.get(key));
+        if (replicaTable.containsKey(key)) {
+            currentReplicas = new HashSet<Integer>(replicaTable.get(key));
             for (int id : currentReplicas) {
                 hosts.add(serversMap.get(id).getHost());
             }
@@ -387,8 +392,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     public int getReplicaIdRandom(List<Map.Entry<Integer, Double>> list, String key) {
         int replicaId = -1;
         HashSet<Integer> currentReplicas = new HashSet<Integer>();
-        if (replicasIdMap.containsKey(key)) {
-            currentReplicas = new HashSet<Integer>(replicasIdMap.get(key));
+        if (replicaTable.containsKey(key)) {
+            currentReplicas = new HashSet<Integer>(replicaTable.get(key));
         } else {
             currentReplicas.add(serverId);
         }
@@ -444,13 +449,14 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     /**
      * Push the replica information to clients.
      *
-     * @param hotItems
      */
-    private void infoAllClient(Map<String, Integer> hotItems) {
-        if (hotItems == null || hotItems.size() == 0) {
+    private void infoAllClient() {
+        Map<String, Integer> hotItems = new HashMap<>(replicaBuffer);
+        replicaBuffer.clear();
+        if (hotItems.size() == 0) {
             return;
         }
-        Log.log.fatal("[Replica Table] " + hotItems);
+        Log.log.debug("[ReplicaTable] update " + hotItems);
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
         String replicasInfo = gson.toJson(hotItems);
         CtsMsg.nr_replicas_res.Builder builder = CtsMsg.nr_replicas_res.newBuilder();

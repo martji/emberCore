@@ -47,7 +47,7 @@ public class EmberClientMain {
         for (int i = 0; i < 4; i++) {
             new Thread(new Runnable() {
                 public void run() {
-                    DBClient client = new DBClient(MODE, serverNodes);
+                    DBClient client = new DBClient(MODE, DataClientFactory.REPLICA_EMBER, serverNodes);
                     client.initConfig(RECORD_COUNT, DBClient.SLICE_HASH_MODE, DBClient.SYNC_SET_MODE);
                     runTest(client);
                     client.shutdown();

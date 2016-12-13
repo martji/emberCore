@@ -29,6 +29,7 @@ public class EmberClient {
     private final int TIMEOUT = 2500;
     private final int SAMPLE_RATE = 3;
 
+    private int replicaMode;
     private int clientTag;
     private String host;
     private int readPort;
@@ -45,7 +46,8 @@ public class EmberClient {
 
     private ConcurrentMap<String, Vector<Integer>> replicaTable;
 
-    public EmberClient(ServerNode node, ConcurrentMap<String, Vector<Integer>> replicaTable) {
+    public EmberClient(int replicaMode, ServerNode node, ConcurrentMap<String, Vector<Integer>> replicaTable) {
+        this.replicaMode = replicaMode;
         this.replicaTable = replicaTable;
         this.clientTag = (int) System.nanoTime() + new Random().nextInt(100);
         this.host = node.getHost();
@@ -59,7 +61,7 @@ public class EmberClient {
             readBootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
                     Executors.newCachedThreadPool(),
                     Executors.newCachedThreadPool()));
-            readHandler = new EmberClientHandler(clientTag, replicaTable);
+            readHandler = new EmberClientHandler(replicaMode, clientTag, replicaTable);
             readBootstrap.setPipelineFactory(new MClientPipelineFactory(readHandler));
             ChannelFuture readFuture = readBootstrap.connect(new InetSocketAddress(host, readPort)).sync();
             while (!readFuture.isDone()) {
@@ -69,7 +71,7 @@ public class EmberClient {
             writeBootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
                     Executors.newCachedThreadPool(),
                     Executors.newCachedThreadPool()));
-            writeHandler = new EmberClientHandler(clientTag, replicaTable);
+            writeHandler = new EmberClientHandler(replicaMode, clientTag, replicaTable);
             writeBootstrap.setPipelineFactory(new MClientPipelineFactory(writeHandler));
             ChannelFuture writeFuture = writeBootstrap.connect(new InetSocketAddress(host, writePort)).sync();
             while (!writeFuture.isDone()) {

@@ -4,11 +4,8 @@ import com.sdp.hotspotdetect.bloom.MultiBloomDetectorImp;
 import com.sdp.hotspotdetect.frequent.SWFPDetectorImp;
 import com.sdp.hotspotdetect.interfaces.BloomDetectorInterface;
 import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
-import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
-import com.sdp.replicas.LocalSpots;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -26,12 +23,10 @@ import java.util.Map;
  * The data counter{@link FrequentDetectorInterface} intends to find the hot spots by counting the data items,
  * but it does not calculate all the data items.
  */
-public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
+public class StreamHotSpotManager extends BaseHotSpotManager {
 
     private MultiBloomDetectorImp bloomDetector;
     private SWFPDetectorImp frequentDetector;
-
-    private HashSet<String> currentHotSpotSet = new HashSet<String>();
 
     public StreamHotSpotManager() {
         initConfig();
@@ -64,13 +59,14 @@ public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotS
 
     @Override
     public void resetCounter() {
-        super.resetCounter();
-
         bloomDetector.updateFilterThreshold();
         bloomDetector.resetCounter();
 
+        frequentDetector.setRequestNum(requestNum);
         frequentDetector.updateThreshold();
         frequentDetector.resetCounter();
+
+        super.resetCounter();
     }
 
     @Override
@@ -87,10 +83,7 @@ public class StreamHotSpotManager extends BaseHotSpotManager implements DealHotS
 
     @Override
     public void dealData() {
-        dealHotData();
-        LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
-        currentHotSpotSet.clear();
-        dealColdData();
+        super.dealData();
     }
 
     public void dealHotData() {

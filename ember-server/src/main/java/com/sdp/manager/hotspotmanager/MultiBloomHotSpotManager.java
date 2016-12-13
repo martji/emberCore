@@ -1,11 +1,8 @@
 package com.sdp.manager.hotspotmanager;
 
 import com.sdp.hotspotdetect.bloom.MultiBloomCounterDetectorImp;
-import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
-import com.sdp.replicas.LocalSpots;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -14,10 +11,9 @@ import java.util.Map;
  * {@link MultiBloomCounterDetectorImp}
  */
 
-public class MultiBloomHotSpotManager extends BaseHotSpotManager implements DealHotSpotInterface {
+public class MultiBloomHotSpotManager extends BaseHotSpotManager {
 
     private MultiBloomCounterDetectorImp frequentDetector;
-    private HashSet<String> currentHotSpotSet = new HashSet<String>();
 
     public MultiBloomHotSpotManager() {
         initConfig();
@@ -69,10 +65,7 @@ public class MultiBloomHotSpotManager extends BaseHotSpotManager implements Deal
 
     @Override
     public void dealData() {
-        dealHotData();
-        LocalSpots.hotSpotNumber.set(currentHotSpotSet.size());
-        currentHotSpotSet.clear();
-        dealColdData();
+        super.dealData();
     }
 
     public void dealHotData() {

@@ -12,11 +12,11 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
 /**
@@ -93,7 +93,7 @@ public class EmberServer {
             DataClient dataClient = DataClientFactory.createDataClient(id);
             dataClientMap.put(id, dataClient);
         }
-        Log.log.info("[Ember server] finish init data clients");
+        Log.log.info("[EmberServer] finish init data clients");
     }
 
     private void registerMonitor() {
@@ -108,7 +108,7 @@ public class EmberServer {
      */
     private void registerMonitor(int id, String monitorAddress, int serverPort) {
         LocalMonitor.getInstance().setPort(serverPort);
-        Log.log.info("[Monitor] " + monitorAddress);
+        Log.log.info("[Monitor] address = " + monitorAddress);
         String[] arr = monitorAddress.split(":");
         final String host = arr[0];
         final int port = Integer.parseInt(arr[1]);
@@ -149,12 +149,11 @@ public class EmberServer {
         rBootstrap.setOption("reuseAddress", true);
         rBootstrap.bind(new InetSocketAddress(readPort));
 
-        Log.log.info("[Netty] ember server start");
+        Log.log.info("[EmberServer] ember server start");
     }
 
     public String getAReplica() {
         if (monitorClient == null || monitorClient.getMChannel() == null) {
-            Log.log.warn("[Netty] connect to monitor failed");
             if (monitorClient != null) {
                 monitorClient.connect();
             }

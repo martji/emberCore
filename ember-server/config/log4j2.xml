@@ -5,7 +5,7 @@
     </properties>
     <appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%highlight{%d %-5p %C: %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue}"/>
+            <PatternLayout pattern="%highlight{%d %-5p %C: %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=blue bold, TRACE=blue}"/>
         </Console>
         <RollingFile name="RollingFile" fileName="logs/ember-server-${ID}.log" filePattern="_yyyyMMdd">
             <PatternLayout pattern="%d %-5p %l: %m%n"/>
@@ -14,7 +14,7 @@
         </RollingFile>
     </appenders>
     <loggers>
-        <root level="info">
+        <root level="all">
             <appender-ref ref="RollingFile"/>
             <appender-ref ref="Console"/>
         </root>

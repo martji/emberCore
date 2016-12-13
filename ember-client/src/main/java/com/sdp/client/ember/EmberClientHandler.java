@@ -3,6 +3,7 @@ package com.sdp.client.ember;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.sdp.client.DataClientFactory;
 import com.sdp.common.EMSGID;
 import com.sdp.log.Log;
 import com.sdp.message.CtsMsg.nr_connected_mem;
@@ -22,12 +23,14 @@ import java.util.concurrent.ConcurrentMap;
 
 public class EmberClientHandler extends SimpleChannelUpstreamHandler {
 
+    private int replicaMode;
     private int clientTag;
     private ConcurrentMap<String, Vector<Integer>> keyReplicaMap;
 
     private Map<String, BaseOperation<?>> opMap;
 
-    public EmberClientHandler(int clientTag, ConcurrentMap<String, Vector<Integer>> keyReplicaMap) {
+    public EmberClientHandler(int replicaMode, int clientTag, ConcurrentMap<String, Vector<Integer>> keyReplicaMap) {
+        this.replicaMode = replicaMode;
         this.clientTag = clientTag;
         this.keyReplicaMap = keyReplicaMap;
 
@@ -70,14 +73,14 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
                 String key = msgBody.getKey();
                 String value = msgBody.getValue();
                 if (key.length() != 0) {
-                    Log.log.info("[Netty] replication update: " + key + ", " + value);
+                    Log.log.debug("[Netty] replication update: " + key + ", " + value);
                     updateKeyReplicaMap(key, value);
                 } else {
                     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
                     Map<String, Integer> replicasMap = gson.fromJson(value,
                             new TypeToken<Map<String, Integer>>() {
                             }.getType());
-                    Log.log.info("[Netty] replica table " + replicasMap);
+                    Log.log.debug("[Netty] replica table " + replicasMap);
                     updateKeyReplicaMap(replicasMap);
                 }
             }
@@ -140,12 +143,23 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
         for (String key : keySet) {
             int replicaId = replicasMap.get(key);
             Vector<Integer> result = decodeReplicasInfo(replicaId);
-            if (result != null) {
-                if (keyReplicaMap.containsKey(key) && result.size() == 1) {
-                    keyReplicaMap.remove(key);
-                    return;
+            if (result != null && result.size() > 0) {
+                if (replicaMode == DataClientFactory.REPLICA_SPORE) {
+                    if(!keyReplicaMap.containsKey(key) && result.size() > 1) {
+                        int index = new Random().nextInt(result.size());
+                        Vector<Integer> vector = new Vector<Integer>();
+                        vector.add(result.get(index));
+                        keyReplicaMap.put(key, vector);
+                    } else if (keyReplicaMap.containsKey(key) && result.size() == 1) {
+                        keyReplicaMap.remove(key);
+                    }
+                } else {
+                    if (keyReplicaMap.containsKey(key) && result.size() == 1) {
+                        keyReplicaMap.remove(key);
+                        return;
+                    }
+                    keyReplicaMap.put(key, result);
                 }
-                keyReplicaMap.put(key, result);
             }
         }
     }

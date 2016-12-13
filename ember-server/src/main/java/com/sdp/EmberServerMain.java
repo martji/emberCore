@@ -5,10 +5,10 @@ import com.sdp.config.ConfigManager;
 import com.sdp.log.Log;
 import com.sdp.server.EmberServer;
 import com.sdp.server.EmberServerHandler;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author martji

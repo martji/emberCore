@@ -15,7 +15,7 @@
  * LICENSE file.
  */
 
-package com.sdp.replicas;
+package com.sdp.utils;
 
 import java.util.Random;
 
@@ -71,17 +71,17 @@ public class Utils {
      */
     public static int FNVhash32(int val) {
         //from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
-        int hashval = FNV_offset_basis_32;
+        int hashValue = FNV_offset_basis_32;
 
         for (int i = 0; i < 4; i++) {
             int octet = val & 0x00ff;
             val = val >> 8;
 
-            hashval = hashval ^ octet;
-            hashval = hashval * FNV_prime_32;
-            //hashval = hashval ^ octet;
+            hashValue = hashValue ^ octet;
+            hashValue = hashValue * FNV_prime_32;
+            //hashValue = hashValue ^ octet;
         }
-        return Math.abs(hashval);
+        return Math.abs(hashValue);
     }
 
     public static final long FNV_offset_basis_64 = 0xCBF29CE484222325L;
@@ -95,16 +95,16 @@ public class Utils {
      */
     public static long FNVhash64(long val) {
         //from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
-        long hashval = FNV_offset_basis_64;
+        long hashValue = FNV_offset_basis_64;
 
         for (int i = 0; i < 8; i++) {
             long octet = val & 0x00ff;
             val = val >> 8;
 
-            hashval = hashval ^ octet;
-            hashval = hashval * FNV_prime_64;
-            //hashval = hashval ^ octet;
+            hashValue = hashValue ^ octet;
+            hashValue = hashValue * FNV_prime_64;
+            //hashValue = hashValue ^ octet;
         }
-        return Math.abs(hashval);
+        return Math.abs(hashValue);
     }
 }

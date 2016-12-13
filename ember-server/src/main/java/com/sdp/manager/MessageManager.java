@@ -31,9 +31,9 @@ import com.sdp.netty.NetMsg;
 import com.sdp.server.EmberServer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by magq on 16/7/6.
@@ -128,7 +128,7 @@ public class MessageManager implements MessageManagerInterface {
         NetMsg msg = (NetMsg) e.getMessage();
         int clientTag = msg.getNodeRoute();
         clientChannelMap.put(clientTag, e.getChannel());
-        Log.log.fatal("[Netty] server hear channelConnected from client: " + e.getChannel());
+        Log.log.info("[Netty] server hear channelConnected from client: " + e.getChannel());
         CtsMsg.nr_connected_mem_back.Builder builder = CtsMsg.nr_connected_mem_back.newBuilder();
         NetMsg send = NetMsg.newMessage();
         send.setMessageLite(builder);
