@@ -1,5 +1,7 @@
 package com.sdp.server;
 
+import com.sdp.config.ConfigManager;
+import com.sdp.utils.ConstUtil;
 import com.sdp.log.Log;
 import com.sdp.manager.MessageManager;
 import org.jboss.netty.channel.*;
@@ -22,19 +24,20 @@ public class EmberServerHandler extends SimpleChannelUpstreamHandler {
 
     public EmberServerHandler(boolean isDetect) {
         messageManager = new MessageManager();
-        if (isDetect) {
+        int replicaMode = (Integer) ConfigManager.propertiesMap.get(ConfigManager.REPLICA_MODE);
+        if (isDetect && (replicaMode == ConstUtil.REPLICA_EMBER || replicaMode == ConstUtil.REPLICA_SPORE)) {
             messageManager.startHotSpotDetection();
         }
     }
 
     /**
-     * @param replicasIdMap : the replicasIdMap is shared by all threads.
+     * @param replicaTable : the replicaTable is shared by all threads.
      * @param mServer       : ember server
      */
-    public EmberServerHandler(boolean isDetect, ConcurrentHashMap<String, Vector<Integer>> replicasIdMap,
+    public EmberServerHandler(boolean isDetect, ConcurrentHashMap<String, Vector<Integer>> replicaTable,
                               EmberServer mServer) {
         this(isDetect);
-        messageManager.initManager(mServer, replicasIdMap);
+        messageManager.initManager(mServer, replicaTable);
     }
 
     @Override

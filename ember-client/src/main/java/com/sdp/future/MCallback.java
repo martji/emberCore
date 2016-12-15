@@ -20,7 +20,7 @@ public class MCallback<V> {
         return result;
     }
 
-    public void gotdata(V out) {
+    public void gotData(V out) {
         result = out;
         latch.countDown();
     }

@@ -27,7 +27,8 @@ public class EmberClientMain {
      */
     private int replicasNum;
 
-    private final int MODE = DataClientFactory.EMBER_MODE;
+    private final int CLIENT_MODE = DataClientFactory.RS_TYPE;
+    private final int REPLICA_MODE = DataClientFactory.REPLICA_EMBER;
     private final int RECORD_COUNT = 100;
 
     /**
@@ -39,15 +40,15 @@ public class EmberClientMain {
         launch.test();
     }
 
-    public void test() {
+    private void test() {
         RegisterHandler.initHandler();
         getConfig();
         getServerList();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 1; i++) {
             new Thread(new Runnable() {
                 public void run() {
-                    DBClient client = new DBClient(MODE, DataClientFactory.REPLICA_EMBER, serverNodes);
+                    DBClient client = new DBClient(CLIENT_MODE, REPLICA_MODE, serverNodes, getProperties());
                     client.initConfig(RECORD_COUNT, DBClient.SLICE_HASH_MODE, DBClient.SYNC_SET_MODE);
                     runTest(client);
                     client.shutdown();
@@ -56,7 +57,7 @@ public class EmberClientMain {
         }
     }
 
-    public void runTest(DBClient client) {
+    private void runTest(DBClient client) {
         String key = "user";
         String value = "This is a test of an object blah blah es.";
         for (int i = 0; i < 1090; i++) {
@@ -88,7 +89,7 @@ public class EmberClientMain {
         Log.log.info(RECORD_COUNT + " gets: " + time + "ms");
     }
 
-    public void getServerList() {
+    private void getServerList() {
         serverNodes = new ArrayList<ServerNode>();
         String serverListPath = System.getProperty("user.dir") + "/config/servers.xml";
         SAXReader sr = new SAXReader();
@@ -110,7 +111,7 @@ public class EmberClientMain {
         }
     }
 
-    public void getConfig() {
+    private void getConfig() {
         String configPath = System.getProperty("user.dir") + "/config/config.properties";
         try {
             Properties properties = new Properties();
@@ -119,5 +120,12 @@ public class EmberClientMain {
         } catch (Exception e) {
             Log.log.error("wrong config.properties", e);
         }
+    }
+
+    private Properties getProperties() {
+        Properties properties = new Properties();
+        properties.put("data_shards", 2);
+        properties.put("parity_shards", 2);
+        return properties;
     }
 }

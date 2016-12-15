@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sdp.common.EMSGID;
 import com.sdp.config.ConfigManager;
+import com.sdp.utils.ConstUtil;
 import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
 import com.sdp.message.CtsMsg;
@@ -27,9 +28,6 @@ import java.util.concurrent.Executors;
  * Created by magq on 16/7/6.
  */
 public class ReplicaManager implements DealHotSpotInterface, Runnable {
-
-    private final int REPLICA_SPORE = 1;
-    private final int REPLICA_EMBER = 0;
 
     /**
      * The replica mode.
@@ -102,7 +100,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.updateStatusTime = (Integer) ConfigManager.propertiesMap.get(ConfigManager.UPDATE_STATUS_TIME);
         this.bufferSize = (Integer) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_BUFFER_SIZE);
 
-        Log.log.info("[ReplicaManager] replicaMode = " + (replicaMode == REPLICA_SPORE ? "Spore" : "Ember") +
+        Log.log.info("[ReplicaManager] replicaMode = " + ConstUtil.getReplicaMode(replicaMode) +
                 ", bufferSize = " + bufferSize);
     }
 
@@ -110,9 +108,9 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.clientChannelMap = clientChannelMap;
     }
 
-    public void initLocalReference(EmberServer server, ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
+    public void initLocalReference(EmberServer server, ConcurrentHashMap<String, Vector<Integer>> replicaTable) {
         this.mServer = server;
-        this.replicaTable = replicasIdMap;
+        this.replicaTable = replicaTable;
         this.dataClientMap = server.getDataClientMap();
         this.mClient = dataClientMap.get(serverId);
     }
@@ -156,7 +154,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     public void dealColdData() {
         HashSet<String> candidates;
-        if (replicaMode == REPLICA_SPORE) {
+        if (replicaMode == ConstUtil.REPLICA_SPORE) {
             candidates = new HashSet<String>(replicaTable.keySet());
         } else {
             candidates = new HashSet<String>(SpotUtil.candidateColdSpots);
@@ -302,6 +300,30 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         }
     }
 
+    public void handleRSServers(Channel channel, String key, int count) {
+        String oriKey = MessageManager.getOriKey(key);
+        Vector<Integer> vector;
+        if (replicaTable.containsKey(oriKey)) {
+            vector = replicaTable.get(oriKey);
+        } else {
+            List<Integer> list = new ArrayList<>(serversMap.keySet());
+            int index = list.indexOf(serverId);
+            vector = new Vector<>();
+            for (int i = 0; i < count; i++) {
+                vector.add(list.get((index + i) % list.size()));
+            }
+            replicaTable.put(oriKey, vector);
+        }
+        String value = encodeReplicasInfo(vector) + "";
+        CtsMsg.nr_read_res.Builder builder = CtsMsg.nr_read_res.newBuilder();
+        builder.setKey(key);
+        builder.setValue(value);
+        NetMsg msg = NetMsg.newMessage();
+        msg.setMessageLite(builder);
+        msg.setMsgID(EMSGID.nr_read_res);
+        channel.write(msg);
+    }
+
     /**
      * Update replicas distribution.
      *
@@ -350,7 +372,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * @return the location serverId where can a replica be created on for key.
      */
     private int getReplicaId(List<Map.Entry<Integer, Double>> list, String key) {
-        if (replicaMode == REPLICA_EMBER) {
+        if (replicaMode == ConstUtil.REPLICA_EMBER) {
             return getReplicaIdStrict(list, key);
         } else {
             return getReplicaIdRandom(list, key);

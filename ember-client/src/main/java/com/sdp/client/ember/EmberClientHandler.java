@@ -12,6 +12,7 @@ import com.sdp.message.CtsMsg.nr_replicas_res;
 import com.sdp.message.CtsMsg.nr_write_res;
 import com.sdp.netty.NetMsg;
 import com.sdp.operation.BaseOperation;
+import com.sdp.utils.ServerTransUtil;
 import org.jboss.netty.channel.*;
 
 import java.util.*;
@@ -107,7 +108,7 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
     private void handleReadOp(String key, String value) {
         if (opMap.containsKey(key)) {
             BaseOperation<String> op = (BaseOperation<String>) opMap.get(key);
-            op.getMcallback().gotdata(value);
+            op.getMcallback().gotData(value);
             opMap.remove(key);
         }
     }
@@ -116,9 +117,9 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
         if (opMap.containsKey(key)) {
             BaseOperation<Boolean> op = (BaseOperation<Boolean>) opMap.get(key);
             if (value != null && value.length() > 0) {
-                op.getMcallback().gotdata(true);
+                op.getMcallback().gotData(true);
             } else {
-                op.getMcallback().gotdata(false);
+                op.getMcallback().gotData(false);
             }
             opMap.remove(key);
         }
@@ -164,30 +165,11 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
         }
     }
 
-    public void addOpMap(String id, BaseOperation<?> op) {
+    void addOpMap(String id, BaseOperation<?> op) {
         opMap.put(id, op);
     }
 
-    public Vector<Integer> decodeReplicasInfo(int value) {
-        Vector<Integer> result = new Vector<Integer>();
-        if (value == 0) {
-            return null;
-        } else {
-            while (value > 0) {
-                int id = -1;
-                int tmp = value;
-                while (tmp > 0) {
-                    tmp /= 2;
-                    id += 1;
-                }
-                if (id > -1) {
-                    result.add(id);
-                    value -= Math.pow(2, id);
-                } else {
-                    break;
-                }
-            }
-            return result;
-        }
+    private Vector<Integer> decodeReplicasInfo(int value) {
+        return ServerTransUtil.decodeServer(value);
     }
 }

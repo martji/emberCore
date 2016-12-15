@@ -42,6 +42,11 @@
             <version>2.7.3</version>
         </dependency>
         <dependency>
+            <groupId>com.sdp.reedsolomon</groupId>
+            <artifactId>java-reed-solomon</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>2.9.0</version>

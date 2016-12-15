@@ -58,10 +58,10 @@ public class MessageManager implements MessageManagerInterface {
         replicaManager.setClientChannelMap(clientChannelMap);
     }
 
-    public void initManager(EmberServer server, ConcurrentHashMap<String, Vector<Integer>> replicasIdMap) {
+    public void initManager(EmberServer server, ConcurrentHashMap<String, Vector<Integer>> replicaTable) {
         this.mServer = server;
-        replicaManager.initLocalReference(mServer, replicasIdMap);
-        consistencyManager.initLocalReference(replicasIdMap, server.getDataClientMap());
+        replicaManager.initLocalReference(mServer, replicaTable);
+        consistencyManager.initLocalReference(replicaTable, server.getDataClientMap());
     }
 
     /**
@@ -124,7 +124,7 @@ public class MessageManager implements MessageManagerInterface {
         }
     }
 
-    public void handleConnectFromClient(MessageEvent e) {
+    private void handleConnectFromClient(MessageEvent e) {
         NetMsg msg = (NetMsg) e.getMessage();
         int clientTag = msg.getNodeRoute();
         clientChannelMap.put(clientTag, e.getChannel());
@@ -136,25 +136,31 @@ public class MessageManager implements MessageManagerInterface {
         e.getChannel().write(send);
     }
 
-    public void handleRegister(NetMsg msg) {
+    private void handleRegister(NetMsg msg) {
         nr_register msgLite = msg.getMessageLite();
         String key = msgLite.getKey();
         hotSpotManager.handleRegister(key);
     }
 
-    public void handleRead(MessageEvent e) {
+    private void handleRead(MessageEvent e) {
         NetMsg msg = (NetMsg) e.getMessage();
         nr_read msgLite = msg.getMessageLite();
         String key = msgLite.getKey();
         int failedId = msg.getNodeRoute();
-        replicaManager.handleReadFailed(e.getChannel(), key, failedId);
+        if (failedId < 0) {
+            int count = -1 * failedId;
+            replicaManager.handleRSServers(e.getChannel(), key, count);
+
+        } else {
+            replicaManager.handleReadFailed(e.getChannel(), key, failedId);
+        }
     }
 
-    public void handleWrite(MessageEvent e) {
+    private void handleWrite(MessageEvent e) {
         consistencyManager.handleWrite(e);
     }
 
-    public static String getOriKey(String key) {
+    static String getOriKey(String key) {
         if (key.contains(":")) {
             return key.substring(key.indexOf(":") + 1);
         }

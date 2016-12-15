@@ -154,6 +154,31 @@ public class EmberClient {
         }
     }
 
+    public String getRSServers(String key, int count) {
+        CountDownLatch latch = new CountDownLatch(1);
+        BaseOperation<String> op = new BaseOperation<String>(new MCallback<String>(latch));
+        MFuture<String> future = new MFuture<String>(latch, op);
+        String id = Long.toString(System.currentTimeMillis());
+        key = id + ":" + key;
+        readHandler.addOpMap(key, op);
+
+        CtsMsg.nr_read.Builder builder = CtsMsg.nr_read.newBuilder();
+        builder.setKey(key);
+        NetMsg msg = NetMsg.newMessage();
+        msg.setNodeRoute(-1 * count);
+        msg.setMessageLite(builder);
+        msg.setMsgID(EMSGID.nr_read);
+
+        readChannel.write(msg);
+
+        try {
+            return future.get(TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean isRegister() {
         return new Random().nextInt(100) < SAMPLE_RATE;
     }

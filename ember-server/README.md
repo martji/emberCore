@@ -2,6 +2,7 @@
 Ember server is the core of Ember and in responsible for the hot spot detection, replica management and consistency management.
 
 ## Update log
+- 20161215, add reed-solomon mode replica mode, which is from osdi'16 ec-cache;
 - 20161205, reformat codes;
 - 20161123, create V3.0 and refactored the code;
 - 20160718, create V2.0 and restructure the code and implement the new hot spot detection algorithm;

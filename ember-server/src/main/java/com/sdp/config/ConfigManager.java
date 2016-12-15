@@ -2,6 +2,7 @@ package com.sdp.config;
 
 import com.sdp.log.Log;
 import com.sdp.server.EmberServerNode;
+import com.sdp.utils.ConstUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -37,31 +38,31 @@ public class ConfigManager {
             int replica_protocol = Integer.decode(properties.getProperty(REPLICA_PROTOCOL, "0"));
             String monitor_address = properties.getProperty(MONITOR_ADDRESS, "127.0.0.1").toString();
 
-            int data_client_mode = Integer.decode(properties.getProperty(DATA_CLIENT_MODE, DefaultConfig.DATA_CLIENT_MODE));
+            int data_client_mode = Integer.decode(properties.getProperty(DATA_CLIENT_MODE, ConstUtil.DATA_CLIENT_MODE));
 
-            int replica_mode = Integer.decode(properties.getProperty(REPLICA_MODE, DefaultConfig.REPLICA_MODE));
-            int update_status_time = Integer.decode(properties.getProperty(UPDATE_STATUS_TIME, DefaultConfig.UPDATE_STATUS_TIME)) * 1000;
-            int hot_spot_buffer_size = Integer.decode(properties.getProperty(HOT_SPOT_BUFFER_SIZE, DefaultConfig.HOT_SPOT_BUFFER_SIZE));
+            int replica_mode = Integer.decode(properties.getProperty(REPLICA_MODE, ConstUtil.REPLICA_MODE));
+            int update_status_time = Integer.decode(properties.getProperty(UPDATE_STATUS_TIME, ConstUtil.UPDATE_STATUS_TIME)) * 1000;
+            int hot_spot_buffer_size = Integer.decode(properties.getProperty(HOT_SPOT_BUFFER_SIZE, ConstUtil.HOT_SPOT_BUFFER_SIZE));
 
-            int hot_spot_manager_mode = Integer.decode(properties.getProperty(HOT_SPOT_MANAGER_MODE, DefaultConfig.HOT_SPOT_MANAGER_MODE));
-            int slice_time = Integer.decode(properties.getProperty(SLICE_TIME, DefaultConfig.SLICE_TIME)) * 1000;
+            int hot_spot_manager_mode = Integer.decode(properties.getProperty(HOT_SPOT_MANAGER_MODE, ConstUtil.HOT_SPOT_MANAGER_MODE));
+            int slice_time = Integer.decode(properties.getProperty(SLICE_TIME, ConstUtil.SLICE_TIME)) * 1000;
 
-            int hot_spot_threshold = Integer.decode(properties.getProperty(HOT_SPOT_THRESHOLD, DefaultConfig.HOT_SPOT_THRESHOLD));
-            double hot_spot_percentage = Double.parseDouble(properties.getProperty(HOT_SPOT_PERCENTAGE, DefaultConfig.HOT_SPOT_PERCENTAGE));
-            double hot_spot_influence = Double.parseDouble(properties.getProperty(HOT_SPOT_INFLUENCE, DefaultConfig.HOT_SPOT_INFLUENCE));
+            int hot_spot_threshold = Integer.decode(properties.getProperty(HOT_SPOT_THRESHOLD, ConstUtil.HOT_SPOT_THRESHOLD));
+            double hot_spot_percentage = Double.parseDouble(properties.getProperty(HOT_SPOT_PERCENTAGE, ConstUtil.HOT_SPOT_PERCENTAGE));
+            double hot_spot_influence = Double.parseDouble(properties.getProperty(HOT_SPOT_INFLUENCE, ConstUtil.HOT_SPOT_INFLUENCE));
 
-            int bloom_filter_number = Integer.decode(properties.getProperty(BLOOM_FILTER_NUMBER, DefaultConfig.BLOOM_FILTER_NUMBER));
-            int bloom_filter_length = Integer.decode(properties.getProperty(BLOOM_FILTER_LENGTH, DefaultConfig.BLOOM_FILTER_LENGTH));
-            double frequent_percentage = Double.parseDouble(properties.getProperty(FREQUENT_PERCENTAGE, DefaultConfig.FREQUENT_PERCENTAGE));
+            int bloom_filter_number = Integer.decode(properties.getProperty(BLOOM_FILTER_NUMBER, ConstUtil.BLOOM_FILTER_NUMBER));
+            int bloom_filter_length = Integer.decode(properties.getProperty(BLOOM_FILTER_LENGTH, ConstUtil.BLOOM_FILTER_LENGTH));
+            double frequent_percentage = Double.parseDouble(properties.getProperty(FREQUENT_PERCENTAGE, ConstUtil.FREQUENT_PERCENTAGE));
 
-            int counter_number = Integer.decode(properties.getProperty(COUNTER_NUMBER, DefaultConfig.COUNTER_NUMBER));
-            int top_item_number = Integer.decode(properties.getProperty(TOP_ITEM_NUMBER, DefaultConfig.TOP_ITEM_NUMBER));
+            int counter_number = Integer.decode(properties.getProperty(COUNTER_NUMBER, ConstUtil.COUNTER_NUMBER));
+            int top_item_number = Integer.decode(properties.getProperty(TOP_ITEM_NUMBER, ConstUtil.TOP_ITEM_NUMBER));
 
-            int frequent_threshold = Integer.decode(properties.getProperty(FREQUENT_THRESHOLD, DefaultConfig.FREQUENT_THRESHOLD));
+            int frequent_threshold = Integer.decode(properties.getProperty(FREQUENT_THRESHOLD, ConstUtil.FREQUENT_THRESHOLD));
 
-            int interval = Integer.decode(properties.getProperty(INTERVAL, DefaultConfig.INTERVAL));
+            int interval = Integer.decode(properties.getProperty(INTERVAL, ConstUtil.INTERVAL));
 
-            double error_rate = Double.parseDouble(properties.getProperty(ERROR_RATE, DefaultConfig.ERROR_RATE));
+            double error_rate = Double.parseDouble(properties.getProperty(ERROR_RATE, ConstUtil.ERROR_RATE));
 
             propertiesMap.put(REPLICA_PROTOCOL, replica_protocol);
             propertiesMap.put(MONITOR_ADDRESS, monitor_address);

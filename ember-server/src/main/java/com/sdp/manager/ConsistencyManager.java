@@ -28,7 +28,7 @@ public class ConsistencyManager {
     /**
      * Map of the replica location of all hot spots, this will bring some memory overhead.
      */
-    private ConcurrentHashMap<String, Vector<Integer>> replicasIdMap;
+    private ConcurrentHashMap<String, Vector<Integer>> replicaTable;
 
     /**
      * The map of connection to other data servers.
@@ -48,9 +48,9 @@ public class ConsistencyManager {
         this.pool = Executors.newCachedThreadPool();
     }
 
-    public void initLocalReference(ConcurrentHashMap<String, Vector<Integer>> replicasIdMap,
+    public void initLocalReference(ConcurrentHashMap<String, Vector<Integer>> replicaTable,
                                    ConcurrentHashMap<Integer, DataClient> dataClientMap) {
-        this.replicasIdMap = replicasIdMap;
+        this.replicaTable = replicaTable;
         this.dataClientMap = dataClientMap;
         this.mClient = dataClientMap.get(ConfigManager.id);
     }
@@ -65,8 +65,8 @@ public class ConsistencyManager {
 
         Vector<Future<Boolean>> resultVector = new Vector<Future<Boolean>>();
         int threshold = 0;
-        if (replicasIdMap.containsKey(oriKey)) {
-            Vector<Integer> replications = replicasIdMap.get(oriKey);
+        if (replicaTable.containsKey(oriKey)) {
+            Vector<Integer> replications = replicaTable.get(oriKey);
             int count = replications.size();
             threshold = getThreshold(count, replicasNum);
             if (threshold > count) {

@@ -44,9 +44,9 @@ public class EmberServerMain {
 
         RegisterHandler.initHandler();
         EmberServer mServer = new EmberServer();
-        ConcurrentHashMap<String, Vector<Integer>> replicasIdMap = new ConcurrentHashMap<String, Vector<Integer>>();
-        EmberServerHandler wServerHandler = new EmberServerHandler(false, replicasIdMap, mServer);
-        EmberServerHandler rServerHandler = new EmberServerHandler(true, replicasIdMap, mServer);
+        ConcurrentHashMap<String, Vector<Integer>> replicaTable = new ConcurrentHashMap<String, Vector<Integer>>();
+        EmberServerHandler wServerHandler = new EmberServerHandler(false, replicaTable, mServer);
+        EmberServerHandler rServerHandler = new EmberServerHandler(true, replicaTable, mServer);
         mServer.init(wServerHandler, rServerHandler);
     }
 
