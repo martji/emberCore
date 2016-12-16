@@ -12,6 +12,7 @@ public class ConstUtil {
     public static final String UPDATE_STATUS_TIME = "5";
     public static final String HOT_SPOT_BUFFER_SIZE = "1000";
 
+    public static final String IS_DETECT_HOT_SPOT = "false";
     public static final String HOT_SPOT_MANAGER_MODE = "0";
     public static final String SLICE_TIME = "15";
 

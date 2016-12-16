@@ -27,7 +27,7 @@ public class EmberClientMain {
      */
     private int replicasNum;
 
-    private final int CLIENT_MODE = DataClientFactory.RS_TYPE;
+    private final int CLIENT_MODE = DataClientFactory.MC_TYPE;
     private final int REPLICA_MODE = DataClientFactory.REPLICA_EMBER;
     private final int RECORD_COUNT = 100;
 
@@ -45,24 +45,15 @@ public class EmberClientMain {
         getConfig();
         getServerList();
 
-        for (int i = 0; i < 1; i++) {
-            new Thread(new Runnable() {
-                public void run() {
-                    DBClient client = new DBClient(CLIENT_MODE, REPLICA_MODE, serverNodes, getProperties());
-                    client.initConfig(RECORD_COUNT, DBClient.SLICE_HASH_MODE, DBClient.SYNC_SET_MODE);
-                    runTest(client);
-                    client.shutdown();
-                }
-            }).start();
-        }
+        DBClient client = new DBClient(CLIENT_MODE, REPLICA_MODE, serverNodes, getProperties());
+        client.initConfig(RECORD_COUNT, DBClient.SLICE_HASH_MODE, DBClient.SYNC_SET_MODE);
+        runTest(client);
+        client.shutdown();
     }
 
     private void runTest(DBClient client) {
         String key = "user";
         String value = "This is a test of an object blah blah es.";
-        for (int i = 0; i < 1090; i++) {
-            value += "x";
-        }
 
         long begin, end, time;
 
@@ -80,7 +71,7 @@ public class EmberClientMain {
         begin = System.currentTimeMillis();
         for (int i = 0; i < RECORD_COUNT; i++) {
             String result = client.get(key + i);
-            if (result == null || result.length() == 0) {
+            if (result == null || !result.equals(value)) {
                 Log.log.error("request: get " + key + i + ", error!");
             }
         }
@@ -124,8 +115,8 @@ public class EmberClientMain {
 
     private Properties getProperties() {
         Properties properties = new Properties();
-        properties.put("data_shards", 2);
-        properties.put("parity_shards", 2);
+        properties.put("data_shards", 1);
+        properties.put("parity_shards", 3);
         return properties;
     }
 }

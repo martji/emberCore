@@ -8,6 +8,7 @@ import com.sdp.utils.ReedSolomonUtil;
 import com.sdp.utils.ServerTransUtil;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -82,6 +83,24 @@ public class RSDataClient implements DataClient {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Vector<Integer> getServerLocations(int masterId, List<ServerNode> serverNodes) {
+        int index = 0;
+        int len = serverNodes.size();
+        for (int i = 0; i < len; i++) {
+            if (serverNodes.get(i).getId() == masterId) {
+                index = i;
+                break;
+            }
+        }
+
+        Vector<Integer> result = new Vector<>();
+        for (int i = 0; i < totalShards; i++) {
+            result.add(serverNodes.get((index + i) % len).getId());
+        }
+
+        return result;
     }
 
     public Vector<Integer> getServerLocations(String key) {

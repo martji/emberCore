@@ -44,6 +44,7 @@ public class ConfigManager {
             int update_status_time = Integer.decode(properties.getProperty(UPDATE_STATUS_TIME, ConstUtil.UPDATE_STATUS_TIME)) * 1000;
             int hot_spot_buffer_size = Integer.decode(properties.getProperty(HOT_SPOT_BUFFER_SIZE, ConstUtil.HOT_SPOT_BUFFER_SIZE));
 
+            boolean is_detect_hot_spot = Boolean.parseBoolean(properties.getProperty(IS_DETECT_HOT_SPOT, ConstUtil.IS_DETECT_HOT_SPOT));
             int hot_spot_manager_mode = Integer.decode(properties.getProperty(HOT_SPOT_MANAGER_MODE, ConstUtil.HOT_SPOT_MANAGER_MODE));
             int slice_time = Integer.decode(properties.getProperty(SLICE_TIME, ConstUtil.SLICE_TIME)) * 1000;
 
@@ -73,6 +74,7 @@ public class ConfigManager {
             propertiesMap.put(UPDATE_STATUS_TIME, update_status_time);
             propertiesMap.put(HOT_SPOT_BUFFER_SIZE, hot_spot_buffer_size);
 
+            propertiesMap.put(IS_DETECT_HOT_SPOT, is_detect_hot_spot);
             propertiesMap.put(HOT_SPOT_MANAGER_MODE, hot_spot_manager_mode);
             propertiesMap.put(SLICE_TIME, slice_time);
 
@@ -132,6 +134,7 @@ public class ConfigManager {
     public static final String UPDATE_STATUS_TIME = "update_status_time";
     public static final String HOT_SPOT_BUFFER_SIZE = "hot_spot_buffer_size";
 
+    public static final String IS_DETECT_HOT_SPOT = "is_detect_hot_spot";
     public static final String HOT_SPOT_MANAGER_MODE = "hot_spot_manager_mode";
     public static final String SLICE_TIME = "slice_time";
 

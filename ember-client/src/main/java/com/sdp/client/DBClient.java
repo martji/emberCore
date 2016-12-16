@@ -28,21 +28,23 @@ public class DBClient implements DataClient {
 
     private int clientType;
     private int replicaMode;
+    private List<ServerNode> serverNodes;
     private Map<Integer, DataClient> clientMap;
     private List<Integer> clientIdList;
     private ConcurrentHashMap<String, Vector<Integer>> replicaTable;
 
     private int dataShards;
     private int parityShards;
-    private ExecutorService threadPool = Executors.newFixedThreadPool(4);
+    private ExecutorService threadPool = Executors.newFixedThreadPool(16);
 
-    public DBClient(int clientType, int replicaMode, List<ServerNode> nodes, Properties p) {
+    public DBClient(int clientType, int replicaMode, List<ServerNode> serverNodes, Properties p) {
         this.clientType = clientType;
         this.replicaMode = replicaMode;
+        this.serverNodes = serverNodes;
         this.clientMap = new HashMap<Integer, DataClient>();
         this.clientIdList = new ArrayList<Integer>();
         this.replicaTable = new ConcurrentHashMap<String, Vector<Integer>>();
-        for (ServerNode node : nodes) {
+        for (ServerNode node : this.serverNodes) {
             DataClient client = DataClientFactory.createInstance(clientType, replicaMode, node, replicaTable);
             clientMap.put(node.getId(), client);
             clientIdList.add(node.getId());
@@ -91,7 +93,11 @@ public class DBClient implements DataClient {
             }
         } else if (clientType == DataClientFactory.RS_TYPE) {
             RSDataClient client = (RSDataClient) clientMap.get(masterId);
-            value = rsGet(client, key);
+            if (replicaTable.containsKey(key)) {
+                value = rsGet(client, key);
+            } else {
+                value = client.get(key);
+            }
         } else {
             value = clientMap.get(masterId).get(key);
         }
@@ -106,7 +112,11 @@ public class DBClient implements DataClient {
             result = client.set(key, value);
         } else if (clientType == DataClientFactory.RS_TYPE) {
             RSDataClient client = (RSDataClient) clientMap.get(masterId);
-            result = rsSet(client, key, value);
+            if (replicaTable.containsKey(key)) {
+                result = rsSet(client, key, value);
+            } else {
+                result = client.set(key, value);
+            }
         } else {
             result = clientMap.get(masterId).set(key, value);
         }
@@ -232,8 +242,8 @@ public class DBClient implements DataClient {
             String[] arrValue = new String[dataShards + parityShards];
             CountDownLatch latch = new CountDownLatch(dataShards);
             Vector<String> values = new Vector<>();
-            for (Integer id : vector) {
-                RSGetThread thread = new RSGetThread(clientMap.get(id), key, latch, values);
+            for (int i = 0; i < dataShards + 1; i++) {
+                RSGetThread thread = new RSGetThread(clientMap.get(vector.get(i)), key, latch, values);
                 threadPool.submit(thread);
             }
             try {
