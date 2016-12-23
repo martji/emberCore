@@ -10,7 +10,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,7 +36,7 @@ public abstract class BaseHotSpotManager implements Runnable, DealHotSpotInterfa
 
     public int requestNum;
     public OnFindHotSpot onFindHotSpot;
-    public Set<String> currentHotSpotSet = Collections.synchronizedSet(new HashSet<String>());
+    public Set<String> currentHotSpotSet = new ConcurrentSkipListSet<>();
 
     public BaseHotSpotManager() {
     }

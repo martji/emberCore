@@ -57,6 +57,7 @@ public class SpotUtil {
      * Record hot spots and cold spots in current period.
      */
     public static ConcurrentLinkedQueue<String> candidateColdSpots = new ConcurrentLinkedQueue<>();
+    public static ConcurrentLinkedQueue<String> periodHotSpots = new ConcurrentLinkedQueue<>();
     public static AtomicInteger coldSpotNumber = new AtomicInteger(0);
     public static AtomicInteger hotSpotNumber = new AtomicInteger(0);
 
@@ -70,6 +71,7 @@ public class SpotUtil {
 
         candidateColdSpots.clear();
         candidateColdSpots.addAll(map.keySet());
+        periodHotSpots.clear();
         coldSpotNumber.set(0);
         hotSpotNumber.set(0);
     }

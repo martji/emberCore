@@ -9,6 +9,7 @@ public class LocalMonitor {
 
     private static LocalMonitor monitor;
 
+    public double cpuCost;
     private int dataPort;
 
     public static LocalMonitor getInstance() {
@@ -19,7 +20,6 @@ public class LocalMonitor {
     }
 
     private double getCpuCost(int port) {
-        double cpuCost = 0.0;
         try {
             String shellCmd = System.getProperty("user.dir") + "/scripts/monitor.sh " + port;
             Process ps = Runtime.getRuntime().exec(shellCmd);
@@ -29,6 +29,7 @@ public class LocalMonitor {
             String result;
             result = br.readLine();
             if (result == null || result.length() == 0) {
+                cpuCost = 0;
                 return cpuCost;
             }
             String[] paras = result.split("\\s+");
@@ -38,6 +39,7 @@ public class LocalMonitor {
             br.close();
         } catch (Exception e) {
             Log.log.warn("[Shell] command execute failed");
+            cpuCost = 0;
         }
         return cpuCost;
     }

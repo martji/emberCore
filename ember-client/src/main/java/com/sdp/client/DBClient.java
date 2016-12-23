@@ -93,11 +93,7 @@ public class DBClient implements DataClient {
             }
         } else if (clientType == DataClientFactory.RS_TYPE) {
             RSDataClient client = (RSDataClient) clientMap.get(masterId);
-            if (replicaTable.containsKey(key)) {
-                value = rsGet(client, key);
-            } else {
-                value = client.get(key);
-            }
+            value = rsGet(client, key);
         } else {
             value = clientMap.get(masterId).get(key);
         }
@@ -112,11 +108,7 @@ public class DBClient implements DataClient {
             result = client.set(key, value);
         } else if (clientType == DataClientFactory.RS_TYPE) {
             RSDataClient client = (RSDataClient) clientMap.get(masterId);
-            if (replicaTable.containsKey(key)) {
-                result = rsSet(client, key, value);
-            } else {
-                result = client.set(key, value);
-            }
+            result = rsSet(client, key, value);
         } else {
             result = clientMap.get(masterId).set(key, value);
         }
@@ -199,7 +191,7 @@ public class DBClient implements DataClient {
      */
     private boolean rsSet(RSDataClient client, String key, String value) {
         boolean result = false;
-        Vector<Integer> vector = client.getServerLocations(key);
+        Vector<Integer> vector = client.getServerLocations(getDataLocation(key), serverNodes);
         if (vector == null || vector.size() != dataShards + parityShards) {
             result = false;
         } else {
@@ -235,15 +227,17 @@ public class DBClient implements DataClient {
      * @return
      */
     private String rsGet(RSDataClient client, String key) {
-        Vector<Integer> vector = client.getServerLocations(key);
+        Vector<Integer> vector = client.getServerLocations(getDataLocation(key), serverNodes);
         if (vector == null || vector.size() != dataShards + parityShards) {
             return null;
         } else {
             String[] arrValue = new String[dataShards + parityShards];
             CountDownLatch latch = new CountDownLatch(dataShards);
             Vector<String> values = new Vector<>();
+            int len = vector.size();
+            int index = new Random().nextInt(len);
             for (int i = 0; i < dataShards + 1; i++) {
-                RSGetThread thread = new RSGetThread(clientMap.get(vector.get(i)), key, latch, values);
+                RSGetThread thread = new RSGetThread(clientMap.get(vector.get((index + i) % len)), key, latch, values);
                 threadPool.submit(thread);
             }
             try {

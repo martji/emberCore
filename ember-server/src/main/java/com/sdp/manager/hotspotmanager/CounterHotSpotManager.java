@@ -7,6 +7,7 @@ import org.jboss.netty.util.internal.ConcurrentHashMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author magq
@@ -19,17 +20,19 @@ import java.util.List;
 
 public class CounterHotSpotManager extends BaseHotSpotManager {
 
-    private ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();
+    private ConcurrentHashMap<String, Integer> countMap;
 
-    public int hotSpotThreshold;
+    private final int HOT_SPOT_NUMBER = 1000;
+
+    private int hotSpotThreshold;
     private double hotSpotPercentage;
 
-    private static final int LOW_HOT_SPOT_THRESHOLD = 2;
+    private int LOW_HOT_SPOT_THRESHOLD;
 
     public CounterHotSpotManager() {
         initConfig();
 
-        currentHotSpotSet = new HashSet<String>();
+        countMap = new ConcurrentHashMap<String, Integer>();
     }
 
     @Override
@@ -38,8 +41,9 @@ public class CounterHotSpotManager extends BaseHotSpotManager {
 
         hotSpotThreshold = (Integer) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_THRESHOLD);
         hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
+        LOW_HOT_SPOT_THRESHOLD = hotSpotThreshold;
 
-        Log.log.info("[TopK Frequent] " + "hotSpotThreshold = " + hotSpotThreshold
+        Log.log.info("[Counter] " + "hotSpotThreshold = " + hotSpotThreshold
                 + ", hotSpotPercentage = " + hotSpotPercentage);
     }
 
@@ -62,7 +66,17 @@ public class CounterHotSpotManager extends BaseHotSpotManager {
     public void resetCounter() {
         super.resetCounter();
 
+        updateThreshold();
         countMap.clear();
+    }
+
+    public void updateThreshold() {
+        if (currentHotSpotSet.size() > 0) {
+            double rate = HOT_SPOT_NUMBER / currentHotSpotSet.size();
+            hotSpotThreshold /= rate;
+            hotSpotThreshold = Math.max(hotSpotThreshold, LOW_HOT_SPOT_THRESHOLD);
+            Log.log.info("[Counter] hotSpotThreshold = " + hotSpotThreshold + ", rate = " + rate);
+        }
     }
 
     @Override
@@ -70,7 +84,8 @@ public class CounterHotSpotManager extends BaseHotSpotManager {
         super.recordHotSpot();
 
         final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
-        for (String key : currentHotSpotSet) {
+        Set<String> keys = new HashSet<>(currentHotSpotSet);
+        for (String key : keys) {
             if (countMap.containsKey(key)) {
                 list.add(new HotSpotItem(key, countMap.get(key)));
             }
@@ -84,8 +99,6 @@ public class CounterHotSpotManager extends BaseHotSpotManager {
     }
 
     public void dealHotData() {
-        hotSpotThreshold /= (countMap.size() * hotSpotPercentage) / currentHotSpotSet.size();
-        hotSpotThreshold = Math.max(hotSpotThreshold, LOW_HOT_SPOT_THRESHOLD);
         onFindHotSpot.dealHotSpot();
     }
 

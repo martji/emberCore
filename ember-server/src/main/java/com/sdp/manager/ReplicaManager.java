@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sdp.common.EMSGID;
 import com.sdp.config.ConfigManager;
+import com.sdp.replicas.StatusItem;
 import com.sdp.utils.ConstUtil;
 import com.sdp.log.Log;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
@@ -66,11 +67,12 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     private ConcurrentHashMap<Integer, DataClient> dataClientMap;
 
     /**
-     * These variables are maintained by itself, where serverInfoList is the current
+     * These variables are maintained by itself, where serverWorkloadList is the current
      * status of all servers, hotSpotList is the hot spot distribution, bufferHotSpot is
      * a list of hot spots need replica.
      */
-    private List<Map.Entry<Integer, Double>> serverInfoList;
+    private List<StatusItem> serverWorkloadList;
+    private double unbalanceRatio;
     private ConcurrentHashMap<Integer, Integer> replicasDistribute;
     private ConcurrentLinkedQueue<String> hotSpotBuffer;
 
@@ -86,7 +88,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.replicaTable = new ConcurrentHashMap<String, Vector<Integer>>();
         this.replicaBuffer = new ConcurrentHashMap<String, Integer>();
         this.dataClientMap = new ConcurrentHashMap<Integer, DataClient>();
-        this.serverInfoList = new LinkedList<Map.Entry<Integer, Double>>();
+        this.serverWorkloadList = new ArrayList<StatusItem>();
         this.replicasDistribute = new ConcurrentHashMap<Integer, Integer>();
         this.replicasDistribute.put(1, 0);
         this.hotSpotBuffer = new ConcurrentLinkedQueue<String>();
@@ -135,7 +137,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
             if (replicasInfo == null || replicasInfo.length() == 0) {
                 return;
             }
-            serverInfoList = getServersInfoMap(replicasInfo);
+            serverWorkloadList = getServersInfoMap(replicasInfo);
         }
     }
 
@@ -156,11 +158,18 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         HashSet<String> candidates;
         if (replicaMode == ConstUtil.REPLICA_SPORE) {
             candidates = new HashSet<String>(replicaTable.keySet());
+            List<String> keys = new LinkedList<>(SpotUtil.periodHotSpots);
+            for (String key : keys) {
+                if (candidates.contains(key)) {
+                    candidates.remove(key);
+                }
+            }
         } else {
             candidates = new HashSet<String>(SpotUtil.candidateColdSpots);
         }
         SpotUtil.hotSpotNumber.set(replicaTable.size());
         SpotUtil.coldSpotNumber.set(candidates.size());
+
         final HashSet<String> coldSpots = candidates;
         threadPool.execute(new Runnable() {
             public void run() {
@@ -186,6 +195,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * @param key
      */
     public void dealHotData(String key) {
+        SpotUtil.periodHotSpots.add(key);
         hotSpotBuffer.add(key);
         if (hotSpotBuffer.size() > bufferSize) {
             dealHotData();
@@ -200,12 +210,15 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * Deal the hot spot in buffer and create replicas.
      */
     public void dealHotData(List<String> hotSpots) {
+        if (unbalanceRatio < ConstUtil.UNBALANCE_THRESHOLD) {
+            return;
+        }
         int id = (int) (Math.random() * bufferSize);
         Log.log.info(String.format("[%d] start deal hotSpots, number = ", id) + hotSpots.size());
 
         Set<String> handledHotSpots = new HashSet<String>();
         for (String key : hotSpots) {
-            int replicaId = getReplicaId(serverInfoList, key);
+            int replicaId = getReplicaId(key);
             if (replicaId != -1) {
                 boolean result = createReplica(key, replicaId);
                 if (result) {
@@ -347,8 +360,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * @param replicasInfo
      * @return list of server workload status.
      */
-    private List<Map.Entry<Integer, Double>> getServersInfoMap(String replicasInfo) {
-        List<Map.Entry<Integer, Double>> list = null;
+    private List<StatusItem> getServersInfoMap(String replicasInfo) {
+        List<StatusItem> list = null;
         if (replicasInfo == null || replicasInfo.length() == 0) {
             return list;
         }
@@ -356,30 +369,37 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         Map<Integer, Double> cpuCostMap = gson.fromJson(replicasInfo,
                 new TypeToken<Map<Integer, Double>>() {
                 }.getType());
-        list = new ArrayList<Map.Entry<Integer, Double>>(cpuCostMap.entrySet());
-        Collections.sort(list, new Comparator<Map.Entry<Integer, Double>>() {
-            public int compare(Map.Entry<Integer, Double> mapping1,
-                               Map.Entry<Integer, Double> mapping2) {
-                return mapping1.getValue().compareTo(mapping2.getValue());
+        Set<Map.Entry<Integer, Double>> servers = cpuCostMap.entrySet();
+        list = new ArrayList<>();
+        double localWorkload = 0;
+        for (Map.Entry<Integer, Double> entry: servers) {
+            list.add(new StatusItem(entry.getKey(), entry.getValue()));
+            if (entry.getKey() == serverId) {
+                localWorkload = entry.getValue();
             }
-        });
+        }
+        Collections.sort(list);
+        if (list.get(0).getWorkload() == 0) {
+            unbalanceRatio = ConstUtil.UNBALANCE_THRESHOLD;
+        } else {
+            unbalanceRatio = localWorkload / list.get(0).getWorkload();
+        }
         return list;
     }
 
     /**
-     * @param list
      * @param key
      * @return the location serverId where can a replica be created on for key.
      */
-    private int getReplicaId(List<Map.Entry<Integer, Double>> list, String key) {
+    private int getReplicaId(String key) {
         if (replicaMode == ConstUtil.REPLICA_EMBER) {
-            return getReplicaIdStrict(list, key);
+            return getReplicaIdStrict(key);
         } else {
-            return getReplicaIdRandom(list, key);
+            return getReplicaIdRandom(key);
         }
     }
 
-    private int getReplicaIdStrict(List<Map.Entry<Integer, Double>> list, String key) {
+    private int getReplicaIdStrict(String key) {
         int replicaId = -1;
         HashSet<String> hosts = new HashSet<String>();
         HashSet<Integer> currentReplicas = new HashSet<Integer>();
@@ -393,25 +413,30 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
             hosts.add(serversMap.get(serverId).getHost());
         }
 
-        for (int i = 0; i < list.size(); i++) {
-            int tmp = list.get(i).getKey();
+        int index = 0;
+        int len = serverWorkloadList.size();
+        for (int i = 0; i < len; i++) {
+            int tmp = serverWorkloadList.get(i).getServerId();
             if (!currentReplicas.contains(tmp)) {
                 if (!hosts.contains(serversMap.get(tmp).getHost())) {
-                    return tmp;
+                    replicaId = tmp;
+                    index = i;
+                    break;
                 } else if (replicaId == -1) {
                     replicaId = tmp;
+                    index = i;
                 }
             }
         }
-        if (replicaId != -1 && replicaId != list.size() - 1) {
-            Map.Entry<Integer, Double> tmp = list.get(replicaId);
-            list.set(replicaId, list.get(list.size() - 1));
-            list.set(list.size() - 1, tmp);
+        if (index != 0) {
+            StatusItem tmp = serverWorkloadList.get(index);
+            serverWorkloadList.set(index, serverWorkloadList.get((index + 1) % len));
+            serverWorkloadList.set((index + 1) % len, tmp);
         }
         return replicaId;
     }
 
-    public int getReplicaIdRandom(List<Map.Entry<Integer, Double>> list, String key) {
+    public int getReplicaIdRandom(String key) {
         int replicaId = -1;
         HashSet<Integer> currentReplicas = new HashSet<Integer>();
         if (replicaTable.containsKey(key)) {
@@ -419,18 +444,16 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         } else {
             currentReplicas.add(serverId);
         }
-        if (currentReplicas.size() == list.size()) {
+
+        if (currentReplicas.size() == serverWorkloadList.size()) {
             return -1;
         }
-
-        int len = list.size();
-        Random random = new Random();
-        int tmp = random.nextInt(len);
-        tmp = list.get(tmp).getKey();
+        int len = serverWorkloadList.size();
+        int tmp = new Random().nextInt(len);
+        tmp = serverWorkloadList.get(tmp).getServerId();
         if (!currentReplicas.contains(tmp)) {
             replicaId = tmp;
         }
-
         return replicaId;
     }
 
@@ -478,7 +501,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         if (hotItems.size() == 0) {
             return;
         }
-        Log.log.debug("[ReplicaTable] update " + hotItems);
+        Log.log.debug("[ReplicaTable] update number = " + hotItems.size());
+        Log.log.trace("[ReplicaTable] update " + hotItems);
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
         String replicasInfo = gson.toJson(hotItems);
         CtsMsg.nr_replicas_res.Builder builder = CtsMsg.nr_replicas_res.newBuilder();

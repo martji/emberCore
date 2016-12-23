@@ -33,6 +33,8 @@ public class ConstUtil {
 
     public static final String ERROR_RATE = "0.00002";
 
+    public static final double UNBALANCE_THRESHOLD = 2;
+
     public static final int REPLICA_RS = 2;
     public static final int REPLICA_SPORE = 1;
     public static final int REPLICA_EMBER = 0;

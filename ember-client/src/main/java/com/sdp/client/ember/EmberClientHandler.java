@@ -26,14 +26,14 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
 
     private int replicaMode;
     private int clientTag;
-    private ConcurrentMap<String, Vector<Integer>> keyReplicaMap;
+    private ConcurrentMap<String, Vector<Integer>> replicaTable;
 
     private Map<String, BaseOperation<?>> opMap;
 
-    public EmberClientHandler(int replicaMode, int clientTag, ConcurrentMap<String, Vector<Integer>> keyReplicaMap) {
+    public EmberClientHandler(int replicaMode, int clientTag, ConcurrentMap<String, Vector<Integer>> replicaTable) {
         this.replicaMode = replicaMode;
         this.clientTag = clientTag;
-        this.keyReplicaMap = keyReplicaMap;
+        this.replicaTable = replicaTable;
 
         opMap = new HashMap<String, BaseOperation<?>>();
     }
@@ -130,11 +130,11 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
             int replicaId = Integer.parseInt(value);
             Vector<Integer> result = decodeReplicasInfo(replicaId);
             if (result != null) {
-                if (keyReplicaMap.containsKey(key) && result.size() == 1) {
-                    keyReplicaMap.remove(key);
+                if (replicaTable.containsKey(key) && result.size() == 1) {
+                    replicaTable.remove(key);
                     return;
                 }
-                keyReplicaMap.put(key, result);
+                replicaTable.put(key, result);
             }
         }
     }
@@ -146,20 +146,20 @@ public class EmberClientHandler extends SimpleChannelUpstreamHandler {
             Vector<Integer> result = decodeReplicasInfo(replicaId);
             if (result != null && result.size() > 0) {
                 if (replicaMode == DataClientFactory.REPLICA_SPORE) {
-                    if(!keyReplicaMap.containsKey(key) && result.size() > 1) {
+                    if(result.size() > 1) {
                         int index = new Random().nextInt(result.size());
                         Vector<Integer> vector = new Vector<Integer>();
                         vector.add(result.get(index));
-                        keyReplicaMap.put(key, vector);
-                    } else if (keyReplicaMap.containsKey(key) && result.size() == 1) {
-                        keyReplicaMap.remove(key);
+                        replicaTable.put(key, vector);
+                    } else if (replicaTable.containsKey(key) && result.size() == 1) {
+                        replicaTable.remove(key);
                     }
                 } else {
-                    if (keyReplicaMap.containsKey(key) && result.size() == 1) {
-                        keyReplicaMap.remove(key);
+                    if (replicaTable.containsKey(key) && result.size() == 1) {
+                        replicaTable.remove(key);
                         return;
                     }
-                    keyReplicaMap.put(key, result);
+                    replicaTable.put(key, result);
                 }
             }
         }
