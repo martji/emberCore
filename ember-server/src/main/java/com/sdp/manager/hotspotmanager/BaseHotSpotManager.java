@@ -9,9 +9,7 @@ import com.sdp.utils.SpotUtil;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -32,11 +30,13 @@ public abstract class BaseHotSpotManager implements Runnable, DealHotSpotInterfa
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
     private String hotSpotPath = String.format(System.getProperty("user.dir") +
-            "/logs/server_%d_hot_spot.data", ConfigManager.id);
+            "/logs/server_%d_hot_spot.txt", ConfigManager.id);
 
     public int requestNum;
     public OnFindHotSpot onFindHotSpot;
     public Set<String> currentHotSpotSet = new ConcurrentSkipListSet<>();
+
+    private int preHotSize = 0;
 
     public BaseHotSpotManager() {
     }
@@ -79,9 +79,9 @@ public abstract class BaseHotSpotManager implements Runnable, DealHotSpotInterfa
     }
 
     public void dealData() {
+        recordHotSpot();
         dealColdData();
         currentHotSpotSet.clear();
-        recordHotSpot();
     }
 
     /**
@@ -93,7 +93,9 @@ public abstract class BaseHotSpotManager implements Runnable, DealHotSpotInterfa
     }
 
     public void recordCurrentHotSpot(final List<HotSpotItem> list) {
-        if (list != null && list.size() > 0) {
+        if (list != null && list.size() > preHotSize) {
+            Log.log.info("[HotSpotManager] current hot spot number = " + list.size());
+            preHotSize = list.size();
             threadPool.execute(new RecordHotSpotThread(list));
         }
     }
@@ -131,13 +133,10 @@ public abstract class BaseHotSpotManager implements Runnable, DealHotSpotInterfa
                 if (!file.exists()) {
                     file.createNewFile();
                 }
-                BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                bw.write(df.format(new Date()) + " Current frequent items:\n");
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file, false));
                 for (HotSpotItem item : hotSpotItemList) {
                     bw.write(item.getKey() + "\t" + item.getCount() + "\n");
                 }
-                bw.write("\n");
                 bw.close();
             } catch (Exception e) {
                 e.printStackTrace();

@@ -1,8 +1,10 @@
 package com.sdp.manager.hotspotmanager;
 
+import com.sdp.hotspotdetect.frequent.topk.TopKDetectorImp;
 import com.sdp.hotspotdetect.frequent.topk.TopKFrequentDetectorImp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,12 +15,12 @@ import java.util.Map;
 
 public class TopKHotSpotManager extends BaseHotSpotManager {
 
-    private TopKFrequentDetectorImp frequentDetector;
+    private TopKDetectorImp frequentDetector;
 
     public TopKHotSpotManager() {
         initConfig();
 
-        frequentDetector = new TopKFrequentDetectorImp();
+        frequentDetector = new TopKDetectorImp();
     }
 
     @Override
@@ -51,7 +53,7 @@ public class TopKHotSpotManager extends BaseHotSpotManager {
         super.recordHotSpot();
 
         final List<HotSpotItem> list = new ArrayList<HotSpotItem>();
-        Map<String, Integer> map = frequentDetector.getCurrentHotSpot();
+        Map<String, Integer> map = new HashMap<>(frequentDetector.getCurrentHotSpot());
         for (String key : map.keySet()) {
             list.add(new HotSpotItem(key, map.get(key)));
         }

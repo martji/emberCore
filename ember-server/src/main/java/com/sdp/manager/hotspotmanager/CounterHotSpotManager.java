@@ -25,7 +25,6 @@ public class CounterHotSpotManager extends BaseHotSpotManager {
     private final int HOT_SPOT_NUMBER = 1000;
 
     private int hotSpotThreshold;
-    private double hotSpotPercentage;
 
     private int LOW_HOT_SPOT_THRESHOLD;
 
@@ -40,11 +39,9 @@ public class CounterHotSpotManager extends BaseHotSpotManager {
         super.initConfig();
 
         hotSpotThreshold = (Integer) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_THRESHOLD);
-        hotSpotPercentage = (Double) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_PERCENTAGE);
         LOW_HOT_SPOT_THRESHOLD = hotSpotThreshold;
 
-        Log.log.info("[Counter] " + "hotSpotThreshold = " + hotSpotThreshold
-                + ", hotSpotPercentage = " + hotSpotPercentage);
+        Log.log.info("[Counter] " + "hotSpotThreshold = " + hotSpotThreshold);
     }
 
     @Override
