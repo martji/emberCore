@@ -98,7 +98,7 @@ public class EmberClient {
         }
     }
 
-    public String asyncGetAReplica() {
+    public String asyncGetClusterWorkload() {
         CountDownLatch latch = new CountDownLatch(1);
         BaseOperation<String> op = new BaseOperation<String>(new MCallback<String>(latch));
         MFuture<String> future = new MFuture<String>(latch, op);

@@ -34,7 +34,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      */
     private int replicaMode;
     private int updateStatusTime;
-    private int bufferSize;
+    private int hotSpotBufferSize;
     private int serverId;
     private Map<Integer, EmberServerNode> serversMap;
 
@@ -72,7 +72,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      */
     private List<StatusItem> serverWorkloadList;
     private double unbalanceRatio;
-    private ConcurrentHashMap<Integer, ConcurrentSkipListSet<String>> replicasDistribute;
+    private ConcurrentHashMap<Integer, ConcurrentSkipListSet<String>> replicaDistribute;
     private ConcurrentLinkedQueue<String> hotSpotBuffer;
     private ConcurrentSkipListSet<String> lastHotSpotSet;
 
@@ -89,8 +89,8 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.replicaBuffer = new ConcurrentHashMap<String, Integer>();
         this.dataClientMap = new ConcurrentHashMap<Integer, DataClient>();
         this.serverWorkloadList = new ArrayList<StatusItem>();
-        this.replicasDistribute = new ConcurrentHashMap<Integer, ConcurrentSkipListSet<String>>();
-        this.replicasDistribute.put(2, new ConcurrentSkipListSet<String>());
+        this.replicaDistribute = new ConcurrentHashMap<Integer, ConcurrentSkipListSet<String>>();
+        this.replicaDistribute.put(2, new ConcurrentSkipListSet<String>());
         this.hotSpotBuffer = new ConcurrentLinkedQueue<String>();
         this.lastHotSpotSet = new ConcurrentSkipListSet<String>();
         this.threadPool = Executors.newCachedThreadPool();
@@ -101,10 +101,10 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         this.serversMap = ConfigManager.serversMap;
         this.replicaMode = (Integer) ConfigManager.propertiesMap.get(ConfigManager.REPLICA_MODE);
         this.updateStatusTime = (Integer) ConfigManager.propertiesMap.get(ConfigManager.UPDATE_STATUS_TIME);
-        this.bufferSize = (Integer) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_BUFFER_SIZE);
+        this.hotSpotBufferSize = (Integer) ConfigManager.propertiesMap.get(ConfigManager.HOT_SPOT_BUFFER_SIZE);
 
         Log.log.info("[ReplicaManager] replicaMode = " + ConstUtil.getReplicaMode(replicaMode) +
-                ", bufferSize = " + bufferSize);
+                ", hotSpotBufferSize = " + hotSpotBufferSize);
     }
 
     void setClientChannelMap(ConcurrentHashMap<Integer, Channel> clientChannelMap) {
@@ -121,7 +121,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     public void run() {
         try {
             while (true) {
-                updateServersInfo();
+                updateWorkloadInfo();
                 Thread.sleep(updateStatusTime);
             }
         } catch (InterruptedException e) {
@@ -130,15 +130,15 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     }
 
     /**
-     * Update servers information, this method is called each period.
+     * Update servers workload information, this method is called each period.
      */
-    private void updateServersInfo() {
+    private void updateWorkloadInfo() {
         if (mServer != null) {
-            String replicasInfo = mServer.getAReplica();
-            if (replicasInfo == null || replicasInfo.length() == 0) {
+            String workloadInfo = mServer.getClusterWorkloadInfo();
+            if (workloadInfo == null || workloadInfo.length() == 0) {
                 return;
             }
-            serverWorkloadList = decodeServersInfoMap(replicasInfo);
+            serverWorkloadList = decodeClusterWorkloadInfo(workloadInfo);
         }
     }
 
@@ -193,7 +193,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     /**
      * Deal a single hot spot, the hot spot will not be dealt at once, and the hot spot will
-     * be inset to a buffer. If the buffer size reaches the predefined bufferSize, dealHotSpot()
+     * be inset to a buffer. If the buffer size reaches the predefined hotSpotBufferSize, dealHotSpot()
      * will be invoked.
      *
      * @param key : the hot item
@@ -201,7 +201,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     public void dealHotData(String key) {
         SpotUtil.periodHotSpots.add(key);
         hotSpotBuffer.add(key);
-        if (replicaMode == ConstUtil.REPLICA_EMBER && hotSpotBuffer.size() > bufferSize) {
+        if (replicaMode == ConstUtil.REPLICA_EMBER && hotSpotBuffer.size() > hotSpotBufferSize) {
             dealHotData();
         }
     }
@@ -213,18 +213,18 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         if (unbalanceRatio < ConstUtil.UNBALANCE_THRESHOLD) {
             return;
         }
-        int id = (int) (Math.random() * bufferSize);
+        int id = (int) (Math.random() * hotSpotBufferSize);
         Log.log.info(String.format("[%d] start deal hotSpots, number = ", id) + hotSpots.size());
 
         int handledHotSpotNum = 0;
         for (String key : hotSpots) {
-            if (createReplica(key)) {
-                handledHotSpotNum++;
-            }
-
             if (replicaMode == ConstUtil.REPLICA_EMBER && lastHotSpotSet.contains(key)) {
-                createReplica(key);
                 lastHotSpotSet.remove(key);
+                if (createMultiReplica(key)) {
+                    handledHotSpotNum++;
+                }
+            } else if (createReplica(key, 1)) {
+                handledHotSpotNum++;
             }
         }
         lastHotSpotSet.addAll(hotSpots);
@@ -237,7 +237,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * Deal the cold spots.
      */
     public void dealColdData(HashSet<String> coldSpots) {
-        int id = (int) (Math.random() * bufferSize);
+        int id = (int) (Math.random() * hotSpotBufferSize);
         Log.log.info(String.format("[%d] start deal coldSpots, number = ", id) + coldSpots.size());
 
         int handledColdSpotNum = 0;
@@ -314,15 +314,15 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      */
     private void updateReplicaDistribute(String key, int oldReplicasNum, int replicasNum) {
         if (replicasNum != oldReplicasNum) {
-            if (oldReplicasNum != 1 && replicasDistribute.containsKey(oldReplicasNum)) {
-                replicasDistribute.get(oldReplicasNum).remove(key);
+            if (oldReplicasNum != 1 && replicaDistribute.containsKey(oldReplicasNum)) {
+                replicaDistribute.get(oldReplicasNum).remove(key);
             }
 
             if (replicasNum > 1) {
-                if (!replicasDistribute.containsKey(replicasNum)) {
-                    replicasDistribute.put(replicasNum, new ConcurrentSkipListSet<String>());
+                if (!replicaDistribute.containsKey(replicasNum)) {
+                    replicaDistribute.put(replicasNum, new ConcurrentSkipListSet<String>());
                 }
-                replicasDistribute.get(replicasNum).add(key);
+                replicaDistribute.get(replicasNum).add(key);
             }
         }
     }
@@ -330,33 +330,34 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     /**
      * Transfer replicasInfo to list.
      *
-     * @param replicasInfo : the workload information from monitor
+     * @param workloadInfo : the workload information from monitor
      * @return list of server workload status.
      */
-    private List<StatusItem> decodeServersInfoMap(String replicasInfo) {
-        if (replicasInfo == null || replicasInfo.length() == 0) {
+    private List<StatusItem> decodeClusterWorkloadInfo(String workloadInfo) {
+        if (workloadInfo == null || workloadInfo.length() == 0) {
             return null;
         }
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-        Map<Integer, Double> cpuCostMap = gson.fromJson(replicasInfo,
+        Map<Integer, Double> cpuCostMap = gson.fromJson(workloadInfo,
                 new TypeToken<Map<Integer, Double>>() {
                 }.getType());
-        Set<Map.Entry<Integer, Double>> servers = cpuCostMap.entrySet();
-        List<StatusItem> list = new ArrayList<>();
+        Set<Map.Entry<Integer, Double>> serverCosts = cpuCostMap.entrySet();
+        List<StatusItem> workloadList = new ArrayList<StatusItem>();
         double localWorkload = 0;
-        for (Map.Entry<Integer, Double> entry : servers) {
-            list.add(new StatusItem(entry.getKey(), entry.getValue()));
+        for (Map.Entry<Integer, Double> entry : serverCosts) {
+            workloadList.add(new StatusItem(entry.getKey(), entry.getValue()));
             if (entry.getKey() == serverId) {
                 localWorkload = entry.getValue();
             }
         }
-        Collections.sort(list);
-        if (list.get(0).getWorkload() == 0) {
+        Collections.sort(workloadList);
+        double minWorkload = workloadList.get(0).getWorkload();
+        if (minWorkload == 0) {
             unbalanceRatio = ConstUtil.UNBALANCE_THRESHOLD;
         } else {
-            unbalanceRatio = localWorkload / list.get(0).getWorkload();
+            unbalanceRatio = localWorkload / minWorkload;
         }
-        return list;
+        return workloadList;
     }
 
     /**
@@ -365,30 +366,37 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * @param key : the hot item
      * @return if create the replica succeed.
      */
-    private boolean createReplica(String key) {
+    private boolean createReplica(String key, int replicaNumber) {
         ConcurrentSkipListSet<Integer> tmp = replicaTable.get(key);
         int oldReplicaNum = (tmp == null) ? 1 : tmp.size();
         if (oldReplicaNum < serversMap.size()) {
-            int replicaId = getReplicaServerId(key);
-            if (replicaId != DEFAULT_REPLICA_SERVER_ID) {
-                if (createReplica(key, replicaId)) {
-                    ConcurrentSkipListSet<Integer> set;
-                    if (!replicaTable.containsKey(key)) {
-                        set = new ConcurrentSkipListSet<Integer>();
-                        set.add(serverId);
-                        set.add(replicaId);
-                        replicaTable.put(key, set);
-                    } else {
-                        if (!replicaTable.get(key).contains(replicaId)) {
-                            replicaTable.get(key).add(replicaId);
-                        }
-                        set = replicaTable.get(key);
-                    }
-                    replicaBuffer.put(key, encodeReplicasInfo(set));
-                    updateReplicaDistribute(key, oldReplicaNum, set.size());
-                    return true;
+            Set<Integer> replicaServers = getReplicaServers(key, replicaNumber);
+            Set<Integer> replicas = createReplica(key, replicaServers);
+            if (replicas != null) {
+                ConcurrentSkipListSet<Integer> set;
+                if (!replicaTable.containsKey(key)) {
+                    set = new ConcurrentSkipListSet<Integer>();
+                    set.add(serverId);
+                    replicaTable.put(key, set);
                 }
+                set = replicaTable.get(key);
+                set.addAll(replicas);
+
+                replicaBuffer.put(key, encodeReplicasInfo(set));
+                updateReplicaDistribute(key, oldReplicaNum, set.size());
+
+                return true;
             }
+        }
+        return false;
+    }
+
+    private boolean createMultiReplica(String key) {
+        ConcurrentSkipListSet<Integer> tmp = replicaTable.get(key);
+        int oldReplicaNum = (tmp == null) ? 1 : tmp.size();
+        if (oldReplicaNum < serversMap.size()) {
+            int replicaNum = Math.min(oldReplicaNum * 2, serversMap.size() - oldReplicaNum);
+            return createReplica(key, replicaNum);
         }
         return false;
     }
@@ -423,71 +431,72 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * @param key : the hot item
      * @return the location serverId where can a replica be created on for key.
      */
-    private int getReplicaServerId(String key) {
-        int replicaServerId = DEFAULT_REPLICA_SERVER_ID;
-        HashSet<String> hosts = new HashSet<String>();
+    private Set<Integer> getReplicaServers(String key, int num) {
+        Set<Integer> replicaServers = new HashSet<Integer>();
         Set<Integer> currentReplicas = new HashSet<Integer>();
         if (replicaTable.containsKey(key)) {
             currentReplicas = new HashSet<Integer>(replicaTable.get(key));
-            for (int id : currentReplicas) {
-                hosts.add(serversMap.get(id).getHost());
-            }
         } else {
             currentReplicas.add(serverId);
-            hosts.add(serversMap.get(serverId).getHost());
-        }
-        if (currentReplicas.size() == serversMap.size()) {
-            return replicaServerId;
         }
 
-        if (replicaMode == ConstUtil.REPLICA_EMBER) {
-            for (StatusItem aServer : serverWorkloadList) {
-                int tmp = aServer.getServerId();
-                if (!currentReplicas.contains(tmp)) {
-                    if (!hosts.contains(serversMap.get(tmp).getHost())) {
-                        replicaServerId = tmp;
+        if (currentReplicas.size() == serversMap.size()) {
+            replicaServers.add(DEFAULT_REPLICA_SERVER_ID);
+        } else {
+            if (replicaMode == ConstUtil.REPLICA_EMBER) {
+                for (StatusItem aServer : serverWorkloadList) {
+                    int tmp = aServer.getServerId();
+                    if (!currentReplicas.contains(tmp)) {
+                        replicaServers.add(tmp);
+                    }
+                    if (replicaServers.size() >= num) {
                         break;
-                    } else if (replicaServerId == DEFAULT_REPLICA_SERVER_ID) {
-                        replicaServerId = tmp;
                     }
                 }
-            }
-        } else {
-            int len = serverWorkloadList.size();
-            int tmp = new Random().nextInt(len);
-            tmp = serverWorkloadList.get(tmp).getServerId();
-            if (!currentReplicas.contains(tmp)) {
-                replicaServerId = tmp;
+            } else {
+                int tmp, len = serverWorkloadList.size();
+                do {
+                    int index = new Random().nextInt(len);
+                    tmp = serverWorkloadList.get(index).getServerId();
+                } while (currentReplicas.contains(tmp));
+                replicaServers.add(tmp);
             }
         }
 
-        return replicaServerId;
+        return replicaServers;
     }
 
     /**
-     * @param key       : the hot item
-     * @param replicaId : the location serverId
-     * @return whether the replica create succeed.
+     * @param key            : the hot item
+     * @param replicaServers : the location of replica servers
+     * @return the replica servers that has been created succeed.
      */
-    private boolean createReplica(String key, int replicaId) {
-        DataClient replicaClient;
-        if (dataClientMap.containsKey(replicaId)) {
-            replicaClient = dataClientMap.get(replicaId);
-        } else {
-            replicaClient = DataClientFactory.createDataClient(replicaId);
-            if (replicaClient != null) {
-                dataClientMap.put(replicaId, replicaClient);
-            } else {
-                return false;
-            }
-        }
-
+    private Set<Integer> createReplica(String key, Set<Integer> replicaServers) {
         String value = mClient.get(key);
         if (value == null || value.length() == 0) {
             Log.log.error("[ERROR] no value fo this key: " + key);
-            return false;
+            return null;
         }
-        return replicaClient.set(key, value);
+
+        Set<Integer> replicas = new HashSet<Integer>();
+        for (Integer replicaServerId : replicaServers) {
+            if (replicaServerId != DEFAULT_REPLICA_SERVER_ID) {
+                DataClient replicaClient;
+                if (dataClientMap.containsKey(replicaServerId)) {
+                    replicaClient = dataClientMap.get(replicaServerId);
+                } else {
+                    replicaClient = DataClientFactory.createDataClient(replicaServerId);
+                    if (replicaClient != null) {
+                        dataClientMap.put(replicaServerId, replicaClient);
+                    }
+                }
+                if (replicaClient != null && replicaClient.set(key, value)) {
+                    replicas.add(replicaServerId);
+                }
+            }
+        }
+
+        return replicas;
     }
 
     private int encodeReplicasInfo(ConcurrentSkipListSet<Integer> replicas) {
@@ -508,9 +517,9 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
 
     private void showReplicaDistribution() {
         Map<Integer, Integer> map = new HashMap<>();
-        Set<Integer> sets = replicasDistribute.keySet();
+        Set<Integer> sets = replicaDistribute.keySet();
         for (Integer num : sets) {
-            map.put(num, replicasDistribute.get(num).size());
+            map.put(num, replicaDistribute.get(num).size());
         }
         Log.log.debug("[ReplicaTable] replica distribution " + map.toString());
     }

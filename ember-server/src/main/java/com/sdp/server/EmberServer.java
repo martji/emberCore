@@ -152,14 +152,14 @@ public class EmberServer {
         Log.log.info("[EmberServer] ember server start");
     }
 
-    public String getAReplica() {
+    public String getClusterWorkloadInfo() {
         if (monitorClient == null || monitorClient.getMChannel() == null) {
             if (monitorClient != null) {
                 monitorClient.connect();
             }
             return null;
         } else {
-            return monitorClient.asyncGetAReplica();
+            return monitorClient.asyncGetClusterWorkload();
         }
     }
 
