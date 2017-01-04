@@ -7,15 +7,17 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%highlight{%d %-5p %C: %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=blue bold, TRACE=blue}"/>
         </Console>
-        <RollingFile name="RollingFile" fileName="logs/ember-server-${ID}.log" filePattern="_yyyyMMdd">
+        <RollingFile name="RollingFile" fileName="logs/ember-server-${ID}.log" filePattern="logs/ember-server-${ID}_yyyyMMdd">
             <PatternLayout pattern="%d %-5p %l: %m%n"/>
-            <SizeBasedTriggeringPolicy size="50MB"/>
+            <SizeBasedTriggeringPolicy size="5MB"/>
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
     </appenders>
     <loggers>
         <root level="all">
             <appender-ref ref="RollingFile"/>
+        </root>
+        <root level="debug">
             <appender-ref ref="Console"/>
         </root>
     </loggers>

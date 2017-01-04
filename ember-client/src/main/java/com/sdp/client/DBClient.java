@@ -5,6 +5,7 @@ import com.sdp.client.interfaces.DataClient;
 import com.sdp.client.reedsolomon.RSDataClient;
 import com.sdp.client.reedsolomon.RSGetThread;
 import com.sdp.client.reedsolomon.RSSetThread;
+import com.sdp.log.Log;
 import com.sdp.server.ServerNode;
 
 import java.util.*;
@@ -14,6 +15,8 @@ import java.util.concurrent.*;
  * Created by Guoqing on 2016/11/25.
  */
 public class DBClient implements DataClient {
+
+    private final int TIMEOUT = 2500;
 
     private int recordCount;
     private int dataHashMode;
@@ -35,6 +38,9 @@ public class DBClient implements DataClient {
 
     private int dataShards;
     private int parityShards;
+
+    private int replicasNum;
+
     private ExecutorService threadPool = Executors.newFixedThreadPool(16);
 
     public DBClient(int clientType, int replicaMode, List<ServerNode> serverNodes, Properties p) {
@@ -54,6 +60,8 @@ public class DBClient implements DataClient {
             dataShards = Integer.decode(p.getProperty("data_shards", "2"));
             parityShards = Integer.decode(p.getProperty("parity_shards", "2"));
             RSDataClient.initReedSolomonUtil(dataShards, parityShards);
+        } else if (replicaMode == DataClientFactory.REPLICA_EMBER) {
+            replicasNum = Integer.decode(p.getProperty("replicas_num", "1"));
         }
     }
 
@@ -82,7 +90,12 @@ public class DBClient implements DataClient {
                 int replicaIndex = getOneReplica(key);
                 int replicaId = replicaTable.get(key).get(replicaIndex);
                 EmberDataClient client = (EmberDataClient) clientMap.get(replicaId);
-                value = client.get(key, masterId == replicaId);
+                if (client == null) {
+                    value = null;
+                    Log.log.error("[DBClient] wrong replica id = " + replicaId);
+                } else {
+                    value = client.get(key, masterId == replicaId);
+                }
                 if (value == null) {
                     removeOneReplica(key, replicaIndex);
                     value = clientMap.get(masterId).get(key);
@@ -105,7 +118,11 @@ public class DBClient implements DataClient {
         int masterId = getDataLocation(key);
         if (clientType == DataClientFactory.EMBER_TYPE) {
             EmberDataClient client = (EmberDataClient) clientMap.get(masterId);
-            result = client.set(key, value);
+            if (replicaTable.containsKey(key)) {
+                result = emberSet(client, key, value);
+            } else {
+                result = client.set2DataServer(key, value);
+            }
         } else if (clientType == DataClientFactory.RS_TYPE) {
             RSDataClient client = (RSDataClient) clientMap.get(masterId);
             result = rsSet(client, key, value);
@@ -182,6 +199,21 @@ public class DBClient implements DataClient {
         }
     }
 
+    private boolean emberSet(EmberDataClient client, String key, String value) {
+        boolean result = false;
+        if (replicaMode == DataClientFactory.REPLICA_SPORE) {
+            Vector<Integer> replicas = replicaTable.get(key);
+            if (replicas != null && replicas.size() > 0) {
+                int replicaId = replicas.firstElement();
+                EmberDataClient replicaClient = (EmberDataClient) clientMap.get(replicaId);
+                result = client.set2DataServer(key, value) && replicaClient.set2DataServer(key, value);
+            }
+        } else {
+            result = client.asyncSet2Ember(key, value, replicasNum);
+        }
+        return result;
+    }
+
     /**
      * Set the value to some servers
      * @param client
@@ -204,7 +236,7 @@ public class DBClient implements DataClient {
                     futures[i] = threadPool.submit(thread);
                 }
                 try {
-                    latch.await();
+                    latch.await(TIMEOUT, TimeUnit.MILLISECONDS);
                     result = true;
                     for (Future<Boolean> future : futures) {
                         if (!future.get()) {
@@ -241,7 +273,7 @@ public class DBClient implements DataClient {
                 threadPool.submit(thread);
             }
             try {
-                latch.await();
+                latch.await(TIMEOUT, TimeUnit.MILLISECONDS);
                 for(int i = 0; i < values.size(); i++) {
                     arrValue[i] = values.get(i);
                 }

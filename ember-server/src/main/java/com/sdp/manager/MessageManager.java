@@ -32,8 +32,8 @@ import com.sdp.server.EmberServer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.MessageEvent;
 
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Created by magq on 16/7/6.
@@ -58,10 +58,10 @@ public class MessageManager implements MessageManagerInterface {
         replicaManager.setClientChannelMap(clientChannelMap);
     }
 
-    public void initManager(EmberServer server, ConcurrentHashMap<String, Vector<Integer>> replicaTable) {
+    public void initManager(EmberServer server, ConcurrentHashMap<String, ConcurrentSkipListSet<Integer>> replicaTable) {
         this.mServer = server;
         replicaManager.initLocalReference(mServer, replicaTable);
-        consistencyManager.initLocalReference(replicaTable, server.getDataClientMap());
+        consistencyManager.initLocalReference(mServer, replicaTable);
     }
 
     /**

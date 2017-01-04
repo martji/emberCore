@@ -7,8 +7,8 @@ import com.sdp.server.EmberServer;
 import com.sdp.server.EmberServerHandler;
 
 import java.util.Scanner;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * @author martji
@@ -44,7 +44,7 @@ public class EmberServerMain {
 
         RegisterHandler.initHandler();
         EmberServer mServer = new EmberServer();
-        ConcurrentHashMap<String, Vector<Integer>> replicaTable = new ConcurrentHashMap<String, Vector<Integer>>();
+        ConcurrentHashMap<String, ConcurrentSkipListSet<Integer>> replicaTable = new ConcurrentHashMap<String, ConcurrentSkipListSet<Integer>>();
         EmberServerHandler wServerHandler = new EmberServerHandler(false, replicaTable, mServer);
         EmberServerHandler rServerHandler = new EmberServerHandler(true, replicaTable, mServer);
         mServer.init(wServerHandler, rServerHandler);

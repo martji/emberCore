@@ -1,8 +1,8 @@
 package com.sdp.utils;
 
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SpotUtil {
@@ -56,14 +56,14 @@ public class SpotUtil {
     /**
      * Record hot spots and cold spots in current period.
      */
-    public static ConcurrentLinkedQueue<String> candidateColdSpots = new ConcurrentLinkedQueue<>();
-    public static ConcurrentLinkedQueue<String> periodHotSpots = new ConcurrentLinkedQueue<>();
+    public static ConcurrentSkipListSet<String> candidateColdSpots = new ConcurrentSkipListSet<String>();
+    public static ConcurrentSkipListSet<String> periodHotSpots = new ConcurrentSkipListSet<String>();
     public static AtomicInteger coldSpotNumber = new AtomicInteger(0);
     public static AtomicInteger hotSpotNumber = new AtomicInteger(0);
 
     public static double retireRatio;
 
-    public static void reset(ConcurrentHashMap<String, Vector<Integer>> map) {
+    public static void reset(ConcurrentHashMap<String, ConcurrentSkipListSet<Integer>> map) {
         retireRatio = 0;
         if (hotSpotNumber.get() != 0) {
             retireRatio = (double) coldSpotNumber.get() / hotSpotNumber.get();

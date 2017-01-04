@@ -5,8 +5,8 @@ import com.sdp.log.Log;
 import com.sdp.manager.MessageManager;
 import org.jboss.netty.channel.*;
 
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * @author martji
@@ -31,9 +31,9 @@ public class EmberServerHandler extends SimpleChannelUpstreamHandler {
 
     /**
      * @param replicaTable : the replicaTable is shared by all threads.
-     * @param mServer       : ember server
+     * @param mServer      : ember server
      */
-    public EmberServerHandler(boolean isDetect, ConcurrentHashMap<String, Vector<Integer>> replicaTable,
+    public EmberServerHandler(boolean isDetect, ConcurrentHashMap<String, ConcurrentSkipListSet<Integer>> replicaTable,
                               EmberServer mServer) {
         this(isDetect);
         messageManager.initManager(mServer, replicaTable);
@@ -46,7 +46,7 @@ public class EmberServerHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
-        Log.log.error(e);
+        Log.log.error(e.getCause());
         Channel channel = e.getChannel();
         channel.close();
     }
