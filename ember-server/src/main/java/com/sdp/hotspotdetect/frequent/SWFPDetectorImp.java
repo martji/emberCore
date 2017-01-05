@@ -124,6 +124,12 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
         refreshSWFPCounter();
     }
 
+    public void resetCounter(String key) {
+        if (counterMap.containsKey(key)) {
+            counterMap.get(key).refresh();
+        }
+    }
+
     public void refreshSWFPCounter() {
         Set<String> keySet = counterMap.keySet();
         for (String item : keySet) {
@@ -178,8 +184,8 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
             return frequent + dFrequent;
         }
 
-        public int compareTo(SWFPCounter o) {
-            return o.getCount() - getCount();
+        public int compareTo(SWFPCounter that) {
+            return that.getCount() - this.getCount();
         }
     }
 }

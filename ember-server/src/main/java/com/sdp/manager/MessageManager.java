@@ -69,6 +69,7 @@ public class MessageManager implements MessageManagerInterface {
      */
     public void startHotSpotDetection() {
         hotSpotManager = HotSpotManagerFactory.createInstance();
+        replicaManager.setHotSpotManager(hotSpotManager);
         hotSpotManager.setOnFindHotSpot(new BaseHotSpotManager.OnFindHotSpot() {
             public void dealHotSpot() {
                 replicaManager.dealHotData();

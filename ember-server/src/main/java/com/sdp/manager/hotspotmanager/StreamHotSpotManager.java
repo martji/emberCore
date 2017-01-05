@@ -86,6 +86,17 @@ public class StreamHotSpotManager extends BaseHotSpotManager {
         super.dealData();
     }
 
+    @Override
+    public void resetHotData(String key) {
+        bloomDetector.resetCounter(key);
+        frequentDetector.resetCounter(key);
+
+        super.resetHotData(key);
+    }
+
+    @Override
+
+
     public void dealHotData() {
         onFindHotSpot.dealHotSpot();
     }

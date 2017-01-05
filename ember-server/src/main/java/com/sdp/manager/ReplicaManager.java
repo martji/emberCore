@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import com.sdp.common.EMSGID;
 import com.sdp.config.ConfigManager;
 import com.sdp.log.Log;
+import com.sdp.manager.hotspotmanager.BaseHotSpotManager;
 import com.sdp.manager.hotspotmanager.interfaces.DealHotSpotInterface;
 import com.sdp.message.CtsMsg;
 import com.sdp.netty.NetMsg;
@@ -77,6 +78,12 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
     private ConcurrentSkipListSet<String> lastHotSpotSet;
 
     private ExecutorService threadPool;
+
+    private BaseHotSpotManager hotSpotManager;
+
+    public void setHotSpotManager(BaseHotSpotManager hotSpotManager) {
+        this.hotSpotManager = hotSpotManager;
+    }
 
     public ReplicaManager() {
         init();
@@ -222,9 +229,11 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
                 lastHotSpotSet.remove(key);
                 if (createMultiReplica(key)) {
                     handledHotSpotNum++;
+                    resetHotData(key);
                 }
-            } else if (createReplica(key, 1)) {
+            } else if (createSingleReplica(key)) {
                 handledHotSpotNum++;
+                resetHotData(key);
             }
         }
         lastHotSpotSet.addAll(hotSpots);
@@ -391,6 +400,10 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
         return false;
     }
 
+    private boolean createSingleReplica(String key) {
+        return createReplica(key, 1);
+    }
+
     private boolean createMultiReplica(String key) {
         ConcurrentSkipListSet<Integer> tmp = replicaTable.get(key);
         int oldReplicaNum = (tmp == null) ? 1 : tmp.size();
@@ -505,6 +518,17 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
             result += Math.pow(2, id);
         }
         return result;
+    }
+
+    /**
+     * Reset the handled hot item.
+     *
+     * @param key : the hot item
+     */
+    private void resetHotData(String key) {
+        if (hotSpotManager != null) {
+            hotSpotManager.resetHotData(key);
+        }
     }
 
     /**

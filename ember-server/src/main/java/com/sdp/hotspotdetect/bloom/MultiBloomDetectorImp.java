@@ -125,4 +125,12 @@ public class MultiBloomDetectorImp implements BloomDetectorInterface {
         }
     }
 
+    public void resetCounter(String key) {
+        int[] indexArray = getHashIndex(key);
+        for (int i = 0; i < bloomFilterNumber; i++) {
+            int index = indexArray[i];
+            bloomCounterList.get(i)[index] = 0;
+        }
+    }
+
 }

@@ -3,6 +3,7 @@ package com.sdp.client.reedsolomon;
 import com.sdp.client.DataClientFactory;
 import com.sdp.client.ember.EmberClient;
 import com.sdp.client.interfaces.DataClient;
+import com.sdp.log.Log;
 import com.sdp.server.ServerNode;
 import com.sdp.utils.ReedSolomonUtil;
 import com.sdp.utils.ServerTransUtil;
@@ -80,7 +81,7 @@ public class RSDataClient implements DataClient {
         try {
             return reedSolomonUtil.decode(arrStr);
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            Log.log.debug(e);
         }
         return null;
     }

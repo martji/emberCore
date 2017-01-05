@@ -1,6 +1,7 @@
 package com.sdp.client;
 
 import com.sdp.client.ember.EmberDataClient;
+import com.sdp.client.ember.EmberSetThread;
 import com.sdp.client.interfaces.DataClient;
 import com.sdp.client.reedsolomon.RSDataClient;
 import com.sdp.client.reedsolomon.RSGetThread;
@@ -61,7 +62,7 @@ public class DBClient implements DataClient {
             parityShards = Integer.decode(p.getProperty("parity_shards", "2"));
             RSDataClient.initReedSolomonUtil(dataShards, parityShards);
         } else if (replicaMode == DataClientFactory.REPLICA_EMBER) {
-            replicasNum = Integer.decode(p.getProperty("replicas_num", "1"));
+            replicasNum = Integer.decode(p.getProperty("replicas_num", "0"));
         }
     }
 
@@ -117,10 +118,10 @@ public class DBClient implements DataClient {
         boolean result;
         int masterId = getDataLocation(key);
         if (clientType == DataClientFactory.EMBER_TYPE) {
-            EmberDataClient client = (EmberDataClient) clientMap.get(masterId);
             if (replicaTable.containsKey(key)) {
-                result = emberSet(client, key, value);
+                result = emberSet(masterId, key, value);
             } else {
+                EmberDataClient client = (EmberDataClient) clientMap.get(masterId);
                 result = client.set2DataServer(key, value);
             }
         } else if (clientType == DataClientFactory.RS_TYPE) {
@@ -199,23 +200,44 @@ public class DBClient implements DataClient {
         }
     }
 
-    private boolean emberSet(EmberDataClient client, String key, String value) {
+    private boolean emberSet(int masterId, String key, String value) {
         boolean result = false;
+        EmberDataClient masterClient = (EmberDataClient) clientMap.get(masterId);
+        Vector<Integer> replicas = replicaTable.get(key);
         if (replicaMode == DataClientFactory.REPLICA_SPORE) {
-            Vector<Integer> replicas = replicaTable.get(key);
             if (replicas != null && replicas.size() > 0) {
                 int replicaId = replicas.firstElement();
                 EmberDataClient replicaClient = (EmberDataClient) clientMap.get(replicaId);
-                result = client.set2DataServer(key, value) && replicaClient.set2DataServer(key, value);
+                result = masterClient.set2DataServer(key, value) && replicaClient.set2DataServer(key, value);
             }
-        } else {
-            result = client.asyncSet2Ember(key, value, replicasNum);
+        } else if (replicaMode == DataClientFactory.REPLICA_EMBER) {
+            CountDownLatch latch = new CountDownLatch(replicasNum);
+            Vector<Boolean> values = new Vector<Boolean>();
+            replicasNum = Math.min(replicasNum, replicas.size() - 1);
+            if (replicasNum > 0) {
+                for (Integer replicaId : replicas) {
+                    if (replicaId != masterId) {
+                        EmberSetThread thread = new EmberSetThread(clientMap.get(replicaId), key, value, latch, values);
+                        threadPool.submit(thread);
+                    }
+                }
+            }
+            try {
+                result = masterClient.set2DataServer(key, value);
+                latch.await(TIMEOUT, TimeUnit.MILLISECONDS);
+                for (int i = 0; i < values.size() && result; i++) {
+                    result = values.get(i);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return result;
     }
 
     /**
      * Set the value to some servers
+     *
      * @param client
      * @param key
      * @param value
@@ -254,6 +276,7 @@ public class DBClient implements DataClient {
 
     /**
      * Get the values from some servers
+     *
      * @param client
      * @param key
      * @return
@@ -274,7 +297,7 @@ public class DBClient implements DataClient {
             }
             try {
                 latch.await(TIMEOUT, TimeUnit.MILLISECONDS);
-                for(int i = 0; i < values.size(); i++) {
+                for (int i = 0; i < values.size(); i++) {
                     arrValue[i] = values.get(i);
                 }
                 return RSDataClient.decode(arrValue);

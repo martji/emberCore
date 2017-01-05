@@ -76,12 +76,12 @@ public abstract class BaseHotSpotManager implements Runnable, DealHotSpotInterfa
 
     public void resetCounter() {
         requestNum = 0;
+        currentHotSpotSet.clear();
     }
 
     public void dealData() {
         recordHotSpot();
         dealColdData();
-        currentHotSpotSet.clear();
     }
 
     /**
@@ -98,6 +98,10 @@ public abstract class BaseHotSpotManager implements Runnable, DealHotSpotInterfa
             preHotSize = list.size();
             threadPool.execute(new RecordHotSpotThread(list));
         }
+    }
+
+    public void resetHotData(String key) {
+        currentHotSpotSet.remove(key);
     }
 
     public void setOnFindHotSpot(OnFindHotSpot onFindHotSpot) {
