@@ -109,7 +109,7 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
             if (tmp < hotSpotInfluence) {
                 hotSpotThreshold *= tmp / hotSpotInfluence;
             } else if (tmp > hotSpotInfluence * 3 / 2) {
-                hotSpotThreshold *=  hotSpotInfluence / tmp;
+                hotSpotThreshold *= hotSpotInfluence / tmp;
             }
             hotSpotThreshold = Math.max(hotSpotThreshold, MIN_F);
         }
@@ -139,6 +139,16 @@ public class SWFPDetectorImp implements FrequentDetectorInterface {
 
     public ConcurrentHashMap<String, Integer> getCurrentHotSpot() {
         return currentHotSpotCounters;
+    }
+
+    /**
+     * update hotSpotThreshold and counterNumber
+     *
+     * @param ratio unbalance_ratio / UNBALANCE_THRESHOLD
+     */
+    public void getMoreHotspot(double ratio) {
+        hotSpotThreshold /= ratio;
+        counterNumber *= ratio;
     }
 
     public class SWFPCounter implements Comparable<SWFPCounter> {

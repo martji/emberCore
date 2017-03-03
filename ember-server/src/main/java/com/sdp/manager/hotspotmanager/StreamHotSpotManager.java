@@ -4,6 +4,8 @@ import com.sdp.hotspotdetect.bloom.MultiBloomDetectorImp;
 import com.sdp.hotspotdetect.frequent.SWFPDetectorImp;
 import com.sdp.hotspotdetect.interfaces.BloomDetectorInterface;
 import com.sdp.hotspotdetect.interfaces.FrequentDetectorInterface;
+import com.sdp.manager.ReplicaManager;
+import com.sdp.utils.ConstUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +97,11 @@ public class StreamHotSpotManager extends BaseHotSpotManager {
     }
 
     @Override
+    public void updateHotspotThreshold() {
+        super.updateHotspotThreshold();
 
+        frequentDetector.getMoreHotspot(ReplicaManager.unbalanceRatio / ConstUtil.UNBALANCE_THRESHOLD);
+    }
 
     public void dealHotData() {
         onFindHotSpot.dealHotSpot();

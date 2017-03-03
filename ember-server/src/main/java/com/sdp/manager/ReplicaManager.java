@@ -72,7 +72,7 @@ public class ReplicaManager implements DealHotSpotInterface, Runnable {
      * a list of hot spots need replica.
      */
     private List<StatusItem> serverWorkloadList;
-    private double unbalanceRatio;
+    public static double unbalanceRatio;
     private ConcurrentHashMap<Integer, ConcurrentSkipListSet<String>> replicaDistribute;
     private ConcurrentLinkedQueue<String> hotSpotBuffer;
     private ConcurrentSkipListSet<String> lastHotSpotSet;

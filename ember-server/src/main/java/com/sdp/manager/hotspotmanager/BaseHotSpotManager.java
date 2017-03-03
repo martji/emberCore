@@ -82,6 +82,22 @@ public abstract class BaseHotSpotManager implements Runnable, DealHotSpotInterfa
     public void dealData() {
         recordHotSpot();
         dealColdData();
+
+        updateSliceTime();
+        updateHotspotThreshold();
+    }
+
+    /**
+     * update SLICE_TIME
+     */
+    private void updateSliceTime() {
+        SLICE_TIME *= SpotUtil.retireRatio;
+    }
+
+    /**
+     * update hotspot threshold
+     */
+    public void updateHotspotThreshold() {
     }
 
     /**
